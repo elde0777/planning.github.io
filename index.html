@@ -1,1291 +1,1036 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PlanningPro — Gestion d'Équipe</title>
+<meta name="color-scheme" content="dark">
+<title>PlanningPro</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-:root {
-  --bg: #0f0f13;
-  --surface: #16161d;
-  --surface2: #1e1e28;
-  --surface3: #252533;
-  --border: #2e2e3f;
-  --accent: #7c6af5;
-  --accent2: #4ecdc4;
-  --text: #e8e8f0;
-  --text2: #9090a8;
-  --text3: #606078;
-  --red: #ff4d6d;
-  --green: #06d6a0;
-  --yellow: #ffd166;
-  --orange: #f77f00;
+:root{color-scheme:dark only;
+--bg:#0f0f13;--sur:#16161d;--s2:#1e1e28;--s3:#252533;
+--bor:#2e2e3f;--acc:#7c6af5;--a2:#4ecdc4;
+--txt:#e8e8f0;--t2:#9090a8;--t3:#606078;
+--red:#ff4d6d;--grn:#06d6a0;--org:#f77f00;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#0f0f13!important;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;min-height:100vh;-webkit-text-size-adjust:100%;}
 
-/* Postes */
-–sa: #7c6af5;
-–vrac: #4ecdc4;
-–boisson: #f77f00;
-–generale: #ff6b9d;
-–repos: #2e2e3f;
-}
+header{background:var(--sur);border-bottom:1px solid var(--bor);padding:11px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;flex-wrap:wrap;}
+header h1{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
+.hact{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;}
 
-- { margin:0; padding:0; box-sizing:border-box; }
+.tabs{display:flex;background:#0f0f13;padding:10px 16px 0;border-bottom:1px solid var(--bor);overflow-x:auto;gap:2px;}
+.tab{padding:7px 14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border:none;background:transparent;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.tab.active{color:var(--acc);border-bottom-color:var(--acc);}
 
-body {
-font-family: ‘DM Sans’, sans-serif;
-background: var(–bg);
-color: var(–text);
-min-height: 100vh;
-font-size: 13px;
-}
+.page{display:none;}
+.page.active{display:flex;flex-direction:column;}
 
-/* ── HEADER ── */
-header {
-background: var(–surface);
-border-bottom: 1px solid var(–border);
-padding: 14px 24px;
-display: flex;
-align-items: center;
-gap: 16px;
-position: sticky; top: 0; z-index: 100;
-}
-header h1 {
-font-family: ‘Syne’, sans-serif;
-font-size: 20px;
-font-weight: 800;
-letter-spacing: -0.5px;
-background: linear-gradient(135deg, var(–accent), var(–accent2));
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-}
-.header-actions { margin-left: auto; display: flex; gap: 8px; }
+/* SIDEBAR LAYOUT */
+.layout{display:flex;height:calc(100vh - 88px);overflow:hidden;}
+.sidebar{width:310px;min-width:310px;background:var(--sur);border-right:1px solid var(--bor);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.content{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px;}
 
-/* ── TABS ── */
-.tabs {
-display: flex;
-gap: 2px;
-background: var(–bg);
-padding: 12px 24px 0;
-border-bottom: 1px solid var(–border);
-}
-.tab {
-padding: 8px 18px;
-font-family: ‘Syne’, sans-serif;
-font-size: 12px;
-font-weight: 600;
-letter-spacing: 0.5px;
-text-transform: uppercase;
-border: none;
-background: transparent;
-color: var(–text3);
-cursor: pointer;
-border-bottom: 2px solid transparent;
-transition: all 0.2s;
-}
-.tab.active { color: var(–accent); border-bottom-color: var(–accent); }
-.tab:hover:not(.active) { color: var(–text2); }
+/* PANELS */
+.panel{background:var(--s2);border:1px solid var(--bor);border-radius:10px;overflow:hidden;}
+.ph{padding:9px 12px;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t2);background:var(--s3);border-bottom:1px solid var(--bor);display:flex;align-items:center;justify-content:space-between;}
+.pb{padding:11px;display:flex;flex-direction:column;gap:8px;}
 
-/* ── MAIN LAYOUT ── */
-.main { display: flex; height: calc(100vh - 95px); }
+label{font-size:11px;color:var(--t2);margin-bottom:2px;display:block;}
+input[type=text],input[type=date],select{background:var(--s3);border:1px solid var(--bor);border-radius:6px;padding:7px 9px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--acc);}
+select option{background:var(--s3);}
 
-/* ── SIDEBAR ── */
-.sidebar {
-width: 300px;
-min-width: 300px;
-background: var(–surface);
-border-right: 1px solid var(–border);
-overflow-y: auto;
-padding: 16px;
-display: flex;
-flex-direction: column;
-gap: 14px;
-}
+/* BUTTONS */
+.btn{padding:8px 13px;border-radius:7px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;transition:all .15s;white-space:nowrap;}
+.bp{background:var(--acc);color:#fff;}
+.bp:hover{background:#9580ff;}
+.bs{background:var(--s3);color:var(--t2);border:1px solid var(--bor);}
+.bs:hover{color:var(--txt);border-color:var(--acc);}
+.bg{background:var(--grn);color:#000;}
+.br{background:var(--red);color:#fff;}
+.bo{background:var(--org);color:#fff;}
 
-.panel {
-background: var(–surface2);
-border: 1px solid var(–border);
-border-radius: 10px;
-overflow: hidden;
-}
-.panel-header {
-padding: 10px 14px;
-font-family: ‘Syne’, sans-serif;
-font-size: 11px;
-font-weight: 700;
-letter-spacing: 1px;
-text-transform: uppercase;
-color: var(–text2);
-background: var(–surface3);
-border-bottom: 1px solid var(–border);
-display: flex;
-align-items: center;
-justify-content: space-between;
-}
-.panel-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+/* STEPPER */
+.stepper{display:flex;align-items:center;gap:6px;}
+.step-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--bor);background:var(--s3);color:var(--txt);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
+.step-val{flex:1;text-align:center;font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--txt);background:var(--s3);border:1px solid var(--bor);border-radius:6px;padding:5px 0;}
 
-label { font-size: 11px; color: var(–text2); margin-bottom: 2px; display: block; }
+/* EMP ROWS */
+.emp-row{background:var(--s3);border:1px solid var(--bor);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:7px;}
+.emp-top{display:flex;gap:6px;align-items:center;}
+.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.day-cb{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.day-cb input[type=checkbox]{accent-color:var(--acc);width:14px;height:14px;}
+.day-cb span{font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;}
+.conge-section{background:rgba(45,74,62,.3);border:1px solid rgba(6,214,160,.2);border-radius:6px;padding:8px;display:flex;flex-direction:column;gap:6px;}
+.conge-row{display:flex;gap:6px;align-items:center;}
+.conge-row input[type=date]{flex:1;font-size:11px;padding:5px 7px;}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;}
+.ci{background:rgba(124,106,245,.15);color:var(--acc);border:1px solid rgba(124,106,245,.3);}
+.cg{background:rgba(6,214,160,.15);color:var(--grn);border:1px solid rgba(6,214,160,.3);}
 
-input[type=text], input[type=number], select {
-background: var(–surface3);
-border: 1px solid var(–border);
-border-radius: 6px;
-padding: 7px 10px;
-color: var(–text);
-font-family: ‘DM Sans’, sans-serif;
-font-size: 12px;
-outline: none;
-transition: border-color 0.2s;
-box-sizing: border-box;
-}
-/* Full-width inputs inside panels (not those with explicit inline widths) */
-.panel-body input[type=text]:not([style*=“width”]),
-.panel-body input[type=number]:not([style*=“width”]),
-.panel-body select:not([style*=“width”]),
-.settings-grid input,
-.settings-grid select { width: 100%; }
-.emp-name-input { width: 100% !important; }
-input:focus, select:focus { border-color: var(–accent); }
-select option { background: var(–surface3); }
+/* PLANNING TABLE */
+.tbl-wrap{background:var(--sur);border:1px solid var(--bor);border-radius:10px;overflow-x:auto;}
+table.ptbl{width:100%;border-collapse:collapse;min-width:820px;}
+table.ptbl th,table.ptbl td{border:1px solid var(--bor);text-align:center;vertical-align:middle;}
+table.ptbl thead th{background:var(--s3);font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t2);padding:7px 4px;}
+.col-emp{min-width:110px;text-align:left!important;padding:0 8px!important;background:var(--s2)!important;position:sticky;left:0;z-index:10;}
+.col-h{min-width:72px;width:72px;}
+.day-hdr .dn{font-size:11px;color:var(--txt);font-weight:700;}
+.day-hdr .dh{font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;}
 
-/* ── BUTTONS ── */
-.btn {
-padding: 8px 14px;
-border-radius: 7px;
-border: none;
-cursor: pointer;
-font-family: ‘Syne’, sans-serif;
-font-size: 11px;
-font-weight: 700;
-letter-spacing: 0.5px;
-text-transform: uppercase;
-transition: all 0.15s;
-}
-.btn-primary { background: var(–accent); color: #fff; }
-.btn-primary:hover { background: #9580ff; transform: translateY(-1px); }
-.btn-secondary { background: var(–surface3); color: var(–text2); border: 1px solid var(–border); }
-.btn-secondary:hover { color: var(–text); border-color: var(–accent); }
-.btn-success { background: var(–green); color: #000; }
-.btn-danger { background: var(–red); color: #fff; }
-.btn-sm { padding: 5px 10px; font-size: 10px; }
-.btn-icon { width: 28px; height: 28px; padding: 0; display:flex; align-items:center; justify-content:center; border-radius: 6px; }
+/* CELLS */
+.cell{padding:5px 4px;min-width:100px;cursor:pointer;position:relative;transition:background .15s;}
+.cell:hover{filter:brightness(1.15);}
+.cell-inner{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.slot-time{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--txt);line-height:1.3;white-space:nowrap;}
+.slot-pause{font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;}
+.cell-off{background:var(--bg)!important;}
+.cell-repos{background:#1e1e28!important;}
+.cell-repos .slot-time{color:var(--t3);}
+.cell-conge{background:rgba(6,214,160,.12)!important;border:1px solid rgba(6,214,160,.25)!important;}
+.cell-conge .slot-time{color:var(--grn);}
+.cell-work{background:var(--s2);}
+.cell-closed{background:var(--bg)!important;opacity:.4;pointer-events:none;}
 
-/* ── EMPLOYEE ROWS ── */
-.employee-row {
-background: var(–surface3);
-border: 1px solid var(–border);
-border-radius: 8px;
-padding: 10px;
-display: flex;
-flex-direction: column;
-gap: 8px;
-}
-.emp-top { display: flex; gap: 8px; align-items: center; }
-.emp-name-input { flex: 1; }
-.emp-hours { width: 70px; }
-.color-dot {
-width: 10px; height: 10px;
-border-radius: 50%;
-display: inline-block;
-margin-right: 5px;
-}
+/* HOURS */
+.hcell{font-family:'DM Mono',monospace;font-size:11px;padding:6px 4px;}
+.hok{color:var(--grn);}
+.hover2{color:var(--a2);}
+.hunder{color:var(--red);}
+.hval{font-size:13px;font-weight:700;}
+.hexp{font-size:9px;color:var(--t3);}
 
-/* Days of rest checkboxes */
-.days-grid {
-display: grid;
-grid-template-columns: repeat(7, 1fr);
-gap: 3px;
-}
-.day-cb { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.day-cb input[type=checkbox] { accent-color: var(–accent); width: 13px; height: 13px; }
-.day-cb span { font-size: 9px; color: var(–text3); font-family: ‘DM Mono’, monospace; }
+/* COUNT ROW */
+.cntrow td{background:var(--s2);font-family:'DM Mono',monospace;font-size:10px;padding:4px 2px;}
+.cok{color:var(--grn);font-weight:700;}
+.clow{color:var(--red);font-weight:700;}
 
-/* ── CONTENT ── */
-.content {
-flex: 1;
-overflow: auto;
-padding: 16px;
-display: flex;
-flex-direction: column;
-gap: 14px;
-}
+/* WEEK BAR */
+.wbar{display:flex;align-items:center;gap:10px;background:var(--sur);border:1px solid var(--bor);border-radius:10px;padding:9px 14px;flex-wrap:wrap;}
+.wbadge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;}
+.ba{background:rgba(124,106,245,.2);color:var(--acc);border:1px solid rgba(124,106,245,.4);}
+.bb{background:rgba(78,205,196,.2);color:var(--a2);border:1px solid rgba(78,205,196,.4);}
+input[type=week]{background:var(--s3);border:1px solid var(--bor);color:var(--txt);padding:5px 8px;border-radius:6px;font-family:'DM Mono',monospace;font-size:11px;-webkit-appearance:none;}
 
-/* ── WEEK SELECTOR ── */
-.week-bar {
-display: flex;
-align-items: center;
-gap: 12px;
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 10px;
-padding: 10px 16px;
-}
-.week-bar input[type=week] {
-background: var(–surface3);
-border: 1px solid var(–border);
-color: var(–text);
-padding: 6px 10px;
-border-radius: 6px;
-font-family: ‘DM Mono’, monospace;
-font-size: 12px;
-width: auto;
-}
-.week-type-badge {
-padding: 4px 10px;
-border-radius: 20px;
-font-size: 11px;
-font-weight: 700;
-font-family: ‘Syne’, sans-serif;
-}
-.badge-a { background: rgba(124,106,245,0.2); color: var(–accent); border: 1px solid rgba(124,106,245,0.4); }
-.badge-b { background: rgba(78,205,196,0.2); color: var(–accent2); border: 1px solid rgba(78,205,196,0.4); }
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;}
+.modal{background:var(--sur);border:1px solid var(--bor);border-radius:12px;padding:20px;width:340px;max-width:95vw;display:flex;flex-direction:column;gap:12px;}
+.modal h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
 
-/* ── PLANNING TABLE ── */
-.planning-wrapper {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 10px;
-overflow: hidden;
-}
+/* FAVORITES */
+.fav-item{background:var(--s3);border:1px solid var(--bor);border-radius:8px;padding:10px;display:flex;align-items:center;gap:8px;}
+.fav-name{flex:1;font-size:12px;font-weight:600;}
+.fav-meta{font-size:10px;color:var(--t3);font-family:'DM Mono',monospace;}
 
-.planning-table {
-width: 100%;
-border-collapse: collapse;
-min-width: 900px;
-}
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--sur);border:1px solid var(--bor);border-radius:10px;padding:11px 16px;color:var(--txt);font-size:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
 
-.planning-table th, .planning-table td {
-border: 1px solid var(–border);
-text-align: center;
-vertical-align: middle;
-}
+/* RECAP CARDS */
+.rcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.rcard{background:var(--sur);border:1px solid var(--bor);border-radius:10px;padding:13px;}
+.rcard-name{font-weight:700;font-size:13px;margin-bottom:6px;}
+.rcard-h{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;margin-bottom:4px;}
+.rcard-bar{background:var(--s3);border-radius:4px;height:5px;overflow:hidden;margin-bottom:8px;}
+.rcard-bar-fill{height:100%;transition:width .5s;}
+.rcard-days{display:flex;flex-direction:column;gap:2px;}
+.rday{font-size:10px;font-family:'DM Mono',monospace;color:var(--t2);}
 
-.planning-table thead th {
-background: var(–surface3);
-font-family: ‘Syne’, sans-serif;
-font-size: 10px;
-font-weight: 700;
-letter-spacing: 0.8px;
-text-transform: uppercase;
-color: var(–text2);
-padding: 8px 4px;
-}
-.planning-table thead th.day-header {
-padding: 6px 4px;
-}
-.day-name { font-size: 11px; color: var(–text); }
-.day-hours { font-size: 9px; color: var(–text3); font-family: ‘DM Mono’, monospace; }
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bor);border-radius:3px;}
 
-.col-emp {
-min-width: 120px;
-text-align: left !important;
-padding: 0 10px !important;
-background: var(–surface2);
-position: sticky;
-left: 0;
-z-index: 10;
-}
-.col-hours { min-width: 80px; }
-.col-half { min-width: 64px; width: 64px; }
+.auto-btn{background:linear-gradient(135deg,var(--acc),var(--a2));color:#fff;border:none;padding:10px 18px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.5px;width:100%;transition:all .2s;}
+.auto-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,106,245,.4);}
 
-/* Emp header cell */
-.emp-cell {
-display: flex;
-flex-direction: column;
-gap: 1px;
-padding: 8px 0;
-}
-.emp-cell .emp-label {
-font-weight: 600;
-font-size: 12px;
-color: var(–text);
-white-space: nowrap;
-}
-.emp-cell .emp-contract {
-font-size: 10px;
-font-family: ‘DM Mono’, monospace;
-color: var(–text3);
-}
-
-/* Slot cells */
-.slot {
-position: relative;
-height: 42px;
-min-width: 60px;
-}
-.slot select {
-width: 100%;
-height: 100%;
-border: none;
-border-radius: 0;
-background: transparent;
-font-size: 10px;
-font-family: ‘Syne’, sans-serif;
-font-weight: 600;
-letter-spacing: 0.3px;
-text-align: center;
-cursor: pointer;
-padding: 0 2px;
-color: #fff;
-}
-.slot select:focus { outline: 2px solid var(–accent); outline-offset: -2px; }
-
-/* Slot color classes */
-.slot-repos { background: var(–repos) !important; }
-.slot-repos select { color: var(–text3) !important; }
-.slot-sa { background: rgba(124,106,245,0.25); }
-.slot-sa select { color: var(–sa); }
-.slot-vrac { background: rgba(78,205,196,0.25); }
-.slot-vrac select { color: var(–vrac); }
-.slot-boisson { background: rgba(247,127,0,0.25); }
-.slot-boisson select { color: var(–boisson); }
-.slot-generale { background: rgba(255,107,157,0.25); }
-.slot-generale select { color: var(–generale); }
-.slot-ferme { background: var(–bg); }
-.slot-ferme select { color: var(–text3); pointer-events: none; }
-.slot-off { background: rgba(46,46,63,0.5); }
-.slot-off select { color: var(–text3); }
-
-/* Hours counter */
-.hours-cell {
-font-family: ‘DM Mono’, monospace;
-font-size: 12px;
-font-weight: 500;
-padding: 8px 4px;
-}
-.hours-ok { color: var(–green); }
-.hours-over { color: var(–accent2); }
-.hours-under { color: var(–red); }
-.hours-val { font-size: 13px; font-weight: 700; }
-.hours-expected { font-size: 9px; color: var(–text3); }
-
-/* Count row */
-.count-row td {
-background: var(–surface2);
-font-family: ‘DM Mono’, monospace;
-font-size: 11px;
-padding: 5px 2px;
-}
-.count-ok { color: var(–green); font-weight: 700; }
-.count-low { color: var(–red); font-weight: 700; }
-.count-label { color: var(–text3); font-size: 10px; }
-
-/* Midi constraint indicator */
-.midi-ok { color: var(–green); }
-.midi-fail { color: var(–red); }
-
-/* ── LEGEND ── */
-.legend {
-display: flex;
-gap: 14px;
-flex-wrap: wrap;
-align-items: center;
-}
-.legend-item {
-display: flex;
-align-items: center;
-gap: 6px;
-font-size: 11px;
-color: var(–text2);
-}
-.legend-swatch {
-width: 14px; height: 14px;
-border-radius: 3px;
-}
-
-/* ── SETTINGS PANEL ── */
-.settings-grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 8px;
-}
-.setting-item { display: flex; flex-direction: column; gap: 4px; }
-
-/* ── TOAST ── */
-.toast {
-position: fixed;
-bottom: 24px; right: 24px;
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 10px;
-padding: 12px 18px;
-color: var(–text);
-font-size: 13px;
-box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-z-index: 999;
-opacity: 0;
-transform: translateY(10px);
-transition: all 0.3s;
-pointer-events: none;
-}
-.toast.show { opacity: 1; transform: translateY(0); }
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(–border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(–text3); }
-
-/* Page hidden class */
-.page { display: none; }
-.page.active { display: flex; flex-direction: column; }
-
-/* Info chips */
-.chip {
-display: inline-flex;
-align-items: center;
-gap: 4px;
-padding: 2px 8px;
-border-radius: 20px;
-font-size: 10px;
-font-family: ‘DM Mono’, monospace;
-}
-.chip-info { background: rgba(124,106,245,0.15); color: var(–accent); border: 1px solid rgba(124,106,245,0.3); }
-
-/* ── PRINT / PDF ── */
-@media print {
-.sidebar, header, .tabs, .week-bar, .header-actions, .legend { display: none !important; }
-.content { padding: 0; }
-.main { height: auto; }
-body { background: #fff; color: #000; }
-.planning-table th { background: #f0f0f0; color: #333; }
-.planning-table td { border-color: #ccc; }
-}
-
-.sub-header-row th {
-font-size: 9px;
-padding: 4px 2px;
-color: var(–text3);
-font-family: ‘DM Mono’, monospace;
-font-weight: 400;
-}
-
-.section-title {
-font-family: ‘Syne’, sans-serif;
-font-size: 14px;
-font-weight: 700;
-color: var(–text);
-padding-bottom: 4px;
-border-bottom: 1px solid var(–border);
-margin-bottom: 4px;
-}
-
-.auto-btn {
-background: linear-gradient(135deg, var(–accent), var(–accent2));
-color: #fff;
-border: none;
-padding: 10px 20px;
-border-radius: 8px;
-font-family: ‘Syne’, sans-serif;
-font-weight: 700;
-font-size: 12px;
-cursor: pointer;
-letter-spacing: 0.5px;
-transition: all 0.2s;
-width: 100%;
-}
-.auto-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(124,106,245,0.4); }
-
-.row-highlight:hover td { background: rgba(124,106,245,0.03); }
+.section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--txt);padding-bottom:4px;border-bottom:1px solid var(--bor);margin-bottom:8px;}
 </style>
-
 </head>
 <body>
 
 <header>
   <h1>⬡ PlanningPro</h1>
-  <span class="chip chip-info" id="weekLabel">Semaine —</span>
-  <div class="header-actions">
-    <button class="btn btn-secondary" onclick="exportPDF()">⬇ PDF</button>
-    <button class="btn btn-secondary" onclick="window.print()">🖨 Imprimer</button>
-    <button class="btn btn-primary" onclick="autoFill()">⚡ Auto-remplir</button>
+  <span class="chip ci" id="wkLabel">—</span>
+  <div class="hact">
+    <button class="btn bs" onclick="saveFavorite()">★ Favori</button>
+    <button class="btn bs" onclick="exportPDF()">⬇ PDF</button>
+    <button class="btn bs" onclick="window.print()">🖨 Print</button>
+    <button class="btn bp" style="background:linear-gradient(135deg,var(--acc),var(--a2))" onclick="autoFill()">⚡ AUTO-REMPLIR</button>
   </div>
 </header>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('config')">⚙ Configuration</button>
-  <button class="tab" onclick="showTab('planning')">📅 Planning</button>
-  <button class="tab" onclick="showTab('recap')">📊 Récapitulatif</button>
+  <button class="tab active" onclick="showTab('config',this)">⚙ Config</button>
+  <button class="tab" onclick="showTab('planning',this)">📅 Planning</button>
+  <button class="tab" onclick="showTab('recap',this)">📊 Récap</button>
+  <button class="tab" onclick="showTab('favs',this)">★ Favoris</button>
 </div>
 
-<!-- ═══════════════════════════════════════ CONFIG PAGE ═══════════════════════════ -->
+<!-- ════ CONFIG ════ -->
+<div id="page-config" class="page active">
+  <div class="layout">
+    <div class="sidebar">
 
-<div id="page-config" class="page active" style="flex-direction:row; height:calc(100vh - 95px);">
-  <div class="sidebar">
+      <div class="panel">
+        <div class="ph">Équipe <span id="teamCountBadge" class="chip ci">8</span></div>
+        <div class="pb">
+          <label>Nombre de membres</label>
+          <div class="stepper">
+            <button class="step-btn" onclick="stepTeam(-1)">−</button>
+            <div class="step-val" id="teamSizeDisplay">8</div>
+            <input type="hidden" id="teamSize" value="8">
+            <button class="step-btn" onclick="stepTeam(1)">+</button>
+          </div>
+          <button class="btn bp" style="width:100%;margin-top:4px;" onclick="buildTeam()">✓ CRÉER L'ÉQUIPE</button>
+        </div>
+      </div>
 
-```
-<div class="panel">
-  <div class="panel-header">Équipe</div>
-  <div class="panel-body">
-    <div>
-      <label>Nombre de membres</label>
-      <div style="display:flex;gap:6px;">
-        <input type="number" id="teamSize" value="8" min="1" max="20" style="width:70px !important; flex-shrink:0;">
-        <button class="btn btn-primary" style="flex:1" onclick="buildTeam()">Créer l'équipe</button>
+      <div class="panel">
+        <div class="ph">Semaine planifiée</div>
+        <div class="pb">
+          <label>Choisir la semaine</label>
+          <input type="week" id="weekPicker" onchange="onWeekChange()" style="width:100%;">
+          <div style="display:flex;gap:6px;align-items:center;margin-top:2px;">
+            <span id="wkTypeBadge" class="wbadge ba">Semaine A</span>
+            <span style="font-size:10px;color:var(--t3);">Dim. toujours fermé</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph">Paramètres horaires</div>
+        <div class="pb" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+          <div><label>Ouv. LMV</label><input type="text" id="openLMV" value="07:45" style="width:100%;"></div>
+          <div><label>Ouv. MaJeS</label><input type="text" id="openMJS" value="08:00" style="width:100%;"></div>
+          <div><label>Ferm. L-V</label><input type="text" id="closeLV" value="19:30" style="width:100%;"></div>
+          <div><label>Ferm. Sam.</label><input type="text" id="closeSAM" value="18:30" style="width:100%;"></div>
+          <div><label>Min staff LMV</label><input type="text" id="minLMV" value="4" style="width:100%;"></div>
+          <div><label>Min staff MaJeS</label><input type="text" id="minMJS" value="3" style="width:100%;"></div>
+          <div><label>Min présents midi</label><input type="text" id="minMidi" value="2" style="width:100%;"></div>
+          <div><label>Pause min (h)</label><input type="text" id="pauseMin" value="1" style="width:100%;"></div>
+          <div><label>Pause max (h)</label><input type="text" id="pauseMax" value="2" style="width:100%;"></div>
+          <div><label>Pause début min</label><input type="text" id="pauseStart" value="11:00" style="width:100%;"></div>
+          <div><label>Pause fin max</label><input type="text" id="pauseEnd" value="15:00" style="width:100%;"></div>
+        </div>
+      </div>
+
+      <button class="auto-btn" onclick="goToPlanning()">→ Aller au planning</button>
+    </div>
+
+    <div class="content">
+      <div class="panel" style="flex:1;">
+        <div class="ph">Membres de l'équipe <span id="teamCountBadge2" class="chip ci">8</span></div>
+        <div class="pb" id="teamList" style="gap:10px;max-height:calc(100vh - 200px);overflow-y:auto;"></div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="panel">
-  <div class="panel-header">
-    Membres
-    <span id="teamCount" class="chip chip-info">0</span>
+<!-- ════ PLANNING ════ -->
+<div id="page-planning" class="page">
+  <div style="padding:10px 14px;background:var(--sur);border-bottom:1px solid var(--bor);display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <input type="week" id="weekPicker2" onchange="syncWeek(this)" style="background:var(--s3);border:1px solid var(--bor);color:var(--txt);padding:5px 8px;border-radius:6px;font-family:'DM Mono',monospace;font-size:11px;">
+    <span id="wkTypeBadge2" class="wbadge ba">Semaine A</span>
+    <div style="margin-left:auto;font-size:10px;color:var(--t3);">Cliquez sur une cellule pour modifier les horaires</div>
   </div>
-  <div class="panel-body" id="teamList" style="gap:10px; max-height:400px; overflow-y:auto;"></div>
-</div>
-
-<div class="panel">
-  <div class="panel-header">Paramètres horaires</div>
-  <div class="panel-body settings-grid">
-    <div class="setting-item">
-      <label>Ouv. LMV (hh:mm)</label>
-      <input type="text" id="openLMV" value="07:45">
-    </div>
-    <div class="setting-item">
-      <label>Ouv. MJS (hh:mm)</label>
-      <input type="text" id="openMJS" value="08:00">
-    </div>
-    <div class="setting-item">
-      <label>Ferm. lun-ven (hh:mm)</label>
-      <input type="text" id="closeLV" value="19:30">
-    </div>
-    <div class="setting-item">
-      <label>Ferm. sam. (hh:mm)</label>
-      <input type="text" id="closeSAM" value="18:30">
-    </div>
-    <div class="setting-item">
-      <label>Min. staff ouv. LMV</label>
-      <input type="number" id="minOpenLMV" value="4" min="1">
-    </div>
-    <div class="setting-item">
-      <label>Min. staff ouv. MJS</label>
-      <input type="number" id="minOpenMJS" value="3" min="1">
-    </div>
-    <div class="setting-item">
-      <label>Min. 12h-14h</label>
-      <input type="number" id="minMidi" value="2" min="1">
-    </div>
-    <div class="setting-item">
-      <label>Semaine planning</label>
-      <input type="week" id="weekPicker" onchange="onWeekChange()">
-    </div>
+  <div style="flex:1;overflow:auto;padding:14px;" id="planningContent">
+    <div id="planningTableWrapper" class="tbl-wrap"></div>
   </div>
 </div>
 
-<button class="auto-btn" onclick="goToPlanning()">→ Aller au planning</button>
-```
+<!-- ════ RECAP ════ -->
+<div id="page-recap" class="page" style="overflow:auto;padding:14px;gap:12px;">
+  <div id="recapContent"></div>
+</div>
 
-  </div>
+<!-- ════ FAVORIS ════ -->
+<div id="page-favs" class="page" style="overflow:auto;padding:14px;gap:12px;">
+  <div class="section-title">Plannings favoris sauvegardés</div>
+  <div id="favsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+  <div id="favsEmpty" style="color:var(--t3);font-size:12px;display:none;">Aucun favori sauvegardé. Créez un planning et cliquez sur ★ Favori.</div>
+</div>
 
-  <div class="content">
-    <div style="padding:24px; max-width:600px; margin:0 auto;">
-      <div class="section-title">Guide de configuration</div>
-      <div style="color:var(--text2); line-height:1.8; font-size:13px; margin-top:12px;">
-        <p style="margin-bottom:12px;">1. <strong style="color:var(--text)">Définissez le nombre de membres</strong> de votre équipe et cliquez sur "Créer l'équipe".</p>
-        <p style="margin-bottom:12px;">2. <strong style="color:var(--text)">Remplissez</strong> le nom, le poste, le contrat (35h ou 30h) et les jours de repos de chaque personne. Les repos sont cochés individuellement — la semaine A/B pour le samedi se gère via la case "Sam A" et "Sam B" dans les jours.</p>
-        <p style="margin-bottom:12px;">3. <strong style="color:var(--text)">Choisissez la semaine</strong> à planifier (A ou B est détecté automatiquement).</p>
-        <p style="margin-bottom:12px;">4. Cliquez <strong style="color:var(--accent)">→ Aller au planning</strong> pour générer le tableau.</p>
-        <p style="margin-bottom:12px;">5. Utilisez <strong style="color:var(--accent)">⚡ Auto-remplir</strong> pour une affectation automatique respectant toutes les contraintes, puis ajustez manuellement.</p>
+<!-- ════ MODAL EDIT CELL ════ -->
+<div id="modalBg" class="modal-bg" style="display:none;" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="modalTitle">Modifier les horaires</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div><label>Arrivée</label><input type="text" id="mArrive" placeholder="07:45" style="width:100%;"></div>
+        <div><label>Départ pause</label><input type="text" id="mPauseStart" placeholder="12:00" style="width:100%;"></div>
+        <div><label>Retour pause</label><input type="text" id="mPauseEnd" placeholder="13:00" style="width:100%;"></div>
+        <div><label>Départ</label><input type="text" id="mDepart" placeholder="19:30" style="width:100%;"></div>
       </div>
-
-```
-  <div style="margin-top:24px; display:flex; flex-wrap:wrap; gap:8px;">
-    <div class="legend-item"><div class="legend-swatch" style="background:rgba(124,106,245,0.5)"></div>SA (Sec Alimentaire)</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:rgba(78,205,196,0.5)"></div>VRAC</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:rgba(247,127,0,0.5)"></div>BOISSON</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:rgba(255,107,157,0.5)"></div>GÉNÉRALE</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--repos)"></div>REPOS</div>
-  </div>
-</div>
-```
-
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════ PLANNING PAGE ═══════════════════════ -->
-
-<div id="page-planning" class="page" style="flex-direction:column; overflow:auto; height:calc(100vh - 95px);">
-  <div style="padding:12px 16px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <span style="font-size:11px; color:var(--text2);">Semaine :</span>
-      <input type="week" id="weekPicker2" onchange="syncWeek(this)" style="background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-family:'DM Mono',monospace;font-size:11px;">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input type="checkbox" id="mRepos" style="accent-color:var(--acc);width:14px;height:14px;">
+        <label style="margin:0;color:var(--t2);">Repos ce jour</label>
+        <input type="checkbox" id="mConge" style="accent-color:var(--grn);width:14px;height:14px;margin-left:8px;">
+        <label style="margin:0;color:var(--t2);">Congé payé</label>
+      </div>
+      <div style="font-size:11px;color:var(--t3);" id="modalHours"></div>
     </div>
-    <span id="weekTypeBadge" class="week-type-badge badge-a">Semaine A</span>
-    <div class="legend" style="margin-left:auto;">
-      <div class="legend-item"><div class="legend-swatch" style="background:rgba(124,106,245,0.5)"></div>SA</div>
-      <div class="legend-item"><div class="legend-swatch" style="background:rgba(78,205,196,0.5)"></div>VRAC</div>
-      <div class="legend-item"><div class="legend-swatch" style="background:rgba(247,127,0,0.5)"></div>BOISSON</div>
-      <div class="legend-item"><div class="legend-swatch" style="background:rgba(255,107,157,0.5)"></div>GÉNÉRALE</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn bs" onclick="closeModal()">Annuler</button>
+      <button class="btn bp" onclick="saveModal()">✓ Valider</button>
     </div>
   </div>
-  <div style="flex:1; overflow:auto; padding:16px;" id="planningContent">
-    <div id="planningTableWrapper" class="planning-wrapper" style="overflow-x:auto;"></div>
-  </div>
 </div>
 
-<!-- ═══════════════════════════════════════ RECAP PAGE ═══════════════════════════ -->
-
-<div id="page-recap" class="page" style="flex-direction:column; height:calc(100vh - 95px); overflow:auto; padding:16px; gap:14px;">
-  <div id="recapContent" style="display:flex; flex-direction:column; gap:14px;"></div>
+<!-- ════ MODAL SAVE FAV ════ -->
+<div id="favModalBg" class="modal-bg" style="display:none;" onclick="closeFavModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Sauvegarder comme favori</h3>
+    <div><label>Nom du favori</label><input type="text" id="favName" placeholder="ex: Planning type A standard" style="width:100%;"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn bs" onclick="closeFavModal()">Annuler</button>
+      <button class="btn bp" onclick="confirmSaveFav()">★ Sauvegarder</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════════
 const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
-const DAYS_SHORT = ['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
-const POSTES = ['SA','VRAC','BOISSON','GÉNÉRALE','REPOS','—'];
-const POSTE_COLORS = { SA:'slot-sa', VRAC:'slot-vrac', BOISSON:'slot-boisson', 'GÉNÉRALE':'slot-generale', REPOS:'slot-repos', '—':'slot-off' };
+const DS = ['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
+// 0=Lun,1=Mar,2=Mer,3=Jeu,4=Ven,5=Sam,6=Dim
+const OPEN_H = { 0:'07:45',1:'08:00',2:'07:45',3:'08:00',4:'07:45',5:'08:00',6:null };
+const CLOSE_H = { 0:'19:30',1:'19:30',2:'19:30',3:'19:30',4:'19:30',5:'18:30',6:null };
 
-// Opening hours
-const OPEN = { 0:'07:45',1:'08:00',2:'07:45',3:'08:00',4:'07:45',5:'08:00',6:null };
-const CLOSE = { 0:'19:30',1:'19:30',2:'19:30',3:'19:30',4:'19:30',5:'18:30',6:null };
-
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
 let team = [];
-let planning = {}; // { empIdx: { day: { am: poste, pm: poste } } }
+// planning[empIdx][dayIdx] = { arrive, pauseStart, pauseEnd, depart, repos, conge }
+let planning = {};
 let currentWeek = null;
-let weekType = 'A'; // A or B
+let weekType = 'A';
+let modalTarget = null; // {empIdx, dayIdx}
 
-// ═══════════════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════
+const toMin = t => { if(!t)return 0; const[h,m]=t.split(':').map(Number); return h*60+m; };
+const toHHMM = m => { const h=Math.floor(m/60),mm=m%60; return `${String(h).padStart(2,'0')}h${String(mm).padStart(2,'0')}`; };
+const toHHMMColon = m => { const h=Math.floor(m/60),mm=m%60; return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; };
+
+function getWeekNumber(d) {
+  const date = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  date.setUTCDate(date.getUTCDate()+4-(date.getUTCDay()||7));
+  const y = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date-y)/86400000)+1)/7);
+}
+
+function getWeekDates(weekStr) {
+  // weekStr = "2025-W20"
+  const [yr, wPart] = weekStr.split('-W');
+  const year = parseInt(yr), week = parseInt(wPart);
+  const jan4 = new Date(year, 0, 4);
+  const startOfWeek1 = new Date(jan4);
+  startOfWeek1.setDate(jan4.getDate() - (jan4.getDay() || 7) + 1);
+  const monday = new Date(startOfWeek1);
+  monday.setDate(startOfWeek1.getDate() + (week-1)*7);
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(monday); d.setDate(monday.getDate()+i); return d;
+  });
+}
+
+function dateToStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
 window.onload = () => {
   const now = new Date();
-  const y = now.getFullYear();
   const w = getWeekNumber(now);
-  currentWeek = `${y}-W${String(w).padStart(2,'0')}`;
+  currentWeek = `${now.getFullYear()}-W${String(w).padStart(2,'0')}`;
   document.getElementById('weekPicker').value = currentWeek;
   document.getElementById('weekPicker2').value = currentWeek;
   updateWeekType();
-  buildTeam();
+
+  team = [
+    {name:'Alice',hours:35,restDays:[6],samWeek:'A',conges:[]},
+    {name:'Bruno',hours:35,restDays:[1,6],samWeek:'B',conges:[]},
+    {name:'Camille',hours:30,restDays:[6],samWeek:'A',conges:[]},
+    {name:'Dylan',hours:35,restDays:[4,6],samWeek:'B',conges:[]},
+    {name:'Emma',hours:35,restDays:[6],samWeek:'A',conges:[]},
+    {name:'Félix',hours:30,restDays:[2,6],samWeek:'B',conges:[]},
+    {name:'Grace',hours:35,restDays:[6],samWeek:'A',conges:[]},
+    {name:'Hugo',hours:35,restDays:[3,6],samWeek:'B',conges:[]},
+  ];
+  document.getElementById('teamSize').value = team.length;
+  document.getElementById('teamSizeDisplay').textContent = team.length;
+  renderTeam();
+  updateBadges();
+  renderFavs();
 };
 
-function getWeekNumber(d) {
-  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7));
-  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
-  return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
-}
-
+// ══════════════════════════════════════════════════════
+// WEEK
+// ══════════════════════════════════════════════════════
 function onWeekChange() {
   currentWeek = document.getElementById('weekPicker').value;
   document.getElementById('weekPicker2').value = currentWeek;
   updateWeekType();
 }
-
 function syncWeek(el) {
   currentWeek = el.value;
   document.getElementById('weekPicker').value = currentWeek;
   updateWeekType();
-  renderPlanning();
+  if(Object.keys(planning).length) renderPlanning();
 }
-
 function updateWeekType() {
-  if (!currentWeek) return;
+  if(!currentWeek) return;
   const w = parseInt(currentWeek.split('W')[1]);
-  weekType = (w % 2 === 0) ? 'B' : 'A';
-  const badge = document.getElementById('weekTypeBadge');
-  if (badge) {
-    badge.textContent = `Semaine ${weekType}`;
-    badge.className = `week-type-badge badge-${weekType.toLowerCase()}`;
-  }
-  const wl = document.getElementById('weekLabel');
-  if (wl) wl.textContent = `Sem. ${currentWeek.split('W')[1]} — Type ${weekType}`;
+  weekType = (w%2===0)?'B':'A';
+  ['wkTypeBadge','wkTypeBadge2'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.textContent=`Semaine ${weekType}`; el.className=`wbadge b${weekType.toLowerCase()}`; }
+  });
+  document.getElementById('wkLabel').textContent = `Sem. ${currentWeek.split('W')[1]} — Type ${weekType}`;
 }
 
-// ═══════════════════════════════════════════════════════
-//  TEAM BUILDER
-// ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// TEAM BUILDER
+// ══════════════════════════════════════════════════════
+function stepTeam(d) {
+  const input = document.getElementById('teamSize');
+  let v = parseInt(input.value)||8;
+  v = Math.max(1, Math.min(20, v+d));
+  input.value = v;
+  document.getElementById('teamSizeDisplay').textContent = v;
+}
+
 function buildTeam() {
-  const n = parseInt(document.getElementById('teamSize').value) || 8;
-  // Preserve existing team data
+  const n = parseInt(document.getElementById('teamSize').value)||8;
   const old = team.slice();
-  team = [];
-  for (let i = 0; i < n; i++) {
-    team.push(old[i] || {
-      name: `Employé ${i+1}`,
-      hours: 35,
-      poste: 'SA',
-      restDays: [6], // Sunday always off
-      samWeek: 'AB' // which weeks they rest on Saturday: 'A','B','AB','none'
-    });
-  }
+  team = Array.from({length:n}, (_,i) => old[i] || {
+    name:`Employé ${i+1}`, hours:35, restDays:[6], samWeek:'none', conges:[]
+  });
   renderTeam();
-  document.getElementById('teamCount').textContent = n;
+  updateBadges();
+  planning = {};
+  toast(`✓ Équipe de ${n} membres créée`);
 }
 
-const POSTE_OPTIONS = ['SA','VRAC','BOISSON','GÉNÉRALE'];
+function updateBadges() {
+  ['teamCountBadge','teamCountBadge2'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = team.length;
+  });
+}
 
 function renderTeam() {
   const el = document.getElementById('teamList');
+  if(!el) return;
   el.innerHTML = '';
-  team.forEach((emp, i) => {
+  team.forEach((emp,i) => {
     const div = document.createElement('div');
-    div.className = 'employee-row';
+    div.className = 'emp-row';
     div.innerHTML = `
       <div class="emp-top">
-        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);min-width:18px;">${i+1}.</span>
-        <input type="text" class="emp-name-input" value="${emp.name}" placeholder="Nom" onchange="team[${i}].name=this.value;updatePlanning()">
-        <select style="width:90px" onchange="team[${i}].poste=this.value;updatePlanning()">
-          ${POSTE_OPTIONS.map(p=>`<option value="${p}" ${emp.poste===p?'selected':''}>${p}</option>`).join('')}
-        </select>
-        <select style="width:60px" onchange="team[${i}].hours=parseInt(this.value);updatePlanning()">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);min-width:16px;">${i+1}.</span>
+        <input type="text" value="${emp.name}" placeholder="Nom" onchange="team[${i}].name=this.value" style="flex:1;">
+        <select onchange="team[${i}].hours=parseInt(this.value)" style="width:65px;">
           <option value="35" ${emp.hours===35?'selected':''}>35h</option>
           <option value="30" ${emp.hours===30?'selected':''}>30h</option>
         </select>
       </div>
       <div>
-        <label style="margin-bottom:4px;">Jours de repos fixes</label>
+        <label>Repos fixes</label>
         <div class="days-grid">
           ${DAYS.map((d,di)=>`
             <div class="day-cb">
-              <input type="checkbox" ${(emp.restDays||[]).includes(di)?'checked':''} ${di===6?'disabled checked':''} onchange="toggleRestDay(${i},${di},this.checked)">
-              <span>${DAYS_SHORT[di].substring(0,2)}</span>
-            </div>
-          `).join('')}
+              <input type="checkbox" ${(emp.restDays||[]).includes(di)?'checked':''} ${di===6?'disabled checked':''} onchange="toggleRest(${i},${di},this.checked)">
+              <span>${DS[di].slice(0,2)}</span>
+            </div>`).join('')}
         </div>
       </div>
       <div>
-        <label>Repos le samedi (semaines)</label>
-        <select style="width:100%" onchange="team[${i}].samWeek=this.value;updatePlanning()">
+        <label>Repos samedi</label>
+        <select style="width:100%;" onchange="team[${i}].samWeek=this.value">
           <option value="none" ${emp.samWeek==='none'?'selected':''}>Jamais</option>
-          <option value="A" ${emp.samWeek==='A'?'selected':''}>Semaine A uniquement</option>
-          <option value="B" ${emp.samWeek==='B'?'selected':''}>Semaine B uniquement</option>
+          <option value="A" ${emp.samWeek==='A'?'selected':''}>Semaine A</option>
+          <option value="B" ${emp.samWeek==='B'?'selected':''}>Semaine B</option>
           <option value="AB" ${emp.samWeek==='AB'?'selected':''}>Toujours</option>
         </select>
+      </div>
+      <div class="conge-section">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;color:var(--grn);font-weight:600;">🌿 Congés payés</span>
+          <button class="btn" style="padding:3px 8px;font-size:9px;background:rgba(6,214,160,.2);color:var(--grn);border:1px solid rgba(6,214,160,.3);" onclick="addConge(${i})">+ Ajouter</button>
+        </div>
+        <div id="conges-${i}">
+          ${renderCongesHTML(i)}
+        </div>
       </div>
     `;
     el.appendChild(div);
   });
 }
 
-function toggleRestDay(empIdx, dayIdx, checked) {
-  if (dayIdx === 6) return; // Sunday always off
-  if (checked) {
-    if (!team[empIdx].restDays.includes(dayIdx)) team[empIdx].restDays.push(dayIdx);
-  } else {
-    team[empIdx].restDays = team[empIdx].restDays.filter(d=>d!==dayIdx);
-  }
-  updatePlanning();
+function renderCongesHTML(i) {
+  const emp = team[i];
+  if(!emp.conges || emp.conges.length===0) return `<span style="font-size:10px;color:var(--t3);">Aucun congé</span>`;
+  return emp.conges.map((c,ci) => `
+    <div class="conge-row">
+      <input type="date" value="${c.from}" onchange="team[${i}].conges[${ci}].from=this.value" style="width:100%;">
+      <span style="color:var(--t3);font-size:11px;">→</span>
+      <input type="date" value="${c.to}" onchange="team[${i}].conges[${ci}].to=this.value" style="width:100%;">
+      <button onclick="removeConge(${i},${ci})" style="background:transparent;border:none;color:var(--red);cursor:pointer;font-size:14px;padding:0 2px;">✕</button>
+    </div>`).join('');
 }
 
-// ═══════════════════════════════════════════════════════
-//  IS REST DAY ?
-// ═══════════════════════════════════════════════════════
+function addConge(i) {
+  if(!team[i].conges) team[i].conges=[];
+  team[i].conges.push({from:'',to:''});
+  document.getElementById(`conges-${i}`).innerHTML = renderCongesHTML(i);
+}
+function removeConge(i,ci) {
+  team[i].conges.splice(ci,1);
+  document.getElementById(`conges-${i}`).innerHTML = renderCongesHTML(i);
+}
+function toggleRest(i,di,checked) {
+  if(di===6) return;
+  if(checked){ if(!team[i].restDays.includes(di)) team[i].restDays.push(di); }
+  else { team[i].restDays = team[i].restDays.filter(d=>d!==di); }
+}
+
+// ══════════════════════════════════════════════════════
+// IS REST / CONGE
+// ══════════════════════════════════════════════════════
 function isRestDay(emp, dayIdx) {
-  if (dayIdx === 6) return true; // Always Sunday off
-  if (emp.restDays.includes(dayIdx)) return true;
-  if (dayIdx === 5) { // Saturday
-    if (emp.samWeek === 'AB') return true;
-    if (emp.samWeek === 'A' && weekType === 'A') return true;
-    if (emp.samWeek === 'B' && weekType === 'B') return true;
+  if(dayIdx===6) return true;
+  if(emp.restDays.includes(dayIdx)) return true;
+  if(dayIdx===5) {
+    if(emp.samWeek==='AB') return true;
+    if(emp.samWeek==='A' && weekType==='A') return true;
+    if(emp.samWeek==='B' && weekType==='B') return true;
   }
   return false;
 }
 
-// ═══════════════════════════════════════════════════════
-//  PLANNING INIT & RENDER
-// ═══════════════════════════════════════════════════════
+function isCongeDay(emp, dayIdx) {
+  if(!emp.conges || emp.conges.length===0) return false;
+  if(!currentWeek) return false;
+  const dates = getWeekDates(currentWeek);
+  const dStr = dateToStr(dates[dayIdx]);
+  return emp.conges.some(c => c.from && c.to && dStr >= c.from && dStr <= c.to);
+}
+
+// ══════════════════════════════════════════════════════
+// HOURS CALC
+// ══════════════════════════════════════════════════════
+function calcSlotHours(slot) {
+  if(!slot || slot.repos || slot.conge) return 0;
+  if(!slot.arrive || !slot.depart) return 0;
+  const a = toMin(slot.arrive), d = toMin(slot.depart);
+  const ps = toMin(slot.pauseStart||'12:00'), pe = toMin(slot.pauseEnd||'13:00');
+  const pause = pe - ps;
+  return Math.max(0, (d - a - pause)) / 60;
+}
+
+function calcCongeHours(dayIdx) {
+  // Heures théoriques d'une journée complète pour ce jour
+  const open = OPEN_H[dayIdx], close = CLOSE_H[dayIdx];
+  if(!open||!close) return 0;
+  const pMin = parseFloat(document.getElementById('pauseMin')?.value||1);
+  const total = (toMin(close) - toMin(open)) / 60 - pMin;
+  return Math.round(total*10)/10;
+}
+
+function calcTotalHours(empIdx) {
+  let total = 0;
+  for(let d=0;d<6;d++){
+    const sl = planning[empIdx]?.[d];
+    if(!sl) continue;
+    if(sl.conge) { total += calcCongeHours(d); continue; }
+    total += calcSlotHours(sl);
+  }
+  return Math.round(total*10)/10;
+}
+
+// ══════════════════════════════════════════════════════
+// AUTO FILL
+// ══════════════════════════════════════════════════════
+function cfg(id, def) { return parseFloat(document.getElementById(id)?.value||def)||def; }
+function cfgStr(id, def) { return document.getElementById(id)?.value||def; }
+
+function autoFill() {
+  initPlanning();
+  const pauseMinH = cfg('pauseMin',1);
+  const pauseMaxH = cfg('pauseMax',2);
+  const pauseStartMin = toMin(cfgStr('pauseStart','11:00'));
+  const pauseEndMax = toMin(cfgStr('pauseEnd','15:00'));
+  const minLMV = cfg('minLMV',4);
+  const minMJS = cfg('minMJS',3);
+  const minMidi = cfg('minMidi',2);
+
+  for(let d=0;d<6;d++){
+    const openM = toMin(OPEN_H[d]);
+    const closeM = toMin(CLOSE_H[d]);
+    const isLMV = [0,2,4].includes(d);
+    const minStaff = isLMV ? minLMV : minMJS;
+
+    // Workers available today (not on rest, not on conge for counting)
+    const available = team.map((emp,i)=>({emp,i})).filter(({emp,i})=>{
+      if(isRestDay(emp,d)) return false;
+      if(isCongeDay(emp,d)) return false; // conge not counted for presence
+      return true;
+    });
+
+    if(available.length===0) continue;
+
+    // Sort by remaining hours needed (most needed first)
+    available.sort((a,b)=>{
+      const remA = a.emp.hours - calcTotalHours(a.i);
+      const remB = b.emp.hours - calcTotalHours(b.i);
+      return remB - remA;
+    });
+
+    // Assign shifts ensuring minStaff are present
+    // First assign at least minStaff people with full day
+    const toAssign = Math.min(available.length, Math.max(minStaff, available.length));
+    
+    available.slice(0, toAssign).forEach(({emp,i}, idx) => {
+      const currentH = calcTotalHours(i);
+      const needed = emp.hours - currentH;
+      const dayTotal = (closeM - openM)/60;
+
+      // Decide if full day or partial
+      // Try to assign hours proportionally: roughly 1/remaining-days
+      const daysLeft = 6 - d; // rough estimate
+      const targetToday = Math.min(needed, Math.max(3, needed / Math.max(1, daysLeft)));
+
+      // Assign full day if needed hours allow
+      const pauseH = pauseMinH + Math.random()*(pauseMaxH - pauseMinH);
+      const workH = Math.min(dayTotal - pauseMinH, Math.max(3, targetToday));
+
+      // Generate pause time: random between pauseStart and pauseEnd
+      const maxPauseStart = pauseEndMax - Math.round(pauseH*60);
+      const pStart = Math.round(pauseStartMin + Math.random()*Math.max(0, maxPauseStart-pauseStartMin));
+      const pEnd = Math.round(pStart + pauseH*60);
+
+      // Arrive = open or slightly after, depart = calculated
+      const arrive = openM + (idx > minStaff-1 ? Math.floor(Math.random()*30) : 0);
+      const depart = Math.min(closeM, arrive + Math.round(workH*60) + (pEnd-pStart));
+      const finalDepart = Math.min(closeM, depart);
+
+      planning[i][d] = {
+        arrive: toHHMMColon(arrive),
+        pauseStart: toHHMMColon(pStart),
+        pauseEnd: toHHMMColon(pEnd),
+        depart: toHHMMColon(finalDepart),
+        repos: false,
+        conge: false
+      };
+    });
+  }
+
+  // Apply conge flags
+  team.forEach((emp,i) => {
+    for(let d=0;d<6;d++){
+      if(isCongeDay(emp,d)){
+        planning[i][d] = { repos:false, conge:true };
+      }
+    }
+  });
+
+  renderPlanning();
+  toast('⚡ Planning auto-rempli ! Cliquez sur une cellule pour ajuster.');
+}
+
 function initPlanning() {
   planning = {};
-  team.forEach((emp, i) => {
+  team.forEach((emp,i) => {
     planning[i] = {};
-    for (let d = 0; d < 7; d++) {
-      if (isRestDay(emp, d) || d === 6) {
-        planning[i][d] = { am: 'REPOS', pm: 'REPOS' };
+    for(let d=0;d<7;d++){
+      if(d===6 || isRestDay(emp,d)){
+        planning[i][d] = { repos:true, conge:false };
+      } else if(isCongeDay(emp,d)){
+        planning[i][d] = { repos:false, conge:true };
       } else {
-        planning[i][d] = { am: '—', pm: '—' };
+        planning[i][d] = null; // not yet assigned
       }
     }
   });
 }
 
-function updatePlanning() {
-  if (Object.keys(planning).length > 0) renderPlanning();
-}
-
+// ══════════════════════════════════════════════════════
+// RENDER PLANNING
+// ══════════════════════════════════════════════════════
 function goToPlanning() {
   updateWeekType();
   initPlanning();
   renderPlanning();
-  showTab('planning');
+  showTab('planning', document.querySelectorAll('.tab')[1]);
 }
 
 function renderPlanning() {
   const wrapper = document.getElementById('planningTableWrapper');
-  if (!wrapper) return;
+  if(!wrapper) return;
 
-  // Build table
-  let html = `<table class="planning-table" id="mainTable">`;
-
-  // Header row 1: days
-  html += `<thead><tr>
+  let html = `<table class="ptbl"><thead><tr>
     <th class="col-emp" rowspan="2">Employé</th>`;
-  for (let d = 0; d < 6; d++) {
-    const open = OPEN[d];
-    const close = CLOSE[d];
-    html += `<th colspan="2" class="day-header">
-      <div class="day-name">${DAYS[d]}</div>
-      <div class="day-hours">${open}–${close}</div>
+  
+  for(let d=0;d<7;d++){
+    const open = OPEN_H[d], close = CLOSE_H[d];
+    html += `<th class="col-h day-hdr">
+      <div class="dn">${DAYS[d].slice(0,3).toUpperCase()}</div>
+      <div class="dh">${open?`${open}–${close}`:'Fermé'}</div>
     </th>`;
   }
-  html += `<th colspan="2" class="day-header" style="opacity:0.4">
-    <div class="day-name">Dimanche</div>
-    <div class="day-hours">Fermé</div>
-  </th>
-  <th class="col-hours" rowspan="2">Heures<br><span style="font-size:9px;color:var(--text3)">/ contrat</span></th>
-  </tr>`;
+  html += `<th style="min-width:70px;font-size:10px;">Heures</th></tr></thead><tbody>`;
 
-  // Header row 2: AM/PM
-  html += `<tr class="sub-header-row">`;
-  for (let d = 0; d < 7; d++) {
-    html += `<th class="col-half">Matin</th><th class="col-half">A.midi</th>`;
-  }
-  html += `</tr></thead><tbody>`;
+  team.forEach((emp,i) => {
+    const totalH = calcTotalHours(i);
+    const diff = Math.round((totalH - emp.hours)*10)/10;
+    const hClass = diff>0?'hover2':diff<0?'hunder':'hok';
+    const hSign = diff>0?`+${diff}h`:diff<0?`${diff}h`:'✓';
+    const hBg = diff>0?'rgba(78,205,196,.08)':diff<0?'rgba(255,77,109,.08)':'rgba(6,214,160,.08)';
 
-  // Employee rows
-  team.forEach((emp, i) => {
-    const hours = calcHours(i);
-    const hoursClass = hours > emp.hours ? 'hours-over' : hours < emp.hours ? 'hours-under' : 'hours-ok';
-    const hoursSign = hours > emp.hours ? `+${hours - emp.hours}` : hours < emp.hours ? `-${emp.hours - hours}` : '✓';
-    const hoursBg = hours > emp.hours ? 'rgba(78,205,196,0.08)' : hours < emp.hours ? 'rgba(255,77,109,0.08)' : 'rgba(6,214,160,0.08)';
-
-    html += `<tr class="row-highlight" data-emp="${i}">
+    html += `<tr>
       <td class="col-emp">
-        <div class="emp-cell">
-          <div class="emp-label"><span class="color-dot" style="background:var(--${emp.poste.toLowerCase().replace('é','e')})"></span>${emp.name}</div>
-          <div class="emp-contract">${emp.poste} · ${emp.hours}h/sem</div>
+        <div style="display:flex;flex-direction:column;gap:1px;padding:7px 0;">
+          <span style="font-weight:600;font-size:12px;white-space:nowrap;">${emp.name}</span>
+          <span style="font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;">${emp.hours}h/sem</span>
         </div>
       </td>`;
 
-    for (let d = 0; d < 7; d++) {
-      const slot = planning[i]?.[d] || { am: 'REPOS', pm: 'REPOS' };
-      const isOff = isRestDay(emp, d) || d === 6;
-      const isClosed = d === 6;
+    for(let d=0;d<7;d++){
+      if(d===6){
+        html += `<td class="cell cell-closed"><div class="cell-inner"><span class="slot-time" style="font-size:9px;color:var(--t3);">Fermé</span></div></td>`;
+        continue;
+      }
+      const sl = planning[i]?.[d];
+      const rest = !sl || sl.repos;
+      const conge = sl?.conge;
+      
+      let cellClass = 'cell ';
+      if(rest) cellClass += 'cell-repos';
+      else if(conge) cellClass += 'cell-conge';
+      else cellClass += 'cell-work';
 
-      ['am','pm'].forEach(half => {
-        const val = slot[half] || (isOff ? 'REPOS' : '—');
-        const cls = isClosed ? 'slot-ferme' : POSTE_COLORS[val] || 'slot-off';
-        html += `<td class="slot ${cls}" data-emp="${i}" data-day="${d}" data-half="${half}">
-          <select onchange="setSlot(${i},${d},'${half}',this.value)" ${isClosed?'disabled':''}>
-            ${POSTES.map(p=>`<option value="${p}" ${val===p?'selected':''}>${isClosed?'🔒':p}</option>`).join('')}
-          </select>
-        </td>`;
-      });
+      let inner = '';
+      if(rest){
+        inner = `<span class="slot-time">REPOS</span>`;
+      } else if(conge){
+        const ch = calcCongeHours(d);
+        inner = `<span class="slot-time">🌿 CONGÉ</span><span class="slot-pause">${ch}h comptées</span>`;
+      } else if(sl && sl.arrive){
+        const wh = Math.round(calcSlotHours(sl)*10)/10;
+        inner = `<span class="slot-time">${sl.arrive}/${sl.pauseStart}</span>
+                 <span class="slot-pause">↕ ${sl.pauseStart}–${sl.pauseEnd}</span>
+                 <span class="slot-time">${sl.pauseEnd}/${sl.depart}</span>
+                 <span class="slot-pause">${wh}h</span>`;
+      } else {
+        inner = `<span class="slot-time" style="color:var(--t3);">—</span>`;
+      }
+
+      html += `<td class="${cellClass}" onclick="openModal(${i},${d})" title="Cliquer pour modifier">
+        <div class="cell-inner">${inner}</div>
+      </td>`;
     }
 
-    html += `<td class="hours-cell ${hoursClass}" style="background:${hoursBg}">
-      <div class="hours-val ${hoursClass}">${hours}h</div>
-      <div class="hours-expected">${hoursSign} · /${emp.hours}h</div>
+    html += `<td class="hcell ${hClass}" style="background:${hBg}">
+      <div class="hval ${hClass}">${totalH}h</div>
+      <div class="hexp">${hSign} / ${emp.hours}h</div>
     </td></tr>`;
   });
 
   // Count rows
   html += buildCountRows();
-
   html += `</tbody></table>`;
   wrapper.innerHTML = html;
   renderRecap();
 }
 
-function setSlot(empIdx, day, half, value) {
-  if (!planning[empIdx]) planning[empIdx] = {};
-  if (!planning[empIdx][day]) planning[empIdx][day] = {};
-  planning[empIdx][day][half] = value;
-
-  // Update cell class
-  const cell = document.querySelector(`td[data-emp="${empIdx}"][data-day="${day}"][data-half="${half}"]`);
-  if (cell) {
-    cell.className = `slot ${POSTE_COLORS[value] || 'slot-off'}`;
-  }
-
-  // Update hours counter for this employee
-  updateHoursCell(empIdx);
-  updateCountRow(day);
-  renderRecap();
-}
-
-function updateHoursCell(empIdx) {
-  // Find hours cell — last td in that row
-  const rows = document.querySelectorAll(`tr[data-emp="${empIdx}"]`);
-  if (!rows.length) return;
-  const row = rows[0];
-  const hc = row.querySelector('.hours-cell');
-  if (!hc) return;
-  const emp = team[empIdx];
-  const hours = calcHours(empIdx);
-  const hoursClass = hours > emp.hours ? 'hours-over' : hours < emp.hours ? 'hours-under' : 'hours-ok';
-  const hoursSign = hours > emp.hours ? `+${hours - emp.hours}` : hours < emp.hours ? `-${emp.hours - hours}` : '✓';
-  const hoursBg = hours > emp.hours ? 'rgba(78,205,196,0.08)' : hours < emp.hours ? 'rgba(255,77,109,0.08)' : 'rgba(6,214,160,0.08)';
-  hc.className = `hours-cell ${hoursClass}`;
-  hc.style.background = hoursBg;
-  hc.innerHTML = `<div class="hours-val ${hoursClass}">${hours}h</div><div class="hours-expected">${hoursSign} · /${emp.hours}h</div>`;
-}
-
-// ═══════════════════════════════════════════════════════
-//  HOURS CALCULATION
-// ═══════════════════════════════════════════════════════
-function calcHours(empIdx) {
-  let total = 0;
-  for (let d = 0; d < 6; d++) {
-    const slot = planning[empIdx]?.[d];
-    if (!slot) continue;
-    // AM slot ≈ 3.75h (ouverture à ~8h → 12h)
-    // PM slot ≈ 3.75h (13h → fermeture ~19h30)
-    const open = OPEN[d];
-    const close = CLOSE[d];
-    if (!open || !close) continue;
-
-    const openH = parseFloat(open.split(':')[0]) + parseFloat(open.split(':')[1])/60;
-    const closeH = parseFloat(close.split(':')[0]) + parseFloat(close.split(':')[1])/60;
-    const midday = 12.5; // 12h30 midpoint
-
-    const amHours = Math.max(0, midday - openH);
-    const pmHours = Math.max(0, closeH - midday);
-
-    if (slot.am && slot.am !== 'REPOS' && slot.am !== '—') total += amHours;
-    if (slot.pm && slot.pm !== 'REPOS' && slot.pm !== '—') total += pmHours;
-  }
-  return Math.round(total * 10) / 10;
-}
-
-// ═══════════════════════════════════════════════════════
-//  COUNT ROWS (staff per half-day)
-// ═══════════════════════════════════════════════════════
 function buildCountRows() {
-  let amRow = `<tr class="count-row"><td class="col-emp" style="text-align:left;padding-left:10px;font-size:11px;color:var(--text3);">👥 Staff matin</td>`;
-  let pmRow = `<tr class="count-row"><td class="col-emp" style="text-align:left;padding-left:10px;font-size:11px;color:var(--text3);">👥 Staff après-midi</td>`;
-  let midiRow = `<tr class="count-row"><td class="col-emp" style="text-align:left;padding-left:10px;font-size:11px;color:var(--text3);">🕛 12h–14h (min ${document.getElementById('minMidi')?.value||2})</td>`;
+  const minLMV = cfg('minLMV',4);
+  const minMJS = cfg('minMJS',3);
+  const minMidi = cfg('minMidi',2);
 
-  for (let d = 0; d < 7; d++) {
-    if (d === 6) {
-      amRow += `<td colspan="2" style="color:var(--text3)">Fermé</td>`;
-      pmRow += `<td colspan="2" style="color:var(--text3)">—</td>`;
-      midiRow += `<td colspan="2" style="color:var(--text3)">—</td>`;
+  let r1 = `<tr class="cntrow"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;color:var(--t3);">👥 Présents</td>`;
+  let r2 = `<tr class="cntrow"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;color:var(--t3);">🕛 Midi (≥${minMidi})</td>`;
+
+  for(let d=0;d<7;d++){
+    if(d===6){
+      r1+=`<td style="color:var(--t3);font-size:10px;">—</td>`;
+      r2+=`<td style="color:var(--t3);font-size:10px;">—</td>`;
       continue;
     }
-    const amCount = countStaff(d,'am');
-    const pmCount = countStaff(d,'pm');
-    const midiCount = countMidi(d);
-
-    const isLMV = [0,2,4].includes(d);
-    const minOpen = isLMV ? (parseInt(document.getElementById('minOpenLMV')?.value)||4) : (parseInt(document.getElementById('minOpenMJS')?.value)||3);
-    const minMidi = parseInt(document.getElementById('minMidi')?.value)||2;
-
-    const amOk = amCount >= minOpen;
-    const pmOk = pmCount >= minOpen;
-    const midiOk = midiCount >= minMidi;
-
-    amRow += `<td colspan="2" class="${amOk?'count-ok':'count-low'}">${amCount}</td>`;
-    pmRow += `<td colspan="2" class="${pmOk?'count-ok':'count-low'}">${pmCount}</td>`;
-    midiRow += `<td colspan="2" class="${midiOk?'count-ok':'count-low'}">${midiCount} ${midiOk?'✓':'⚠'}</td>`;
+    const isLMV=[0,2,4].includes(d);
+    const minS = isLMV?minLMV:minMJS;
+    const present = countPresent(d);
+    const midi = countMidi(d);
+    r1+=`<td class="${present>=minS?'cok':'clow'}">${present}/${minS}</td>`;
+    r2+=`<td class="${midi>=minMidi?'cok':'clow'}">${midi} ${midi>=minMidi?'✓':'⚠'}</td>`;
   }
-  amRow += `<td></td></tr>`;
-  pmRow += `<td></td></tr>`;
-  midiRow += `<td></td></tr>`;
-  return amRow + pmRow + midiRow;
+  r1+=`<td></td></tr>`;
+  r2+=`<td></td></tr>`;
+  return r1+r2;
 }
 
-function updateCountRow(day) {
-  // Rebuild count rows in full for simplicity
-  const tbody = document.querySelector('#mainTable tbody');
-  if (!tbody) return;
-  const countRows = tbody.querySelectorAll('.count-row');
-  countRows.forEach(r => r.remove());
-  tbody.insertAdjacentHTML('beforeend', buildCountRows());
-}
-
-function countStaff(day, half) {
-  return team.filter((emp, i) => {
-    const slot = planning[i]?.[day];
-    if (!slot) return false;
-    const v = slot[half];
-    return v && v !== 'REPOS' && v !== '—';
+function countPresent(d) {
+  return team.filter((_,i)=>{
+    const sl = planning[i]?.[d];
+    if(!sl) return false;
+    if(sl.repos || sl.conge) return false;
+    return sl.arrive != null;
   }).length;
 }
 
-function countMidi(day) {
-  // Count staff present at midi = those with both AM and PM assigned (not REPOS/—)
-  return team.filter((emp, i) => {
-    const slot = planning[i]?.[day];
-    if (!slot) return false;
-    const amOk = slot.am && slot.am !== 'REPOS' && slot.am !== '—';
-    const pmOk = slot.pm && slot.pm !== 'REPOS' && slot.pm !== '—';
-    return amOk && pmOk;
+function countMidi(d) {
+  // present during both before and after pause (i.e. full day worker)
+  return team.filter((_,i)=>{
+    const sl = planning[i]?.[d];
+    if(!sl||sl.repos||sl.conge||!sl.arrive||!sl.depart) return false;
+    const a = toMin(sl.arrive), dep = toMin(sl.depart);
+    return a <= toMin('12:30') && dep >= toMin('13:00');
   }).length;
 }
 
-// ═══════════════════════════════════════════════════════
-//  AUTO-FILL
-// ═══════════════════════════════════════════════════════
-function autoFill() {
-  initPlanning();
-  const minMidi = parseInt(document.getElementById('minMidi')?.value)||2;
-  const minOpenLMV = parseInt(document.getElementById('minOpenLMV')?.value)||4;
-  const minOpenMJS = parseInt(document.getElementById('minOpenMJS')?.value)||3;
+// ══════════════════════════════════════════════════════
+// MODAL EDIT
+// ══════════════════════════════════════════════════════
+function openModal(empIdx, dayIdx) {
+  if(dayIdx===6) return;
+  modalTarget = {empIdx, dayIdx};
+  const emp = team[empIdx];
+  const sl = planning[empIdx]?.[dayIdx];
+  const open = OPEN_H[dayIdx], close = CLOSE_H[dayIdx];
 
-  // For each working day, assign postes
-  for (let d = 0; d < 6; d++) {
-    const isLMV = [0,2,4].includes(d);
-    const minStaff = isLMV ? minOpenLMV : minOpenMJS;
+  document.getElementById('modalTitle').textContent = `${emp.name} — ${DAYS[dayIdx]}`;
+  document.getElementById('mArrive').value = sl?.arrive || open || '';
+  document.getElementById('mPauseStart').value = sl?.pauseStart || '12:00';
+  document.getElementById('mPauseEnd').value = sl?.pauseEnd || '13:00';
+  document.getElementById('mDepart').value = sl?.depart || close || '';
+  document.getElementById('mRepos').checked = sl?.repos || false;
+  document.getElementById('mConge').checked = sl?.conge || false;
+  updateModalHours();
+  document.getElementById('modalBg').style.display = 'flex';
+}
 
-    // Available employees (not on rest)
-    const available = team.map((emp,i) => ({emp, i})).filter(({emp,i}) => !isRestDay(emp,d));
-
-    // Shuffle for variety
-    available.sort(() => Math.random() - 0.5);
-
-    // We need at least minStaff in AM and PM, and minMidi for both
-    // Try to assign full day (AM+PM) to minMidi people, then fill the rest
-    let amCount = 0, pmCount = 0;
-    let midiCount = 0;
-    const assigned = new Set();
-
-    // First: assign minMidi employees for full day
-    let fullDay = available.slice(0, minMidi);
-    fullDay.forEach(({emp, i}) => {
-      planning[i][d] = { am: emp.poste, pm: emp.poste };
-      assigned.add(i);
-      amCount++; pmCount++; midiCount++;
-    });
-
-    // Fill remaining to meet minStaff
-    let rest = available.filter(({i}) => !assigned.has(i));
-    let idx = 0;
-    while (amCount < minStaff && idx < rest.length) {
-      const {emp, i} = rest[idx];
-      if (!assigned.has(i)) {
-        planning[i][d].am = emp.poste;
-        amCount++;
-        assigned.add(i);
-      }
-      idx++;
-    }
-    idx = 0;
-    while (pmCount < minStaff && idx < rest.length) {
-      const {emp, i} = rest[idx];
-      const cur = planning[i][d];
-      if (cur.am && cur.am !== 'REPOS' && cur.am !== '—') {
-        // already counted
-      }
-      if (cur.pm === '—' || cur.pm === 'REPOS') {
-        planning[i][d].pm = emp.poste;
-        pmCount++;
-      }
-      idx++;
-    }
-
-    // Assign remaining employees across AM/PM trying to balance hours
-    available.filter(({i}) => !assigned.has(i)).forEach(({emp, i}) => {
-      const curHours = calcHours(i);
-      const needed = emp.hours;
-      if (curHours < needed) {
-        // Assign AM or PM or both depending on how many hours needed
-        const dayHours = estimateDayHours(d);
-        if (curHours + dayHours <= needed + 1) {
-          planning[i][d] = { am: emp.poste, pm: emp.poste };
-        } else if (curHours + dayHours/2 <= needed) {
-          planning[i][d] = { am: emp.poste, pm: '—' };
-        }
-      }
-    });
+function updateModalHours() {
+  const a = document.getElementById('mArrive').value;
+  const ps = document.getElementById('mPauseStart').value;
+  const pe = document.getElementById('mPauseEnd').value;
+  const dep = document.getElementById('mDepart').value;
+  if(a&&ps&&pe&&dep){
+    const w = Math.max(0,(toMin(dep)-toMin(a)-(toMin(pe)-toMin(ps)))/60);
+    const p = (toMin(pe)-toMin(ps))/60;
+    document.getElementById('modalHours').textContent = `⏱ ${Math.round(w*10)/10}h travaillées · pause ${Math.round(p*10)/10}h`;
   }
+}
+['mArrive','mPauseStart','mPauseEnd','mDepart'].forEach(id => {
+  document.addEventListener('input', e => { if(e.target.id===id) updateModalHours(); });
+});
 
+function saveModal() {
+  if(!modalTarget) return;
+  const {empIdx, dayIdx} = modalTarget;
+  const repos = document.getElementById('mRepos').checked;
+  const conge = document.getElementById('mConge').checked;
+  if(repos){ planning[empIdx][dayIdx] = {repos:true,conge:false}; }
+  else if(conge){ planning[empIdx][dayIdx] = {repos:false,conge:true}; }
+  else {
+    planning[empIdx][dayIdx] = {
+      arrive: document.getElementById('mArrive').value,
+      pauseStart: document.getElementById('mPauseStart').value,
+      pauseEnd: document.getElementById('mPauseEnd').value,
+      depart: document.getElementById('mDepart').value,
+      repos:false, conge:false
+    };
+  }
+  closeModal();
   renderPlanning();
-  toast('✅ Planning auto-rempli ! Vérifiez et ajustez si besoin.', 3000);
 }
 
-function estimateDayHours(d) {
-  const open = OPEN[d];
-  const close = CLOSE[d];
-  if (!open || !close) return 0;
-  const openH = parseFloat(open.split(':')[0]) + parseFloat(open.split(':')[1])/60;
-  const closeH = parseFloat(close.split(':')[0]) + parseFloat(close.split(':')[1])/60;
-  return closeH - openH - 1; // -1h for lunch
+function closeModal(e) {
+  if(e && e.target !== document.getElementById('modalBg')) return;
+  document.getElementById('modalBg').style.display = 'none';
+  modalTarget = null;
 }
 
-// ═══════════════════════════════════════════════════════
-//  RECAP
-// ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// RECAP
+// ══════════════════════════════════════════════════════
 function renderRecap() {
   const el = document.getElementById('recapContent');
-  if (!el || Object.keys(planning).length === 0) return;
+  if(!el) return;
+  if(Object.keys(planning).length===0){ el.innerHTML=`<p style="color:var(--t3)">Générez d'abord un planning.</p>`; return; }
 
-  let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">`;
-  team.forEach((emp, i) => {
-    const hours = calcHours(i);
-    const isOver = hours > emp.hours;
-    const isUnder = hours < emp.hours;
-    const diff = hours - emp.hours;
-    const color = isOver ? 'var(--accent2)' : isUnder ? 'var(--red)' : 'var(--green)';
-    const sign = isOver ? `+${diff.toFixed(1)}h` : isUnder ? `${diff.toFixed(1)}h` : '✓';
-
-    html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <div style="width:10px;height:10px;border-radius:50%;background:var(--${emp.poste.toLowerCase().replace('é','e')})"></div>
-        <span style="font-weight:600;font-size:13px;">${emp.name}</span>
-        <span style="font-size:10px;color:var(--text3);margin-left:auto;">${emp.poste}</span>
-      </div>
-      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px;">
-        <span style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:${color}">${hours}h</span>
-        <span style="font-size:12px;color:${color};font-weight:600">${sign}</span>
-        <span style="font-size:11px;color:var(--text3);margin-left:auto">/${emp.hours}h</span>
-      </div>
-      <div style="background:var(--surface2);border-radius:6px;height:6px;overflow:hidden;">
-        <div style="height:100%;background:${color};width:${Math.min(100,(hours/emp.hours)*100)}%;transition:width 0.5s;"></div>
-      </div>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:3px;">
-        ${DAYS.slice(0,6).map((day,d)=>{
-          const slot = planning[i]?.[d];
-          if (!slot) return '';
-          const amv = slot.am !== 'REPOS' && slot.am !== '—' ? slot.am : null;
-          const pmv = slot.pm !== 'REPOS' && slot.pm !== '—' ? slot.pm : null;
-          if (!amv && !pmv && (slot.am === 'REPOS' || slot.pm === 'REPOS')) {
-            return `<div style="display:flex;gap:6px;align-items:center;"><span style="width:30px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${DAYS_SHORT[d].substring(0,3)}</span><span style="font-size:10px;color:var(--text3)">Repos</span></div>`;
-          }
-          return `<div style="display:flex;gap:6px;align-items:center;">
-            <span style="width:30px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${DAYS_SHORT[d].substring(0,3)}</span>
-            ${amv?`<span style="padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;background:rgba(124,106,245,0.2);color:var(--accent)">${amv}</span>`:''}
-            ${pmv?`<span style="padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;background:rgba(78,205,196,0.2);color:var(--accent2)">${pmv}</span>`:''}
-          </div>`;
+  let html = `<div class="rcards">`;
+  team.forEach((emp,i)=>{
+    const total = calcTotalHours(i);
+    const diff = Math.round((total-emp.hours)*10)/10;
+    const color = diff>0?'var(--a2)':diff<0?'var(--red)':'var(--grn)';
+    const sign = diff>0?`+${diff}h`:diff<0?`${diff}h`:'✓';
+    html+=`<div class="rcard">
+      <div class="rcard-name">${emp.name}</div>
+      <div class="rcard-h" style="color:${color}">${total}h <span style="font-size:12px">${sign}</span></div>
+      <div class="rcard-bar"><div class="rcard-bar-fill" style="width:${Math.min(100,(total/emp.hours)*100)}%;background:${color}"></div></div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:6px;">Contrat ${emp.hours}h/sem</div>
+      <div class="rcard-days">
+        ${Array.from({length:6},(_,d)=>{
+          const sl = planning[i]?.[d];
+          if(!sl||sl.repos) return `<div class="rday">${DS[d].slice(0,3)} — Repos</div>`;
+          if(sl.conge) return `<div class="rday" style="color:var(--grn)">${DS[d].slice(0,3)} 🌿 Congé</div>`;
+          if(!sl.arrive) return `<div class="rday" style="color:var(--t3)">${DS[d].slice(0,3)} —</div>`;
+          const wh = Math.round(calcSlotHours(sl)*10)/10;
+          return `<div class="rday">${DS[d].slice(0,3)} ${sl.arrive}→${sl.depart} (${wh}h)</div>`;
         }).join('')}
       </div>
     </div>`;
   });
-  html += `</div>`;
+  html+=`</div>`;
 
   // Constraints check
-  html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
-    <div class="section-title" style="margin-bottom:12px;">Vérification des contraintes</div>
-    <table style="width:100%;border-collapse:collapse;">
-      <thead><tr>
-        <th style="text-align:left;padding:6px 8px;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border);">Contrainte</th>
-        ${DAYS.slice(0,6).map(d=>`<th style="text-align:center;padding:6px 4px;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border);">${d.substring(0,3)}</th>`).join('')}
-      </tr></thead>
-      <tbody>`;
-
-  const minMidi = parseInt(document.getElementById('minMidi')?.value)||2;
-  const minOpenLMV = parseInt(document.getElementById('minOpenLMV')?.value)||4;
-  const minOpenMJS = parseInt(document.getElementById('minOpenMJS')?.value)||3;
-
-  const constraints = [
-    { label: 'Staff matin', fn: (d) => {
-      const c = countStaff(d,'am');
-      const isLMV = [0,2,4].includes(d);
-      const min = isLMV ? minOpenLMV : minOpenMJS;
-      return { ok: c >= min, val: `${c}/${min}` };
-    }},
-    { label: 'Staff après-midi', fn: (d) => {
-      const c = countStaff(d,'pm');
-      const isLMV = [0,2,4].includes(d);
-      const min = isLMV ? minOpenLMV : minOpenMJS;
-      return { ok: c >= min, val: `${c}/${min}` };
-    }},
-    { label: 'Présents midi', fn: (d) => {
-      const c = countMidi(d);
-      return { ok: c >= minMidi, val: `${c}/${minMidi}` };
-    }},
-  ];
-
-  constraints.forEach(c => {
-    html += `<tr><td style="padding:6px 8px;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border);">${c.label}</td>`;
-    for (let d = 0; d < 6; d++) {
-      const res = c.fn(d);
-      html += `<td style="text-align:center;padding:6px 4px;font-size:11px;border-bottom:1px solid var(--border);color:${res.ok?'var(--green)':'var(--red)'};">${res.val} ${res.ok?'✓':'✗'}</td>`;
-    }
-    html += `</tr>`;
+  const minLMV=cfg('minLMV',4),minMJS=cfg('minMJS',3),minMidi=cfg('minMidi',2);
+  html+=`<div style="margin-top:14px;"><div class="section-title">Vérification contraintes</div>
+  <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+  <thead><tr><th style="text-align:left;padding:5px 8px;font-size:10px;color:var(--t2);border-bottom:1px solid var(--bor)">Contrainte</th>
+  ${Array.from({length:6},(_,d)=>`<th style="text-align:center;padding:5px 4px;font-size:10px;color:var(--t2);border-bottom:1px solid var(--bor)">${DAYS[d].slice(0,3)}</th>`).join('')}
+  </tr></thead><tbody>`;
+  
+  [
+    {label:'Présents', fn:d=>{ const c=countPresent(d);const m=[0,2,4].includes(d)?minLMV:minMJS;return{ok:c>=m,v:`${c}/${m}`};}},
+    {label:'Midi', fn:d=>{ const c=countMidi(d);return{ok:c>=minMidi,v:`${c}/${minMidi}`};}},
+  ].forEach(row=>{
+    html+=`<tr><td style="padding:5px 8px;font-size:11px;color:var(--t2);border-bottom:1px solid var(--bor)">${row.label}</td>`;
+    for(let d=0;d<6;d++){const r=row.fn(d);html+=`<td style="text-align:center;padding:5px;font-size:11px;border-bottom:1px solid var(--bor);color:${r.ok?'var(--grn)':'var(--red)'}">${r.v} ${r.ok?'✓':'✗'}</td>`;}
+    html+=`</tr>`;
   });
-
-  html += `</tbody></table></div>`;
-
+  html+=`</tbody></table></div>`;
   el.innerHTML = html;
 }
 
-// ═══════════════════════════════════════════════════════
-//  EXPORT PDF
-// ═══════════════════════════════════════════════════════
-async function exportPDF() {
-  toast('Génération du PDF en cours...', 2000);
-  const el = document.getElementById('planningTableWrapper');
-  if (!el) { toast('Allez d\'abord sur le planning !', 2000); return; }
-  try {
-    const canvas = await html2canvas(el, { background: '#0f0f13', scale: 1.5, useCORS: true });
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
-    const imgData = canvas.toDataURL('image/png');
-    const pw = pdf.internal.pageSize.getWidth();
-    const ph = pdf.internal.pageSize.getHeight();
-    const ratio = canvas.width / canvas.height;
-    let w = pw - 20, h = w / ratio;
-    if (h > ph - 20) { h = ph - 20; w = h * ratio; }
-    pdf.addImage(imgData, 'PNG', 10, 10, w, h);
-    pdf.save(`planning-semaine-${currentWeek}.pdf`);
-    toast('✅ PDF téléchargé !', 2000);
-  } catch(e) {
-    console.error(e);
-    toast('Erreur PDF. Essayez l\'impression.', 3000);
-  }
+// ══════════════════════════════════════════════════════
+// FAVORITES
+// ══════════════════════════════════════════════════════
+function saveFavorite() {
+  if(Object.keys(planning).length===0){ toast('⚠ Générez d\'abord un planning'); return; }
+  document.getElementById('favName').value = `Planning sem. ${currentWeek?.split('W')[1]||''} — Type ${weekType}`;
+  document.getElementById('favModalBg').style.display = 'flex';
 }
 
-// ═══════════════════════════════════════════════════════
-//  UI HELPERS
-// ═══════════════════════════════════════════════════════
-function showTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(`page-${name}`).classList.add('active');
-  event?.target?.classList.add('active');
-  if (name === 'recap' && Object.keys(planning).length > 0) renderRecap();
+function closeFavModal(e) {
+  if(e && e.target !== document.getElementById('favModalBg')) return;
+  document.getElementById('favModalBg').style.display = 'none';
 }
 
-function toast(msg, duration = 2500) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), duration);
+function confirmSaveFav() {
+  const name = document.getElementById('favName').value.trim() || `Favori ${Date.now()}`;
+  const favs = JSON.parse(localStorage.getItem('planningFavs')||'[]');
+  favs.unshift({
+    id: Date.now(),
+    name,
+    week: currentWeek,
+    weekType,
+    date: new Date().toLocaleDateString('fr-FR'),
+    team: JSON.parse(JSON.stringify(team)),
+    planning: JSON.parse(JSON.stringify(planning))
+  });
+  localStorage.setItem('planningFavs', JSON.stringify(favs));
+  closeFavModal();
+  renderFavs();
+  toast(`★ "${name}" sauvegardé !`);
 }
 
-// ═══════════════════════════════════════════════════════
-//  INITIAL TEAM (demo)
-// ═══════════════════════════════════════════════════════
-const demoTeam = [
-  { name: 'Alice', hours: 35, poste: 'SA', restDays: [6], samWeek: 'A' },
-  { name: 'Bruno', hours: 35, poste: 'VRAC', restDays: [1,6], samWeek: 'B' },
-  { name: 'Camille', hours: 30, poste: 'BOISSON', restDays: [6], samWeek: 'A' },
-  { name: 'Dylan', hours: 35, poste: 'GÉNÉRALE', restDays: [4,6], samWeek: 'B' },
-  { name: 'Emma', hours: 35, poste: 'SA', restDays: [6], samWeek: 'A' },
-  { name: 'Félix', hours: 30, poste: 'VRAC', restDays: [2,6], samWeek: 'B' },
-  { name: 'Grace', hours: 35, poste: 'BOISSON', restDays: [6], samWeek: 'A' },
-  { name: 'Hugo', hours: 35, poste: 'GÉNÉRALE', restDays: [3,6], samWeek: 'B' },
-];
+function renderFavs() {
+  const el = document.getElementById('favsList');
+  const empty = document.getElementById('favsEmpty');
+  if(!el) return;
+  const favs = JSON.parse(localStorage.getItem('planningFavs')||'[]');
+  if(favs.length===0){ if(empty) empty.style.display='block'; el.innerHTML=''; return; }
+  if(empty) empty.style.display='none';
+  el.innerHTML = favs.map(f=>`
+    <div class="fav-item">
+      <div style="flex:1">
+        <div class="fav-name">${f.name}</div>
+        <div class="fav-meta">Semaine ${f.week?.split('W')[1]||'?'} · Type ${f.weekType||'?'} · ${f.date}</div>
+      </div>
+      <button class="btn bp" style="font-size:10px;padding:6px 10px;" onclick="loadFav(${f.id})">Charger</button>
+      <button class="btn br" style="font-size:10px;padding:6px 10px;" onclick="deleteFav(${f.id})">✕</button>
+    </div>`).join('');
+}
 
-window.onload = () => {
-  const now = new Date();
-  const y = now.getFullYear();
-  const w = getWeekNumber(now);
-  currentWeek = `${y}-W${String(w).padStart(2,'0')}`;
+function loadFav(id) {
+  const favs = JSON.parse(localStorage.getItem('planningFavs')||'[]');
+  const fav = favs.find(f=>f.id===id);
+  if(!fav) return;
+  team = fav.team;
+  planning = fav.planning;
+  currentWeek = fav.week;
+  weekType = fav.weekType;
   document.getElementById('weekPicker').value = currentWeek;
   document.getElementById('weekPicker2').value = currentWeek;
   updateWeekType();
-
-  // Load demo team but keep teamSize input free to change
-  team = demoTeam.map(e => ({...e}));
   document.getElementById('teamSize').value = team.length;
+  document.getElementById('teamSizeDisplay').textContent = team.length;
   renderTeam();
-  document.getElementById('teamCount').textContent = team.length;
+  updateBadges();
+  renderPlanning();
+  showTab('planning', document.querySelectorAll('.tab')[1]);
+  toast(`✓ Favori "${fav.name}" chargé !`);
+}
 
-  // Allow teamSize to be changed freely — rebuild only on button click
-  const ts = document.getElementById('teamSize');
-  ts.addEventListener('change', () => {});  // no auto-rebuild, only on button
-};
+function deleteFav(id) {
+  let favs = JSON.parse(localStorage.getItem('planningFavs')||'[]');
+  favs = favs.filter(f=>f.id!==id);
+  localStorage.setItem('planningFavs', JSON.stringify(favs));
+  renderFavs();
+}
+
+// ══════════════════════════════════════════════════════
+// EXPORT PDF
+// ══════════════════════════════════════════════════════
+async function exportPDF() {
+  toast('Génération PDF...', 2000);
+  const el = document.getElementById('planningTableWrapper');
+  if(!el){ toast('Allez d\'abord sur le planning !'); return; }
+  try {
+    const canvas = await html2canvas(el, {backgroundColor:'#0f0f13', scale:1.5, useCORS:true});
+    const {jsPDF} = window.jspdf;
+    const pdf = new jsPDF({orientation:'landscape',unit:'mm',format:'a3'});
+    const img = canvas.toDataURL('image/png');
+    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+    const ratio = canvas.width/canvas.height;
+    let w=pw-20, h=w/ratio;
+    if(h>ph-20){h=ph-20;w=h*ratio;}
+    pdf.addImage(img,'PNG',10,10,w,h);
+    pdf.save(`planning-${currentWeek}.pdf`);
+    toast('✅ PDF téléchargé !');
+  } catch(e){ toast('Erreur PDF. Essayez impression.'); }
+}
+
+// ══════════════════════════════════════════════════════
+// UI
+// ══════════════════════════════════════════════════════
+function showTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='recap') renderRecap();
+  if(name==='favs') renderFavs();
+}
+
+function toast(msg, dur=2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), dur);
+}
 </script>
-
 </body>
 </html>
