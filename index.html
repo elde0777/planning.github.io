@@ -14,7 +14,8 @@
 --bg:#0f0f13;--sur:#16161d;--s2:#1e1e28;--s3:#252533;
 --bor:#2e2e3f;--acc:#7c6af5;--a2:#4ecdc4;
 --txt:#e8e8f0;--t2:#9090a8;--t3:#606078;
---red:#ff4d6d;--grn:#06d6a0;--org:#f77f00;}
+--red:#ff4d6d;--grn:#06d6a0;--org:#f77f00;--yellow:#ffd166;
+--sa:#7c6af5;--vrac:#4ecdc4;--boisson:#f77f00;--generale:#ff6b9d;}
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{background:#0f0f13!important;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;min-height:100vh;-webkit-text-size-adjust:100%;}
 
@@ -30,7 +31,7 @@ header h1{font-family:‘Syne’,sans-serif;font-size:18px;font-weight:800;backg
 .page.active{display:flex;flex-direction:column;}
 
 .layout{display:flex;height:calc(100vh - 88px);overflow:hidden;}
-.sidebar{width:310px;min-width:310px;background:var(–sur);border-right:1px solid var(–bor);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.sidebar{width:320px;min-width:320px;background:var(–sur);border-right:1px solid var(–bor);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
 .content{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px;}
 
 .panel{background:var(–s2);border:1px solid var(–bor);border-radius:10px;overflow:hidden;}
@@ -56,7 +57,7 @@ input[type=week]{background:var(–s3);border:1px solid var(–bor);color:var(�
 .step-val{flex:1;text-align:center;font-family:‘DM Mono’,monospace;font-size:18px;font-weight:700;color:var(–txt);background:var(–s3);border:1px solid var(–bor);border-radius:6px;padding:5px 0;}
 
 .emp-row{background:var(–s3);border:1px solid var(–bor);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:7px;}
-.emp-top{display:flex;gap:6px;align-items:center;}
+.emp-top{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
 .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
 .day-cb{display:flex;flex-direction:column;align-items:center;gap:2px;}
 .day-cb input[type=checkbox]{accent-color:var(–acc);width:14px;height:14px;}
@@ -72,7 +73,7 @@ input[type=week]{background:var(–s3);border:1px solid var(–bor);color:var(�
 .ba{background:rgba(124,106,245,.2);color:var(–acc);border:1px solid rgba(124,106,245,.4);}
 .bb{background:rgba(78,205,196,.2);color:var(–a2);border:1px solid rgba(78,205,196,.4);}
 
-/* PLANNING TABLE */
+/* TABLE STANDARD */
 .tbl-wrap{background:var(–sur);border:1px solid var(–bor);border-radius:10px;overflow-x:auto;}
 table.ptbl{width:100%;border-collapse:collapse;min-width:820px;}
 table.ptbl th,table.ptbl td{border:1px solid var(–bor);text-align:center;vertical-align:middle;}
@@ -81,30 +82,51 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 .day-hdr .dn{font-size:11px;color:var(–txt);font-weight:700;}
 .day-hdr .dh{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
 
-.cell{padding:6px 4px;min-width:110px;cursor:pointer;transition:filter .15s;}
+.cell{padding:5px 4px;min-width:115px;cursor:pointer;transition:filter .15s;}
 .cell:hover{filter:brightness(1.18);}
 .cell-inner{display:flex;flex-direction:column;align-items:center;gap:1px;}
 .slot-time{font-family:‘DM Mono’,monospace;font-size:10px;font-weight:500;color:var(–txt);line-height:1.4;white-space:nowrap;}
 .slot-pause{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
-.cell-repos{background:var(–s2)!important;}
-.cell-repos .slot-time{color:var(–t3);}
-.cell-conge{background:rgba(6,214,160,.1)!important;}
-.cell-conge .slot-time{color:var(–grn);}
+.slot-anno{font-size:9px;color:var(–org);font-family:‘Syne’,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.cell-repos{background:var(–s2)!important;}.cell-repos .slot-time{color:var(–t3);}
+.cell-conge{background:rgba(6,214,160,.1)!important;}.cell-conge .slot-time{color:var(–grn);}
 .cell-work{background:var(–s2);}
 .cell-closed{background:var(–bg)!important;opacity:.35;pointer-events:none;}
-.cell-empty{background:var(–s2);}
 
-.hcell{font-family:‘DM Mono’,monospace;font-size:11px;padding:6px 4px;min-width:68px;}
+.hcell{font-family:‘DM Mono’,monospace;font-size:11px;padding:6px 4px;min-width:75px;}
 .hok{color:var(–grn);}.hov{color:var(–a2);}.hun{color:var(–red);}
 .hval{font-size:13px;font-weight:700;}.hexp{font-size:9px;color:var(–t3);}
 
 .cntrow td{background:var(–s2);font-family:‘DM Mono’,monospace;font-size:10px;padding:4px 3px;}
 .cok{color:var(–grn);font-weight:700;}.clow{color:var(–red);font-weight:700;}
 
+/* GANTT VIEW */
+.gantt-wrap{background:var(–sur);border:1px solid var(–bor);border-radius:10px;padding:14px;overflow-x:auto;}
+.gantt-day{margin-bottom:18px;}
+.gantt-day-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(–bor);}
+.gantt-day-header h3{font-family:‘Syne’,sans-serif;font-size:13px;font-weight:700;background:var(–yellow);color:#000;padding:2px 10px;border-radius:4px;}
+.gantt-day-total{font-family:‘DM Mono’,monospace;font-size:12px;color:var(–t2);margin-left:auto;}
+.gantt-grid{display:grid;gap:1px;background:var(–bor);min-width:780px;}
+.gantt-row{display:grid;grid-template-columns:90px 1fr 60px;background:var(–s2);align-items:center;gap:1px;}
+.gantt-name{padding:4px 8px;font-size:11px;font-weight:600;font-family:‘Syne’,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:var(–txt);}
+.gantt-timeline{position:relative;height:22px;background:var(–bg);}
+.gantt-bar{position:absolute;top:1px;bottom:1px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:700;font-family:‘DM Mono’,monospace;letter-spacing:-.3px;overflow:hidden;}
+.gantt-bar-anno{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:8px;color:#000;font-weight:700;background:rgba(255,255,255,.7);padding:0 3px;border-radius:2px;}
+.gantt-total{padding:4px 8px;font-family:‘DM Mono’,monospace;font-size:11px;font-weight:700;color:var(–a2);text-align:center;}
+.gantt-hour-row{display:grid;grid-template-columns:90px 1fr 60px;background:var(–s3);font-family:‘DM Mono’,monospace;font-size:9px;color:var(–t3);align-items:center;gap:1px;border-bottom:1px solid var(–bor);}
+.gantt-hour-marks{position:relative;height:18px;}
+.gantt-hour-mark{position:absolute;top:0;height:100%;border-left:1px dashed var(–bor);padding-left:2px;display:flex;align-items:center;font-size:9px;color:var(–t3);}
+.gantt-count-row{display:grid;grid-template-columns:90px 1fr 60px;background:var(–s2);align-items:center;gap:1px;}
+.gantt-count-label{padding:3px 8px;font-size:9px;color:var(–t3);font-family:‘Syne’,sans-serif;font-weight:700;}
+.gantt-count-cells{position:relative;height:18px;display:flex;}
+.gantt-count-cell{flex:1;text-align:center;font-family:‘DM Mono’,monospace;font-size:9px;font-weight:700;border-left:1px solid var(–bor);}
+
 /* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;}
-.modal{background:var(–sur);border:1px solid var(–bor);border-radius:12px;padding:20px;width:340px;max-width:95vw;display:flex;flex-direction:column;gap:12px;}
-.modal h3{font-family:‘Syne’,sans-serif;font-size:15px;font-weight:700;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:10px;}
+.modal{background:var(–sur);border:1px solid var(–bor);border-radius:12px;padding:18px;width:380px;max-width:95vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:11px;}
+.modal h3{font-family:‘Syne’,sans-serif;font-size:14px;font-weight:700;}
+.anno-btn{padding:4px 10px;border-radius:5px;border:1px solid var(–bor);background:var(–s3);color:var(–t2);font-size:10px;font-family:‘Syne’,sans-serif;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;}
+.anno-btn:hover,.anno-btn.act{color:var(–txt);border-color:var(–acc);background:rgba(124,106,245,.15);}
 
 .fav-item{background:var(–s3);border:1px solid var(–bor);border-radius:8px;padding:10px;display:flex;align-items:center;gap:8px;}
 .fav-name{flex:1;font-size:12px;font-weight:600;}
@@ -119,9 +141,19 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 .auto-btn{background:linear-gradient(135deg,var(–acc),var(–a2));color:#fff;border:none;padding:10px 18px;border-radius:8px;font-family:‘Syne’,sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.5px;width:100%;margin-top:4px;}
 .section-title{font-family:‘Syne’,sans-serif;font-size:13px;font-weight:700;color:var(–txt);padding-bottom:4px;border-bottom:1px solid var(–bor);margin-bottom:8px;}
 
+.view-toggle{display:flex;gap:0;background:var(–s3);border:1px solid var(–bor);border-radius:6px;padding:2px;}
+.view-toggle button{flex:1;padding:5px 10px;background:transparent;color:var(–t2);border:none;border-radius:4px;cursor:pointer;font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.view-toggle button.act{background:var(–acc);color:#fff;}
+
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(–bor);border-radius:3px;}
+
+.poste-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;font-family:‘Syne’,sans-serif;letter-spacing:.5px;}
+.poste-SA{background:rgba(124,106,245,.25);color:var(–sa);}
+.poste-VRAC{background:rgba(78,205,196,.25);color:var(–vrac);}
+.poste-BOISSON{background:rgba(247,127,0,.25);color:var(–boisson);}
+.poste-GÉNÉRALE{background:rgba(255,107,157,.25);color:var(–generale);}
 </style>
 
 </head>
@@ -133,7 +165,6 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
   <div class="hact">
     <button class="btn bs" onclick="saveFavorite()">★ Favori</button>
     <button class="btn bs" onclick="exportPDF()">⬇ PDF</button>
-    <button class="btn bs" onclick="window.print()">🖨 Print</button>
     <button class="btn bp" style="background:linear-gradient(135deg,var(--acc),var(--a2));" onclick="autoFill()">⚡ AUTO-REMPLIR</button>
   </div>
 </header>
@@ -141,7 +172,8 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 <div class="tabs">
   <button class="tab active" onclick="showTab('config',this)">⚙ Config</button>
   <button class="tab" onclick="showTab('planning',this)">📅 Planning</button>
-  <button class="tab" onclick="showTab('recap',this)">📊 Récap</button>
+  <button class="tab" onclick="showTab('gantt',this)">📊 Gantt</button>
+  <button class="tab" onclick="showTab('recap',this)">📋 Récap</button>
   <button class="tab" onclick="showTab('favs',this)">★ Favoris</button>
 </div>
 
@@ -168,9 +200,8 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
   <div class="panel">
     <div class="ph">Semaine planifiée</div>
     <div class="pb">
-      <label>Choisir la semaine</label>
       <input type="week" id="weekPicker" onchange="onWeekChange()" style="width:100%;">
-      <div style="display:flex;gap:8px;align-items:center;margin-top:2px;">
+      <div style="display:flex;gap:8px;align-items:center;">
         <span id="wkTypeBadge" class="wbadge ba">Semaine A</span>
         <span style="font-size:10px;color:var(--t3);">Dim. fermé</span>
       </div>
@@ -184,13 +215,14 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
       <div><label>Ouv. Mar/Jeu/Sam</label><input type="text" id="openMJS" value="08:00" style="width:100%;"></div>
       <div><label>Ferm. Lun–Ven</label><input type="text" id="closeLV" value="19:30" style="width:100%;"></div>
       <div><label>Ferm. Samedi</label><input type="text" id="closeSAM" value="18:30" style="width:100%;"></div>
-      <div><label>Min staff LMV</label><input type="text" id="minLMV" value="4" style="width:100%;"></div>
-      <div><label>Min staff MJS</label><input type="text" id="minMJS" value="3" style="width:100%;"></div>
-      <div><label>Min présents midi</label><input type="text" id="minMidi" value="2" style="width:100%;"></div>
+      <div><label>Min ouv. LMV</label><input type="text" id="minLMV" value="4" style="width:100%;"></div>
+      <div><label>Min ouv. MJS</label><input type="text" id="minMJS" value="3" style="width:100%;"></div>
+      <div><label>Min fermeture</label><input type="text" id="minClose" value="3" style="width:100%;"></div>
       <div><label>Pause min (h)</label><input type="text" id="pauseMin" value="1" style="width:100%;"></div>
       <div><label>Pause max (h)</label><input type="text" id="pauseMax" value="2" style="width:100%;"></div>
       <div><label>Pause début min</label><input type="text" id="pauseStart" value="11:00" style="width:100%;"></div>
       <div><label>Pause fin max</label><input type="text" id="pauseEnd" value="15:00" style="width:100%;"></div>
+      <div><label>Pas de pause si ≤ (h)</label><input type="text" id="noPauseLimit" value="6" style="width:100%;"></div>
     </div>
   </div>
 
@@ -200,7 +232,7 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 <div class="content">
   <div class="panel" style="flex:1;">
     <div class="ph">Membres <span id="tcBadge2" class="chip ci">8</span></div>
-    <div class="pb" id="teamList" style="gap:10px;max-height:calc(100vh - 190px);overflow-y:auto;"></div>
+    <div class="pb" id="teamList" style="gap:10px;max-height:calc(100vh - 180px);overflow-y:auto;"></div>
   </div>
 </div>
 ```
@@ -221,6 +253,19 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
   </div>
 </div>
 
+<!-- GANTT -->
+
+<div id="page-gantt" class="page">
+  <div style="padding:9px 14px;background:var(--sur);border-bottom:1px solid var(--bor);display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <input type="week" id="weekPicker3" onchange="syncWeek(this)">
+    <span id="wkTypeBadge3" class="wbadge ba">Semaine A</span>
+    <span style="font-size:10px;color:var(--t3);margin-left:auto;">Vue Gantt — barres colorées par poste</span>
+  </div>
+  <div style="flex:1;overflow:auto;padding:14px;">
+    <div id="ganttWrap"></div>
+  </div>
+</div>
+
 <!-- RECAP -->
 
 <div id="page-recap" class="page" style="overflow:auto;padding:14px;gap:12px;">
@@ -235,24 +280,40 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
   <p id="favsEmpty" style="color:var(--t3);font-size:12px;display:none;">Aucun favori. Créez un planning et cliquez ★ Favori.</p>
 </div>
 
-<!-- MODAL EDIT CELLULE -->
+<!-- MODAL CELL -->
 
 <div id="modalBg" class="modal-bg" style="display:none;" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <h3 id="modalTitle">Modifier les horaires</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
       <div><label>Arrivée</label><input type="text" id="mArrive" placeholder="07:45" style="width:100%;" oninput="updateModalH()"></div>
+      <div><label>Départ</label><input type="text" id="mDepart" placeholder="19:30" style="width:100%;" oninput="updateModalH()"></div>
       <div><label>Début pause</label><input type="text" id="mPauseS" placeholder="12:00" style="width:100%;" oninput="updateModalH()"></div>
       <div><label>Fin pause</label><input type="text" id="mPauseE" placeholder="13:00" style="width:100%;" oninput="updateModalH()"></div>
-      <div><label>Départ</label><input type="text" id="mDepart" placeholder="19:30" style="width:100%;" oninput="updateModalH()"></div>
     </div>
-    <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
-      <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer;">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:5px;margin:0;cursor:pointer;font-size:11px;">
         <input type="checkbox" id="mRepos" style="accent-color:var(--acc);width:14px;height:14px;"> Repos
       </label>
-      <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer;">
-        <input type="checkbox" id="mConge" style="accent-color:var(--grn);width:14px;height:14px;"> Congé payé
+      <label style="display:flex;align-items:center;gap:5px;margin:0;cursor:pointer;font-size:11px;">
+        <input type="checkbox" id="mConge" style="accent-color:var(--grn);width:14px;height:14px;"> Congé
       </label>
+      <label style="display:flex;align-items:center;gap:5px;margin:0;cursor:pointer;font-size:11px;">
+        <input type="checkbox" id="mNoPause" onchange="updateModalH()" style="accent-color:var(--org);width:14px;height:14px;"> Sans pause
+      </label>
+    </div>
+    <div>
+      <label>Annotation (optionnel)</label>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px;">
+        <button type="button" class="anno-btn" onclick="setAnno('')">—</button>
+        <button type="button" class="anno-btn" onclick="setAnno('CP')">CP</button>
+        <button type="button" class="anno-btn" onclick="setAnno('T')">T</button>
+        <button type="button" class="anno-btn" onclick="setAnno('FORMATION')">Formation</button>
+        <button type="button" class="anno-btn" onclick="setAnno('LIVRAISON')">Livraison</button>
+        <button type="button" class="anno-btn" onclick="setAnno('VRAC')">Vrac</button>
+        <button type="button" class="anno-btn" onclick="setAnno('FÉRIÉ')">Férié</button>
+      </div>
+      <input type="text" id="mAnno" placeholder="Ou tapez librement..." style="width:100%;">
     </div>
     <div id="modalHours" style="font-size:11px;color:var(--t3);min-height:16px;"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
@@ -283,14 +344,24 @@ const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 const DS=['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
 const OPEN_H={0:'07:45',1:'08:00',2:'07:45',3:'08:00',4:'07:45',5:'08:00',6:null};
 const CLOSE_H={0:'19:30',1:'19:30',2:'19:30',3:'19:30',4:'19:30',5:'18:30',6:null};
+const POSTES=['SA','VRAC','BOISSON','GÉNÉRALE'];
+const POSTE_COLORS={SA:'#7c6af5',VRAC:'#4ecdc4',BOISSON:'#f77f00','GÉNÉRALE':'#ff6b9d'};
 
-// ═══════════ STATE ═══════════
 let team=[], planning={}, currentWeek=null, weekType='A', modalTarget=null;
 
 // ═══════════ UTILS ═══════════
 const toMin=t=>{if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+m;};
 const toHHMM=m=>{const h=Math.floor(m/60),mm=m%60;return`${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;};
 const rnd=(a,b)=>Math.round(a+Math.random()*(b-a));
+const fmtH=h=>{
+  if(h==null||isNaN(h))return'0:00';
+  const sign=h<0?'-':'';
+  const abs=Math.abs(h);
+  const hh=Math.floor(abs);
+  const mm=Math.round((abs-hh)*60);
+  if(mm===60)return`${sign}${hh+1}:00`;
+  return`${sign}${hh}:${String(mm).padStart(2,'0')}`;
+};
 
 function getWeekNumber(d){
   const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
@@ -298,7 +369,6 @@ function getWeekNumber(d){
   const y=new Date(Date.UTC(date.getUTCFullYear(),0,1));
   return Math.ceil((((date-y)/86400000)+1)/7);
 }
-
 function getWeekDates(ws){
   if(!ws)return[];
   const[yr,wPart]=ws.split('-W');
@@ -310,9 +380,7 @@ function getWeekDates(ws){
   mon.setDate(sow.getDate()+(week-1)*7);
   return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
 }
-
 function dateToStr(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-
 function cfg(id,def){return parseFloat(document.getElementById(id)?.value||def)||def;}
 function cfgS(id,def){return document.getElementById(id)?.value||def;}
 
@@ -321,48 +389,45 @@ window.onload=()=>{
   const now=new Date();
   const w=getWeekNumber(now);
   currentWeek=`${now.getFullYear()}-W${String(w).padStart(2,'0')}`;
-  document.getElementById('weekPicker').value=currentWeek;
-  document.getElementById('weekPicker2').value=currentWeek;
+  ['weekPicker','weekPicker2','weekPicker3'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=currentWeek;});
   updateWeekType();
   team=[
-    {name:'Alice',hours:35,restDays:[6],samWeek:'A',conges:[]},
-    {name:'Bruno',hours:35,restDays:[1,6],samWeek:'B',conges:[]},
-    {name:'Camille',hours:30,restDays:[6],samWeek:'A',conges:[]},
-    {name:'Dylan',hours:35,restDays:[4,6],samWeek:'B',conges:[]},
-    {name:'Emma',hours:35,restDays:[6],samWeek:'A',conges:[]},
-    {name:'Félix',hours:30,restDays:[2,6],samWeek:'B',conges:[]},
-    {name:'Grace',hours:35,restDays:[6],samWeek:'A',conges:[]},
-    {name:'Hugo',hours:35,restDays:[3,6],samWeek:'B',conges:[]},
+    {name:'Corine',hours:35,poste:'SA',restDays:[6],samWeek:'A',conges:[],canOpen:true,canClose:true},
+    {name:'Patricia',hours:35,poste:'VRAC',restDays:[1,6],samWeek:'B',conges:[],canOpen:true,canClose:false},
+    {name:'Elian',hours:30,poste:'BOISSON',restDays:[6],samWeek:'A',conges:[],canOpen:false,canClose:true},
+    {name:'Marie',hours:35,poste:'GÉNÉRALE',restDays:[4,6],samWeek:'B',conges:[],canOpen:true,canClose:true},
+    {name:'Montana',hours:35,poste:'SA',restDays:[6],samWeek:'A',conges:[],canOpen:false,canClose:false},
+    {name:'Mickaël',hours:30,poste:'VRAC',restDays:[2,6],samWeek:'B',conges:[],canOpen:false,canClose:true},
+    {name:'Laetane',hours:35,poste:'BOISSON',restDays:[6],samWeek:'A',conges:[],canOpen:true,canClose:false},
+    {name:'Hugo',hours:35,poste:'GÉNÉRALE',restDays:[3,6],samWeek:'B',conges:[],canOpen:false,canClose:true},
   ];
   document.getElementById('teamSize').value=team.length;
   document.getElementById('teamSizeDisplay').textContent=team.length;
-  renderTeam();
-  updateBadges();
-  renderFavs();
+  renderTeam();updateBadges();renderFavs();
 };
 
 // ═══════════ WEEK ═══════════
 function onWeekChange(){
   currentWeek=document.getElementById('weekPicker').value;
-  document.getElementById('weekPicker2').value=currentWeek;
+  ['weekPicker2','weekPicker3'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=currentWeek;});
   updateWeekType();
 }
 function syncWeek(el){
   currentWeek=el.value;
-  document.getElementById('weekPicker').value=currentWeek;
+  ['weekPicker','weekPicker2','weekPicker3'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=currentWeek;});
   updateWeekType();
-  if(Object.keys(planning).length) renderPlanning();
+  if(Object.keys(planning).length){renderPlanning();renderGantt();}
 }
 function updateWeekType(){
   if(!currentWeek)return;
   const w=parseInt(currentWeek.split('W')[1]);
   weekType=(w%2===0)?'B':'A';
-  ['wkTypeBadge','wkTypeBadge2'].forEach(id=>{
+  ['wkTypeBadge','wkTypeBadge2','wkTypeBadge3'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){el.textContent=`Semaine ${weekType}`;el.className=`wbadge b${weekType.toLowerCase()}`;}
   });
   const wl=document.getElementById('wkLabel');
-  if(wl) wl.textContent=`Sem.${currentWeek.split('W')[1]} — Type ${weekType}`;
+  if(wl)wl.textContent=`Sem.${currentWeek.split('W')[1]} — Type ${weekType}`;
 }
 
 // ═══════════ TEAM ═══════════
@@ -372,15 +437,13 @@ function stepTeam(d){
   v=Math.max(1,Math.min(20,v+d));
   inp.value=v;
   document.getElementById('teamSizeDisplay').textContent=v;
-  // Auto-update team list immediately
   buildTeam();
 }
 function buildTeam(){
   const n=parseInt(document.getElementById('teamSize').value)||8;
   const old=team.slice();
-  team=Array.from({length:n},(_,i)=>old[i]||{name:`Employé ${i+1}`,hours:35,restDays:[6],samWeek:'none',conges:[]});
+  team=Array.from({length:n},(_,i)=>old[i]||{name:`Employé ${i+1}`,hours:35,poste:'SA',restDays:[6],samWeek:'none',conges:[],canOpen:false,canClose:false});
   renderTeam();updateBadges();planning={};
-  toast(`✓ Équipe de ${n} membres créée`);
 }
 function updateBadges(){
   ['tcBadge','tcBadge2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=team.length;});
@@ -396,8 +459,11 @@ function renderTeam(){
     div.innerHTML=`
       <div class="emp-top">
         <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);min-width:16px;">${i+1}.</span>
-        <input type="text" value="${emp.name}" placeholder="Nom" onchange="team[${i}].name=this.value" style="flex:1;">
-        <select onchange="team[${i}].hours=parseInt(this.value)" style="width:65px;">
+        <input type="text" value="${emp.name}" placeholder="Nom" onchange="team[${i}].name=this.value" style="flex:1;min-width:80px;">
+        <select onchange="team[${i}].poste=this.value;renderPlanning();renderGantt();" style="width:95px;">
+          ${POSTES.map(p=>`<option value="${p}" ${emp.poste===p?'selected':''}>${p}</option>`).join('')}
+        </select>
+        <select onchange="team[${i}].hours=parseInt(this.value)" style="width:60px;">
           <option value="35" ${emp.hours===35?'selected':''}>35h</option>
           <option value="30" ${emp.hours===30?'selected':''}>30h</option>
         </select>
@@ -420,6 +486,14 @@ function renderTeam(){
           <option value="AB" ${emp.samWeek==='AB'?'selected':''}>Toujours repos le sam.</option>
         </select>
       </div>
+      <div style="display:flex;gap:10px;padding:6px 8px;background:rgba(124,106,245,.08);border:1px solid rgba(124,106,245,.2);border-radius:6px;">
+        <label style="display:flex;align-items:center;gap:5px;margin:0;cursor:pointer;font-size:11px;color:var(--txt);">
+          <input type="checkbox" ${emp.canOpen?'checked':''} onchange="team[${i}].canOpen=this.checked" style="accent-color:var(--acc);width:14px;height:14px;">🔓 Peut ouvrir
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;margin:0;cursor:pointer;font-size:11px;color:var(--txt);">
+          <input type="checkbox" ${emp.canClose?'checked':''} onchange="team[${i}].canClose=this.checked" style="accent-color:var(--acc);width:14px;height:14px;">🔒 Peut fermer
+        </label>
+      </div>
       <div class="conge-block">
         <div style="display:flex;align-items:center;gap:8px;">
           <span style="font-size:11px;color:var(--grn);font-weight:600;">🌿 Congés payés</span>
@@ -430,10 +504,9 @@ function renderTeam(){
     el.appendChild(div);
   });
 }
-
 function renderCongesHTML(i){
   const emp=team[i];
-  if(!emp.conges||emp.conges.length===0) return `<span style="font-size:10px;color:var(--t3);">Aucun congé saisi</span>`;
+  if(!emp.conges||emp.conges.length===0)return`<span style="font-size:10px;color:var(--t3);">Aucun congé saisi</span>`;
   return emp.conges.map((c,ci)=>`
     <div class="conge-row">
       <input type="date" value="${c.from}" onchange="team[${i}].conges[${ci}].from=this.value">
@@ -442,20 +515,9 @@ function renderCongesHTML(i){
       <button onclick="removeConge(${i},${ci})" style="background:transparent;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 3px;line-height:1;">×</button>
     </div>`).join('');
 }
-function addConge(i){
-  if(!team[i].conges)team[i].conges=[];
-  team[i].conges.push({from:'',to:''});
-  document.getElementById(`conges-${i}`).innerHTML=renderCongesHTML(i);
-}
-function removeConge(i,ci){
-  team[i].conges.splice(ci,1);
-  document.getElementById(`conges-${i}`).innerHTML=renderCongesHTML(i);
-}
-function toggleRest(i,di,checked){
-  if(di===6)return;
-  if(checked){if(!team[i].restDays.includes(di))team[i].restDays.push(di);}
-  else{team[i].restDays=team[i].restDays.filter(d=>d!==di);}
-}
+function addConge(i){if(!team[i].conges)team[i].conges=[];team[i].conges.push({from:'',to:''});document.getElementById(`conges-${i}`).innerHTML=renderCongesHTML(i);}
+function removeConge(i,ci){team[i].conges.splice(ci,1);document.getElementById(`conges-${i}`).innerHTML=renderCongesHTML(i);}
+function toggleRest(i,di,checked){if(di===6)return;if(checked){if(!team[i].restDays.includes(di))team[i].restDays.push(di);}else{team[i].restDays=team[i].restDays.filter(d=>d!==di);}}
 
 // ═══════════ REST / CONGE ═══════════
 function isRestDay(emp,dayIdx){
@@ -480,7 +542,8 @@ function isCongeDay(emp,dayIdx){
 function calcSlotHours(sl){
   if(!sl||sl.repos||sl.conge||!sl.arrive||!sl.depart)return 0;
   const a=toMin(sl.arrive),d=toMin(sl.depart);
-  const ps=toMin(sl.pauseS||'12:00'),pe=toMin(sl.pauseE||'13:00');
+  if(!sl.pauseS||!sl.pauseE) return Math.max(0,(d-a))/60;
+  const ps=toMin(sl.pauseS),pe=toMin(sl.pauseE);
   return Math.max(0,(d-a-(pe-ps)))/60;
 }
 function calcCongeHours(dayIdx){
@@ -497,7 +560,7 @@ function calcTotalHours(empIdx){
     if(sl.conge){t+=calcCongeHours(d);continue;}
     t+=calcSlotHours(sl);
   }
-  return Math.round(t*10)/10;
+  return Math.round(t*100)/100;
 }
 
 // ═══════════ AUTO FILL ═══════════
@@ -506,8 +569,8 @@ function initPlanning(){
   team.forEach((emp,i)=>{
     planning[i]={};
     for(let d=0;d<7;d++){
-      if(d===6||isRestDay(emp,d)) planning[i][d]={repos:true,conge:false};
-      else if(isCongeDay(emp,d)) planning[i][d]={repos:false,conge:true};
+      if(d===6||isRestDay(emp,d))planning[i][d]={repos:true,conge:false};
+      else if(isCongeDay(emp,d))planning[i][d]={repos:false,conge:true,annotation:'CP'};
       else planning[i][d]=null;
     }
   });
@@ -521,154 +584,301 @@ function autoFill(){
   const pEndMax=toMin(cfgS('pauseEnd','15:00'));
   const minLMV=cfg('minLMV',4);
   const minMJS=cfg('minMJS',3);
+  const minClose=cfg('minClose',3);
+  const noPauseLimit=cfg('noPauseLimit',6);
 
-  // For each day, assign shifts
+  const empPlan=team.map((emp,i)=>{
+    const workDays=[];
+    for(let d=0;d<6;d++)if(!isRestDay(emp,d)&&!isCongeDay(emp,d))workDays.push(d);
+    let congeH=0;
+    for(let d=0;d<6;d++)if(isCongeDay(emp,d))congeH+=calcCongeHours(d);
+    const remainingTarget=Math.max(0,emp.hours-congeH);
+    return{emp,i,workDays,congeH,remainingTarget};
+  });
+
   for(let d=0;d<6;d++){
     const openM=toMin(OPEN_H[d]);
     const closeM=toMin(CLOSE_H[d]);
     const isLMV=[0,2,4].includes(d);
-    const minStaff=isLMV?minLMV:minMJS;
+    const minOpen=isLMV?minLMV:minMJS;
     const dayDuration=(closeM-openM)/60;
 
-    // Workers available (not rest, not conge)
-    const avail=team.map((emp,i)=>({emp,i})).filter(({emp,i})=>{
-      return !isRestDay(emp,d)&&!isCongeDay(emp,d);
-    });
+    const avail=empPlan.filter(({emp})=>!isRestDay(emp,d)&&!isCongeDay(emp,d));
     if(!avail.length)continue;
+    avail.forEach(x=>{x.currentH=calcTotalHours(x.i);});
+    avail.sort((a,b)=>(b.emp.hours-b.currentH)-(a.emp.hours-a.currentH));
 
-    // Sort by hours deficit (most needed first)
-    avail.sort((a,b)=>{
-      const ra=a.emp.hours-calcTotalHours(a.i);
-      const rb=b.emp.hours-calcTotalHours(b.i);
-      return rb-ra;
-    });
+    const opensToday=new Set();
+    const canOpenList=avail.filter(x=>x.emp.canOpen);
+    if(canOpenList.length>0)opensToday.add(canOpenList[0].i);
+    for(const x of avail){if(opensToday.size>=minOpen)break;opensToday.add(x.i);}
 
-    // Days remaining in week (including today)
-    const daysLeft=avail.map(({emp,i})=>{
-      let dl=0;
-      for(let dd=d;dd<6;dd++){
-        if(!isRestDay(emp,dd)&&!isCongeDay(emp,dd)) dl++;
-      }
-      return{...({emp,i}),daysLeft:Math.max(1,dl)};
-    });
+    const closesToday=new Set();
+    const canCloseList=avail.filter(x=>x.emp.canClose);
+    if(canCloseList.length>0)closesToday.add(canCloseList[0].i);
+    for(const x of avail){if(closesToday.size>=minClose)break;closesToday.add(x.i);}
 
-    daysLeft.forEach(({emp,i,daysLeft},idx)=>{
-      const hoursLeft=Math.max(0,emp.hours-calcTotalHours(i));
-      // Target hours today: distribute evenly over remaining days, min 3h if needed
-      const target=Math.min(dayDuration-pauseMinH, Math.max(0, hoursLeft/daysLeft));
-      if(target<1&&idx>=minStaff) return; // skip if not needed and already have min staff
+    avail.forEach(({emp,i,workDays,currentH})=>{
+      const opens=opensToday.has(i);
+      const closes=closesToday.has(i);
+      const stillNeeded=Math.max(0,emp.hours-currentH);
+      const daysLeft=workDays.filter(dd=>dd>d).length;
+      let targetToday=daysLeft===0?Math.min(dayDuration,stillNeeded):Math.min(dayDuration,stillNeeded/(daysLeft+1));
+      
+      // For short weeks (≤3 work days), allow up to 10h/day
+      if(workDays.length<=3) targetToday=Math.max(targetToday,stillNeeded/Math.max(1,daysLeft+1));
+      targetToday=Math.min(targetToday,dayDuration);
+      if(targetToday<2.5&&!opens&&!closes)return;
+      if(targetToday<=0)return;
 
-      // Generate pause duration: random between min and max, capped so shift fits
-      const maxPossiblePause=Math.min(pauseMaxH,(dayDuration-target));
-      const pauseH=pauseMinH+Math.random()*Math.max(0,maxPossiblePause-pauseMinH);
+      // No pause if shift ≤ noPauseLimit
+      const needsPause=targetToday>noPauseLimit;
+      const pauseH=needsPause?(pauseMinH+Math.random()*(pauseMaxH-pauseMinH)):0;
       const pauseM=Math.round(pauseH*60);
+      const workM=Math.round(targetToday*60);
+      const shiftM=workM+pauseM;
 
-      // Pause start: random between pStartMin and pEndMax - pauseM
-      const latestPauseStart=pEndMax-pauseM;
-      const pauseStart=rnd(pStartMin,Math.max(pStartMin,latestPauseStart));
-      const pauseEnd=pauseStart+pauseM;
+      let arrive,depart;
+      if(opens&&closes){
+        arrive=openM;depart=closeM;
+      } else if(opens){
+        arrive=openM;
+        depart=Math.min(closeM-15,arrive+shiftM);
+      } else if(closes){
+        depart=closeM;
+        arrive=Math.max(openM+15,depart-shiftM);
+      } else {
+        arrive=openM+rnd(15,90);
+        depart=Math.min(closeM-15,arrive+shiftM);
+      }
+      if((depart-arrive)<150)return;
 
-      // Total shift = target work + pause
-      const totalShift=Math.round(target*60)+pauseM;
+      if(!needsPause){
+        planning[i][d]={arrive:toHHMM(arrive),pauseS:null,pauseE:null,depart:toHHMM(depart),repos:false,conge:false,annotation:''};
+        return;
+      }
 
-      // Arrive: at open or slightly staggered for non-priority staff
-      const arriveOffset=idx>=minStaff?rnd(0,30):0;
-      const arrive=openM+arriveOffset;
-
-      // Depart
-      const depart=Math.min(closeM,arrive+totalShift);
-
-      // Recalculate effective work hours
-      const actualWork=Math.max(0,(depart-arrive-pauseM))/60;
-      if(actualWork<0.5&&idx>=minStaff) return;
-
-      planning[i][d]={
-        arrive:toHHMM(arrive),
-        pauseS:toHHMM(pauseStart),
-        pauseE:toHHMM(pauseEnd),
-        depart:toHHMM(depart),
-        repos:false,conge:false
-      };
+      // Pause placement — minimize overlap with existing pauses
+      let pStart=Math.max(arrive+60,pStartMin);
+      let pLatest=Math.min(depart-pauseM-60,pEndMax-pauseM);
+      if(pLatest<pStart)pLatest=pStart;
+      const existing=[];
+      for(let ei=0;ei<team.length;ei++){
+        const es=planning[ei]?.[d];
+        if(es&&!es.repos&&!es.conge&&es.pauseS&&es.pauseE)existing.push({ps:toMin(es.pauseS),pe:toMin(es.pauseE)});
+      }
+      let bestStart=pStart,bestOv=Infinity;
+      for(let cand=pStart;cand<=pLatest;cand+=15){
+        let ov=0;
+        for(const ep of existing){
+          const ovS=Math.max(cand,ep.ps),ovE=Math.min(cand+pauseM,ep.pe);
+          if(ovE>ovS)ov+=(ovE-ovS);
+        }
+        const score=ov+Math.random()*5;
+        if(score<bestOv){bestOv=score;bestStart=cand;}
+      }
+      planning[i][d]={arrive:toHHMM(arrive),pauseS:toHHMM(bestStart),pauseE:toHHMM(bestStart+pauseM),depart:toHHMM(depart),repos:false,conge:false,annotation:''};
     });
+
+    // Ensure min closers (without exceeding 40h)
+    let actualClosers=avail.filter(({i})=>{
+      const sl=planning[i]?.[d];
+      return sl&&!sl.repos&&!sl.conge&&sl.depart&&toMin(sl.depart)>=closeM-5;
+    }).length;
+    if(actualClosers<minClose){
+      const candidates=avail.filter(({emp,i})=>{
+        const sl=planning[i]?.[d];
+        if(!sl||!sl.arrive||sl.repos||sl.conge)return false;
+        if(toMin(sl.depart)>=closeM-5)return false;
+        const ct=calcTotalHours(i);
+        return(ct+((closeM-toMin(sl.depart))/60))<=(emp.hours+5);
+      }).sort((a,b)=>{
+        const ac=a.emp.canClose?1:0,bc=b.emp.canClose?1:0;
+        if(ac!==bc)return bc-ac;
+        return calcTotalHours(a.i)-calcTotalHours(b.i);
+      });
+      for(const cd of candidates){
+        if(actualClosers>=minClose)break;
+        const sl=planning[cd.i][d];
+        const oldArr=toMin(sl.arrive),oldDep=toMin(sl.depart);
+        const pM=sl.pauseS&&sl.pauseE?(toMin(sl.pauseE)-toMin(sl.pauseS)):0;
+        const workedM=oldDep-oldArr-pM;
+        const newArr=Math.max(openM,closeM-workedM-pM);
+        sl.arrive=toHHMM(newArr);sl.depart=toHHMM(closeM);
+        if(sl.pauseS&&sl.pauseE){
+          let nps=toMin(sl.pauseS);
+          if(nps<newArr+60)nps=newArr+60;
+          if(nps+pM>closeM-60)nps=closeM-pM-60;
+          sl.pauseS=toHHMM(nps);sl.pauseE=toHHMM(nps+pM);
+        }
+        actualClosers++;
+      }
+    }
   }
 
-  renderPlanning();
-  toast('⚡ Planning généré ! Tapez une cellule pour modifier.');
+  // Balance to target hours by extending pauses (up to 2h) OR removing them if person under
+  team.forEach((emp,i)=>{
+    let total=calcTotalHours(i);
+    const target=emp.hours;
+    const pauseMaxCap=Math.max(pauseMaxH,2);
+    if(total>target+0.05){
+      const days=[];
+      for(let d=0;d<6;d++){
+        const sl=planning[i]?.[d];
+        if(sl&&!sl.repos&&!sl.conge&&sl.arrive&&sl.pauseS&&sl.pauseE){
+          const pM=toMin(sl.pauseE)-toMin(sl.pauseS);
+          days.push({d,pM,sl});
+        }
+      }
+      days.sort((a,b)=>a.pM-b.pM);
+      for(const {d,sl,pM} of days){
+        if(total<=target+0.05)break;
+        const overByM=Math.ceil((total-target)*60);
+        const maxAdd=Math.max(0,Math.round(pauseMaxCap*60)-pM);
+        if(maxAdd<=0)continue;
+        const addM=Math.min(maxAdd,overByM);
+        let nps=toMin(sl.pauseS),npe=toMin(sl.pauseE)+addM;
+        const depM=toMin(sl.depart);
+        if(npe>depM-60){
+          const shift=npe-(depM-60);
+          npe-=shift;nps=Math.max(toMin(sl.arrive)+60,nps-shift);
+          npe=nps+(pM+addM);
+          if(npe>depM-30)npe=depM-30;
+        }
+        sl.pauseS=toHHMM(nps);sl.pauseE=toHHMM(npe);
+        total=calcTotalHours(i);
+      }
+      if(total>target+0.1){
+        const ds=[];
+        for(let d=0;d<6;d++){const sl=planning[i]?.[d];if(sl&&!sl.repos&&!sl.conge&&sl.arrive)ds.push({d,h:calcSlotHours(sl),sl});}
+        ds.sort((a,b)=>b.h-a.h);
+        for(const {sl} of ds){
+          if(total<=target+0.05)break;
+          const overM=Math.ceil((total-target)*60);
+          const nd=toMin(sl.depart)-overM;
+          const minD=(sl.pauseE?toMin(sl.pauseE):toMin(sl.arrive))+60;
+          if(nd>=minD){sl.depart=toHHMM(nd);total=calcTotalHours(i);}
+        }
+      }
+    }
+  });
+
+  // Ensure ≥2 working during all pauses
+  for(let d=0;d<6;d++){
+    const openM=toMin(OPEN_H[d]),closeM=toMin(CLOSE_H[d]);
+    if(!openM||!closeM)continue;
+    for(let iter=0;iter<6;iter++){
+      const issues=[];
+      for(let t=openM;t<closeM;t+=5){
+        let working=0,present=0;
+        const onPause=[];
+        team.forEach((emp,i)=>{
+          const sl=planning[i]?.[d];
+          if(!sl||sl.repos||sl.conge||!sl.arrive)return;
+          const a=toMin(sl.arrive),dep=toMin(sl.depart);
+          if(t>=a&&t<dep){
+            present++;
+            if(sl.pauseS&&sl.pauseE){
+              const ps=toMin(sl.pauseS),pe=toMin(sl.pauseE);
+              if(t>=ps&&t<pe)onPause.push(i);else working++;
+            }else working++;
+          }
+        });
+        if(present>=2&&working<2)issues.push({t,onPause});
+      }
+      if(!issues.length)break;
+      const worst=issues[0];
+      let moved=false;
+      for(const ei of worst.onPause){
+        const sl=planning[ei][d];
+        if(!sl.pauseS||!sl.pauseE)continue;
+        const ps=toMin(sl.pauseS),pe=toMin(sl.pauseE);
+        const pDur=pe-ps,arr=toMin(sl.arrive),dep=toMin(sl.depart);
+        for(const shift of [-30,-60,-90,30,60,90,-15,15,-45,45]){
+          const nps=ps+shift,npe=nps+pDur;
+          if(nps<arr+30||npe>dep-30)continue;
+          if(nps<toMin(cfgS('pauseStart','11:00'))||npe>toMin(cfgS('pauseEnd','15:00')))continue;
+          const oS=sl.pauseS,oE=sl.pauseE;
+          sl.pauseS=toHHMM(nps);sl.pauseE=toHHMM(npe);
+          let w=0,p=0;
+          team.forEach((emp,i)=>{
+            const s2=planning[i]?.[d];
+            if(!s2||s2.repos||s2.conge||!s2.arrive)return;
+            const a2=toMin(s2.arrive),d2=toMin(s2.depart);
+            if(worst.t>=a2&&worst.t<d2){
+              p++;
+              if(s2.pauseS&&s2.pauseE){
+                const p2s=toMin(s2.pauseS),p2e=toMin(s2.pauseE);
+                if(!(worst.t>=p2s&&worst.t<p2e))w++;
+              }else w++;
+            }
+          });
+          if(w>=2){moved=true;break;}
+          sl.pauseS=oS;sl.pauseE=oE;
+        }
+        if(moved)break;
+      }
+      if(!moved)break;
+    }
+  }
+
+  renderPlanning();renderGantt();
+  toast('⚡ Planning généré ! Heures + pauses respectées.');
   showTab('planning',document.querySelectorAll('.tab')[1]);
 }
 
 // ═══════════ RENDER ═══════════
-function goToPlanning(){
-  updateWeekType();
-  initPlanning();
-  renderPlanning();
-  showTab('planning',document.querySelectorAll('.tab')[1]);
-}
+function goToPlanning(){updateWeekType();initPlanning();renderPlanning();renderGantt();showTab('planning',document.querySelectorAll('.tab')[1]);}
 
 function renderPlanning(){
   const wrap=document.getElementById('planningTableWrapper');
   if(!wrap)return;
-
   let html=`<table class="ptbl"><thead><tr><th class="col-emp">Employé</th>`;
   for(let d=0;d<7;d++){
-    const o=OPEN_H[d],c=CLOSE_H[d];
-    html+=`<th class="day-hdr" style="min-width:115px;">
-      <div class="dn">${DAYS[d].slice(0,3).toUpperCase()}</div>
-      <div class="dh">${o?`${o}–${c}`:'Fermé'}</div>
-    </th>`;
+    const o=OPEN_H[d],cl=CLOSE_H[d];
+    html+=`<th class="day-hdr" style="min-width:120px;"><div class="dn">${DAYS[d].slice(0,3).toUpperCase()}</div><div class="dh">${o?`${o}–${cl}`:'Fermé'}</div></th>`;
   }
-  html+=`<th style="min-width:70px;font-size:10px;">Heures</th></tr></thead><tbody>`;
+  html+=`<th style="min-width:75px;font-size:10px;">Heures</th></tr></thead><tbody>`;
 
   team.forEach((emp,i)=>{
     const tot=calcTotalHours(i);
-    const diff=Math.round((tot-emp.hours)*10)/10;
-    const hc=diff>0?'hov':diff<0?'hun':'hok';
-    const hs=diff>0?`+${diff}h`:diff<0?`${diff}h`:'✓';
-    const hbg=diff>0?'rgba(78,205,196,.08)':diff<0?'rgba(255,77,109,.08)':'rgba(6,214,160,.08)';
+    const diff=Math.round((tot-emp.hours)*100)/100;
+    const hc=diff>0.05?'hov':diff<-0.05?'hun':'hok';
+    const hs=Math.abs(diff)<0.05?'✓':(diff>0?`+${fmtH(diff)}`:`-${fmtH(Math.abs(diff))}`);
+    const hbg=diff>0.05?'rgba(78,205,196,.08)':diff<-0.05?'rgba(255,77,109,.08)':'rgba(6,214,160,.08)';
 
-    html+=`<tr>
-      <td class="col-emp">
-        <div style="display:flex;flex-direction:column;gap:1px;padding:6px 0;">
-          <span style="font-weight:600;font-size:12px;white-space:nowrap;">${emp.name}</span>
-          <span style="font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;">${emp.hours}h/sem</span>
-        </div>
-      </td>`;
+    html+=`<tr><td class="col-emp"><div style="display:flex;flex-direction:column;gap:2px;padding:6px 0;">
+      <div style="display:flex;align-items:center;gap:5px;"><span style="font-weight:600;font-size:12px;white-space:nowrap;">${emp.name}</span><span class="poste-badge poste-${emp.poste}">${emp.poste}</span></div>
+      <span style="font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;">${emp.hours}:00/sem</span>
+    </div></td>`;
 
     for(let d=0;d<7;d++){
-      if(d===6){
-        html+=`<td class="cell cell-closed"><div class="cell-inner"><span style="font-size:9px;color:var(--t3);">Fermé</span></div></td>`;
-        continue;
-      }
+      if(d===6){html+=`<td class="cell cell-closed"><div class="cell-inner"><span style="font-size:9px;color:var(--t3);">Fermé</span></div></td>`;continue;}
       const sl=planning[i]?.[d];
-      let cls='cell ';
-      let inner='';
-
-      if(!sl||sl.repos){
-        cls+='cell-repos';
-        inner=`<span class="slot-time">REPOS</span>`;
-      } else if(sl.conge){
+      let cls='cell ';let inner='';
+      if(!sl||sl.repos){cls+='cell-repos';inner=`<span class="slot-time">REPOS</span>`;}
+      else if(sl.conge){
         cls+='cell-conge';
         const ch=calcCongeHours(d);
-        inner=`<span class="slot-time">🌿 CONGÉ</span><span class="slot-pause">${ch}h comptées</span>`;
+        inner=`<span class="slot-time">🌿 CONGÉ</span><span class="slot-pause">${fmtH(ch)} comptées</span>`;
       } else if(sl.arrive){
         cls+='cell-work';
-        const wh=Math.round(calcSlotHours(sl)*10)/10;
-        inner=`<span class="slot-time">${sl.arrive}/${sl.pauseS}</span>
-               <span class="slot-pause">pause ${sl.pauseS}–${sl.pauseE}</span>
-               <span class="slot-time">${sl.pauseE}/${sl.depart}</span>
-               <span class="slot-pause" style="color:var(--a2);">${wh}h</span>`;
-      } else {
-        cls+='cell-empty';
-        inner=`<span class="slot-time" style="color:var(--t3);">—</span>`;
-      }
-
+        const wh=calcSlotHours(sl);
+        const annoHTML=sl.annotation?`<span class="slot-anno">${sl.annotation}</span>`:'';
+        if(sl.pauseS&&sl.pauseE){
+          inner=`<span class="slot-time">${sl.arrive}/${sl.pauseS}</span>
+                 <span class="slot-pause">${sl.pauseS}–${sl.pauseE}</span>
+                 <span class="slot-time">${sl.pauseE}/${sl.depart}</span>
+                 <span class="slot-pause" style="color:var(--a2);">${fmtH(wh)}</span>${annoHTML}`;
+        } else {
+          inner=`<span class="slot-time">${sl.arrive} → ${sl.depart}</span>
+                 <span class="slot-pause" style="color:var(--a2);">${fmtH(wh)} sans pause</span>${annoHTML}`;
+        }
+      } else {cls+='cell-work';inner=`<span class="slot-time" style="color:var(--t3);">—</span>`;}
       html+=`<td class="${cls}" onclick="openModal(${i},${d})"><div class="cell-inner">${inner}</div></td>`;
     }
 
-    html+=`<td class="hcell ${hc}" style="background:${hbg}">
-      <div class="hval ${hc}">${tot}h</div>
-      <div class="hexp">${hs} / ${emp.hours}h</div>
-    </td></tr>`;
+    html+=`<td class="hcell ${hc}" style="background:${hbg}"><div class="hval ${hc}">${fmtH(tot)}</div><div class="hexp">${hs} / ${emp.hours}:00</div></td></tr>`;
   });
 
   html+=buildCountRows();
@@ -678,33 +888,135 @@ function renderPlanning(){
 }
 
 function buildCountRows(){
-  const ml=cfg('minLMV',4),mm=cfg('minMJS',3),md=cfg('minMidi',2);
+  const ml=cfg('minLMV',4),mm=cfg('minMJS',3),mc=cfg('minClose',3);
+  let r0=`<tr class="cntrow"><td class="col-emp" style="text-align:left;padding-left:8px;">🔓 Ouverture</td>`;
   let r1=`<tr class="cntrow"><td class="col-emp" style="text-align:left;padding-left:8px;">👥 Présents</td>`;
-  let r2=`<tr class="cntrow"><td class="col-emp" style="text-align:left;padding-left:8px;">🕛 Midi ≥${md}</td>`;
+  let r2=`<tr class="cntrow"><td class="col-emp" style="text-align:left;padding-left:8px;">🔒 Fermeture ≥${mc}</td>`;
   for(let d=0;d<7;d++){
-    if(d===6){r1+=`<td>—</td>`;r2+=`<td>—</td>`;continue;}
-    const isLMV=[0,2,4].includes(d);
-    const minS=isLMV?ml:mm;
-    const p=countPresent(d),mi=countMidi(d);
+    if(d===6){r0+=`<td>—</td>`;r1+=`<td>—</td>`;r2+=`<td>—</td>`;continue;}
+    const minS=[0,2,4].includes(d)?ml:mm;
+    const o=countOpen(d),p=countPresent(d),cl=countClose(d);
+    r0+=`<td class="${o>=minS?'cok':'clow'}">${o}/${minS}</td>`;
     r1+=`<td class="${p>=minS?'cok':'clow'}">${p}/${minS}</td>`;
-    r2+=`<td class="${mi>=md?'cok':'clow'}">${mi} ${mi>=md?'✓':'⚠'}</td>`;
+    r2+=`<td class="${cl>=mc?'cok':'clow'}">${cl}/${mc}</td>`;
   }
-  r1+=`<td></td></tr>`;r2+=`<td></td></tr>`;
-  return r1+r2;
+  r0+=`<td></td></tr>`;r1+=`<td></td></tr>`;r2+=`<td></td></tr>`;
+  return r0+r1+r2;
 }
 
-function countPresent(d){
-  return team.filter((_,i)=>{
-    const sl=planning[i]?.[d];
-    return sl&&!sl.repos&&!sl.conge&&sl.arrive;
-  }).length;
-}
-function countMidi(d){
-  return team.filter((_,i)=>{
-    const sl=planning[i]?.[d];
-    if(!sl||sl.repos||sl.conge||!sl.arrive||!sl.depart)return false;
-    return toMin(sl.arrive)<=toMin('12:30')&&toMin(sl.depart)>=toMin('13:00');
-  }).length;
+function countPresent(d){return team.filter((_,i)=>{const sl=planning[i]?.[d];return sl&&!sl.repos&&!sl.conge&&sl.arrive;}).length;}
+function countOpen(d){const op=OPEN_H[d];if(!op)return 0;const opM=toMin(op);return team.filter((_,i)=>{const sl=planning[i]?.[d];if(!sl||sl.repos||sl.conge||!sl.arrive)return false;return toMin(sl.arrive)<=opM+5;}).length;}
+function countClose(d){const cl=CLOSE_H[d];if(!cl)return 0;const clM=toMin(cl);return team.filter((_,i)=>{const sl=planning[i]?.[d];if(!sl||sl.repos||sl.conge||!sl.depart)return false;return toMin(sl.depart)>=clM-5;}).length;}
+
+// ═══════════ GANTT VIEW ═══════════
+function renderGantt(){
+  const wrap=document.getElementById('ganttWrap');
+  if(!wrap)return;
+  if(!Object.keys(planning).length){wrap.innerHTML=`<p style="color:var(--t3);">Générez d'abord un planning.</p>`;return;}
+  
+  // Range global de 7h à 20h
+  const GANTT_START=7*60, GANTT_END=20*60;
+  const RANGE=GANTT_END-GANTT_START;
+  
+  let html='';
+  for(let d=0;d<6;d++){
+    const openM=toMin(OPEN_H[d]||'08:00'),closeM=toMin(CLOSE_H[d]||'19:30');
+    const dates=getWeekDates(currentWeek);
+    const dateStr=dates[d]?`${String(dates[d].getDate()).padStart(2,'0')}/${String(dates[d].getMonth()+1).padStart(2,'0')}`:'';
+    
+    // Day total
+    let dayTotal=0;
+    team.forEach((_,i)=>{
+      const sl=planning[i]?.[d];
+      if(sl&&!sl.repos&&!sl.conge&&sl.arrive)dayTotal+=calcSlotHours(sl);
+    });
+    
+    html+=`<div class="gantt-day">
+      <div class="gantt-day-header">
+        <h3>${DAYS[d]} ${dateStr}</h3>
+        <span class="gantt-day-total">Total : ${fmtH(dayTotal)}</span>
+      </div>
+      <div class="gantt-grid">
+        <div class="gantt-hour-row">
+          <div class="gantt-name" style="background:var(--s3);">Heure</div>
+          <div class="gantt-hour-marks">`;
+    
+    for(let h=7;h<=19;h++){
+      const left=((h*60-GANTT_START)/RANGE)*100;
+      html+=`<div class="gantt-hour-mark" style="left:${left}%;">${h}h</div>`;
+    }
+    html+=`</div><div style="background:var(--s3);"></div></div>`;
+    
+    // One row per worker present today
+    team.forEach((emp,i)=>{
+      const sl=planning[i]?.[d];
+      const color=POSTE_COLORS[emp.poste]||'#888';
+      let bars='';let total=0;
+      
+      if(sl&&sl.conge){
+        const left=((openM-GANTT_START)/RANGE)*100;
+        const width=((closeM-openM)/RANGE)*100;
+        bars+=`<div class="gantt-bar" style="left:${left}%;width:${width}%;background:rgba(6,214,160,.4);border:1px dashed var(--grn);"><span class="gantt-bar-anno" style="background:rgba(6,214,160,.9);color:#000;">${sl.annotation||'CP'}</span></div>`;
+        total=calcCongeHours(d);
+      } else if(sl&&!sl.repos&&sl.arrive){
+        const a=toMin(sl.arrive),dep=toMin(sl.depart);
+        if(sl.pauseS&&sl.pauseE){
+          const ps=toMin(sl.pauseS),pe=toMin(sl.pauseE);
+          // Morning bar
+          const ml=((a-GANTT_START)/RANGE)*100;
+          const mw=((ps-a)/RANGE)*100;
+          bars+=`<div class="gantt-bar" style="left:${ml}%;width:${mw}%;background:${color};">${sl.arrive}-${sl.pauseS}</div>`;
+          // Afternoon bar
+          const al=((pe-GANTT_START)/RANGE)*100;
+          const aw=((dep-pe)/RANGE)*100;
+          bars+=`<div class="gantt-bar" style="left:${al}%;width:${aw}%;background:${color};">${sl.pauseE}-${sl.depart}</div>`;
+        } else {
+          const l=((a-GANTT_START)/RANGE)*100;
+          const w=((dep-a)/RANGE)*100;
+          bars+=`<div class="gantt-bar" style="left:${l}%;width:${w}%;background:${color};">${sl.arrive}-${sl.depart}</div>`;
+        }
+        if(sl.annotation){
+          bars+=`<span class="gantt-bar-anno">${sl.annotation}</span>`;
+        }
+        total=calcSlotHours(sl);
+      }
+      
+      html+=`<div class="gantt-row">
+        <div class="gantt-name" style="border-left:3px solid ${color};">${emp.name}</div>
+        <div class="gantt-timeline">${bars}</div>
+        <div class="gantt-total">${total>0?fmtH(total):'—'}</div>
+      </div>`;
+    });
+    
+    // Count row: number of workers per 15min slot
+    html+=`<div class="gantt-count-row">
+      <div class="gantt-count-label">👥 / 15min</div>
+      <div class="gantt-count-cells">`;
+    const slots=Math.floor(RANGE/15);
+    for(let s=0;s<slots;s++){
+      const tStart=GANTT_START+s*15;
+      let count=0;
+      team.forEach((_,i)=>{
+        const sl=planning[i]?.[d];
+        if(!sl||sl.repos||sl.conge||!sl.arrive)return;
+        const a=toMin(sl.arrive),dep=toMin(sl.depart);
+        if(tStart>=a&&tStart<dep){
+          if(sl.pauseS&&sl.pauseE){
+            const ps=toMin(sl.pauseS),pe=toMin(sl.pauseE);
+            if(!(tStart>=ps&&tStart<pe))count++;
+          }else count++;
+        }
+      });
+      const isOpen=tStart>=openM&&tStart<closeM;
+      const bg=!isOpen?'transparent':count===0?'rgba(255,77,109,.1)':count<2?'rgba(247,127,0,.15)':'rgba(6,214,160,.05)';
+      html+=`<div class="gantt-count-cell" style="background:${bg};color:${count===0?'var(--t3)':count<2?'var(--org)':'var(--txt)'};">${isOpen?count:''}</div>`;
+    }
+    html+=`</div><div></div></div>`;
+    
+    html+=`</div></div>`;
+  }
+  
+  wrap.innerHTML=html;
 }
 
 // ═══════════ MODAL ═══════════
@@ -712,47 +1024,61 @@ function openModal(empIdx,dayIdx){
   if(dayIdx===6)return;
   modalTarget={empIdx,dayIdx};
   const sl=planning[empIdx]?.[dayIdx];
-  const o=OPEN_H[dayIdx],c=CLOSE_H[dayIdx];
+  const o=OPEN_H[dayIdx],cl=CLOSE_H[dayIdx];
   document.getElementById('modalTitle').textContent=`${team[empIdx].name} — ${DAYS[dayIdx]}`;
   document.getElementById('mArrive').value=sl?.arrive||o||'';
   document.getElementById('mPauseS').value=sl?.pauseS||'12:00';
   document.getElementById('mPauseE').value=sl?.pauseE||'13:00';
-  document.getElementById('mDepart').value=sl?.depart||c||'';
+  document.getElementById('mDepart').value=sl?.depart||cl||'';
   document.getElementById('mRepos').checked=sl?.repos||false;
   document.getElementById('mConge').checked=sl?.conge||false;
+  document.getElementById('mNoPause').checked=!!(sl&&sl.arrive&&(!sl.pauseS||!sl.pauseE));
+  document.getElementById('mAnno').value=sl?.annotation||'';
   updateModalH();
   document.getElementById('modalBg').style.display='flex';
 }
+function setAnno(v){
+  document.getElementById('mAnno').value=v;
+  document.querySelectorAll('.anno-btn').forEach(b=>b.classList.remove('act'));
+  if(event&&event.target)event.target.classList.add('act');
+}
 function updateModalH(){
   const a=document.getElementById('mArrive').value;
-  const ps=document.getElementById('mPauseS').value;
-  const pe=document.getElementById('mPauseE').value;
   const dep=document.getElementById('mDepart').value;
-  if(a&&ps&&pe&&dep){
-    const w=Math.max(0,(toMin(dep)-toMin(a)-(toMin(pe)-toMin(ps)))/60);
+  const noPause=document.getElementById('mNoPause').checked;
+  if(!a||!dep){document.getElementById('modalHours').textContent='';return;}
+  let w;
+  if(noPause){w=(toMin(dep)-toMin(a))/60;document.getElementById('modalHours').textContent=`⏱ ${fmtH(w)} sans pause`;}
+  else {
+    const ps=document.getElementById('mPauseS').value;
+    const pe=document.getElementById('mPauseE').value;
+    if(!ps||!pe){document.getElementById('modalHours').textContent='';return;}
+    w=Math.max(0,(toMin(dep)-toMin(a)-(toMin(pe)-toMin(ps))))/60;
     const p=(toMin(pe)-toMin(ps))/60;
-    document.getElementById('modalHours').textContent=`⏱ ${Math.round(w*10)/10}h travaillées · pause ${Math.round(p*10)/10}h`;
+    document.getElementById('modalHours').textContent=`⏱ ${fmtH(w)} travaillées · pause ${fmtH(p)}`;
   }
 }
 function saveModal(){
   if(!modalTarget)return;
   const{empIdx,dayIdx}=modalTarget;
+  const anno=document.getElementById('mAnno').value.trim();
   if(document.getElementById('mRepos').checked){
-    planning[empIdx][dayIdx]={repos:true,conge:false};
+    planning[empIdx][dayIdx]={repos:true,conge:false,annotation:anno};
   } else if(document.getElementById('mConge').checked){
-    planning[empIdx][dayIdx]={repos:false,conge:true};
+    planning[empIdx][dayIdx]={repos:false,conge:true,annotation:anno||'CP'};
   } else {
+    const noPause=document.getElementById('mNoPause').checked;
     planning[empIdx][dayIdx]={
       arrive:document.getElementById('mArrive').value,
-      pauseS:document.getElementById('mPauseS').value,
-      pauseE:document.getElementById('mPauseE').value,
+      pauseS:noPause?null:document.getElementById('mPauseS').value,
+      pauseE:noPause?null:document.getElementById('mPauseE').value,
       depart:document.getElementById('mDepart').value,
-      repos:false,conge:false
+      repos:false,conge:false,annotation:anno
     };
   }
   document.getElementById('modalBg').style.display='none';
   modalTarget=null;
-  renderPlanning();
+  renderPlanning();renderGantt();
 }
 function closeModal(e){
   if(e&&e.target!==document.getElementById('modalBg'))return;
@@ -765,56 +1091,41 @@ function renderRecap(){
   const el=document.getElementById('recapContent');
   if(!el)return;
   if(!Object.keys(planning).length){el.innerHTML=`<p style="color:var(--t3)">Générez d'abord un planning.</p>`;return;}
-
   let html=`<div class="rcards">`;
   team.forEach((emp,i)=>{
     const tot=calcTotalHours(i);
-    const diff=Math.round((tot-emp.hours)*10)/10;
-    const col=diff>0?'var(--a2)':diff<0?'var(--red)':'var(--grn)';
-    const sign=diff>0?`+${diff}h`:diff<0?`${diff}h`:'✓';
+    const diff=Math.round((tot-emp.hours)*100)/100;
+    const col=diff>0.05?'var(--a2)':diff<-0.05?'var(--red)':'var(--grn)';
+    const sign=Math.abs(diff)<0.05?'✓':(diff>0?`+${fmtH(diff)}`:`-${fmtH(Math.abs(diff))}`);
     html+=`<div class="rcard">
-      <div style="font-weight:700;font-size:13px;margin-bottom:6px;">${emp.name}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:${col};margin-bottom:4px;">${tot}h <span style="font-size:12px;">${sign}</span></div>
-      <div style="background:var(--s3);border-radius:4px;height:5px;overflow:hidden;margin-bottom:6px;">
-        <div style="height:100%;background:${col};width:${Math.min(100,(tot/emp.hours)*100)}%;"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+        <span style="font-weight:700;font-size:13px;">${emp.name}</span>
+        <span class="poste-badge poste-${emp.poste}">${emp.poste}</span>
       </div>
-      <div style="font-size:9px;color:var(--t3);margin-bottom:8px;">Contrat ${emp.hours}h/sem</div>
+      <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:${col};margin-bottom:4px;">${fmtH(tot)} <span style="font-size:12px;">${sign}</span></div>
+      <div style="background:var(--s3);border-radius:4px;height:5px;overflow:hidden;margin-bottom:6px;"><div style="height:100%;background:${col};width:${Math.min(100,(tot/emp.hours)*100)}%;"></div></div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px;">Contrat ${emp.hours}:00/sem</div>
       <div style="display:flex;flex-direction:column;gap:2px;">
         ${Array.from({length:6},(_,d)=>{
           const sl=planning[i]?.[d];
           if(!sl||sl.repos)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t3);">${DS[d].slice(0,3)} — Repos</div>`;
-          if(sl.conge)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--grn);">${DS[d].slice(0,3)} 🌿 Congé</div>`;
+          if(sl.conge)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--grn);">${DS[d].slice(0,3)} 🌿 ${sl.annotation||'CP'}</div>`;
           if(!sl.arrive)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t3);">${DS[d].slice(0,3)} —</div>`;
-          const wh=Math.round(calcSlotHours(sl)*10)/10;
-          return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t2);">${DS[d].slice(0,3)} ${sl.arrive}→${sl.depart} (${wh}h)</div>`;
+          const wh=calcSlotHours(sl);
+          const np=(sl.pauseS&&sl.pauseE)?'':' s/p';
+          const an=sl.annotation?` [${sl.annotation}]`:'';
+          return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t2);">${DS[d].slice(0,3)} ${sl.arrive}→${sl.depart} (${fmtH(wh)})${np}${an}</div>`;
         }).join('')}
-      </div>
-    </div>`;
+      </div></div>`;
   });
   html+=`</div>`;
-
-  const ml=cfg('minLMV',4),mm=cfg('minMJS',3),md=cfg('minMidi',2);
-  html+=`<div style="margin-top:14px;background:var(--sur);border:1px solid var(--bor);border-radius:10px;padding:14px;">
-  <div class="section-title">Vérification contraintes</div>
-  <table style="width:100%;border-collapse:collapse;">
-  <thead><tr><th style="text-align:left;padding:5px 8px;font-size:10px;color:var(--t2);border-bottom:1px solid var(--bor);">Contrainte</th>
-  ${Array.from({length:6},(_,d)=>`<th style="text-align:center;padding:5px;font-size:10px;color:var(--t2);border-bottom:1px solid var(--bor);">${DAYS[d].slice(0,3)}</th>`).join('')}
-  </tr></thead><tbody>`;
-  [{label:'Présents',fn:d=>{const c=countPresent(d),m=[0,2,4].includes(d)?ml:mm;return{ok:c>=m,v:`${c}/${m}`};}},
-   {label:'Midi',fn:d=>{const c=countMidi(d);return{ok:c>=md,v:`${c}/${md}`};}}
-  ].forEach(row=>{
-    html+=`<tr><td style="padding:5px 8px;font-size:11px;color:var(--t2);border-bottom:1px solid var(--bor);">${row.label}</td>`;
-    for(let d=0;d<6;d++){const r=row.fn(d);html+=`<td style="text-align:center;padding:5px;font-size:11px;border-bottom:1px solid var(--bor);color:${r.ok?'var(--grn)':'var(--red)'};">${r.v} ${r.ok?'✓':'✗'}</td>`;}
-    html+=`</tr>`;
-  });
-  html+=`</tbody></table></div>`;
   el.innerHTML=html;
 }
 
 // ═══════════ FAVORITES ═══════════
 function saveFavorite(){
-  if(!Object.keys(planning).length){toast('⚠ Générez d\'abord un planning');return;}
-  document.getElementById('favName').value=`Planning sem.${currentWeek?.split('W')[1]||''} — Type ${weekType}`;
+  if(!Object.keys(planning).length){toast('⚠ Générez d\\'abord un planning');return;}
+  document.getElementById('favName').value=`Sem.${currentWeek?.split('W')[1]||''} — Type ${weekType}`;
   document.getElementById('favModalBg').style.display='flex';
 }
 function confirmSaveFav(){
@@ -833,27 +1144,22 @@ function renderFavs(){
   const favs=JSON.parse(localStorage.getItem('ppFavs')||'[]');
   if(favs.length===0){if(empty)empty.style.display='block';el.innerHTML='';return;}
   if(empty)empty.style.display='none';
-  el.innerHTML=favs.map(f=>`
-    <div class="fav-item">
-      <div style="flex:1;">
-        <div class="fav-name">${f.name}</div>
-        <div class="fav-meta">Sem. ${f.week?.split('W')[1]||'?'} · Type ${f.weekType||'?'} · ${f.date}</div>
-      </div>
-      <button class="btn bp" style="font-size:10px;padding:6px 10px;" onclick="loadFav(${f.id})">Charger</button>
-      <button class="btn br" style="font-size:10px;padding:6px 10px;" onclick="deleteFav(${f.id})">✕</button>
-    </div>`).join('');
+  el.innerHTML=favs.map(f=>`<div class="fav-item">
+    <div style="flex:1;"><div class="fav-name">${f.name}</div><div class="fav-meta">Sem.${f.week?.split('W')[1]||'?'} · Type ${f.weekType||'?'} · ${f.date}</div></div>
+    <button class="btn bp" style="font-size:10px;padding:6px 10px;" onclick="loadFav(${f.id})">Charger</button>
+    <button class="btn br" style="font-size:10px;padding:6px 10px;" onclick="deleteFav(${f.id})">✕</button>
+  </div>`).join('');
 }
 function loadFav(id){
   const favs=JSON.parse(localStorage.getItem('ppFavs')||'[]');
   const fav=favs.find(f=>f.id===id);
   if(!fav)return;
   team=fav.team;planning=fav.planning;currentWeek=fav.week;weekType=fav.weekType;
-  document.getElementById('weekPicker').value=currentWeek;
-  document.getElementById('weekPicker2').value=currentWeek;
+  ['weekPicker','weekPicker2','weekPicker3'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=currentWeek;});
   updateWeekType();
   document.getElementById('teamSize').value=team.length;
   document.getElementById('teamSizeDisplay').textContent=team.length;
-  renderTeam();updateBadges();renderPlanning();
+  renderTeam();updateBadges();renderPlanning();renderGantt();
   showTab('planning',document.querySelectorAll('.tab')[1]);
   toast(`✓ "${fav.name}" chargé !`);
 }
@@ -867,8 +1173,11 @@ function deleteFav(id){
 // ═══════════ EXPORT PDF ═══════════
 async function exportPDF(){
   toast('Génération PDF...',2000);
-  const el=document.getElementById('planningTableWrapper');
-  if(!el){toast('Allez sur le planning !');return;}
+  const visiblePage=document.querySelector('.page.active');
+  let el;
+  if(visiblePage.id==='page-gantt')el=document.getElementById('ganttWrap');
+  else el=document.getElementById('planningTableWrapper');
+  if(!el){toast('Rien à exporter');return;}
   try{
     const canvas=await html2canvas(el,{backgroundColor:'#0f0f13',scale:1.5,useCORS:true});
     const{jsPDF}=window.jspdf;
@@ -881,7 +1190,7 @@ async function exportPDF(){
     pdf.addImage(img,'PNG',10,10,w,h);
     pdf.save(`planning-${currentWeek}.pdf`);
     toast('✅ PDF téléchargé !');
-  }catch(e){toast('Erreur PDF, essayez impression.');}
+  }catch(e){toast('Erreur PDF');}
 }
 
 // ═══════════ UI ═══════════
@@ -892,6 +1201,7 @@ function showTab(name,btn){
   if(btn)btn.classList.add('active');
   if(name==='recap')renderRecap();
   if(name==='favs')renderFavs();
+  if(name==='gantt')renderGantt();
 }
 function toast(msg,dur=2800){
   const el=document.getElementById('toast');
