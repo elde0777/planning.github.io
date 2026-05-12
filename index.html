@@ -450,14 +450,18 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // Demo team
   team=[
-    {name:'Corine',  hours:35,poste:'SA',      restDays:[6],samWeek:'A',conges:[],canOpen:true, canClose:true },
-    {name:'Patricia',hours:35,poste:'VRAC',     restDays:[1,6],samWeek:'B',conges:[],canOpen:true, canClose:false},
-    {name:'Elian',   hours:30,poste:'BOISSON',  restDays:[6],samWeek:'A',conges:[],canOpen:false,canClose:true },
-    {name:'Marie',   hours:35,poste:'GÉNÉRALE', restDays:[4,6],samWeek:'B',conges:[],canOpen:true, canClose:true },
-    {name:'Montana', hours:35,poste:'SA',       restDays:[6],samWeek:'A',conges:[],canOpen:false,canClose:false},
-    {name:'Mickaël', hours:30,poste:'VRAC',     restDays:[2,6],samWeek:'B',conges:[],canOpen:false,canClose:true },
-    {name:'Laetane', hours:35,poste:'BOISSON',  restDays:[6],samWeek:'A',conges:[],canOpen:true, canClose:false},
-    {name:'Hugo',    hours:35,poste:'GÉNÉRALE', restDays:[3,6],samWeek:'B',conges:[],canOpen:false,canClose:true },
+    // Corine 35h : repos mar + sam semaine A (sam sem21 impaire = type A → repos sam)
+    {name:'Corine',  hours:35,poste:'SA',      restDays:[1,6],samWeek:'A',  conges:[],canOpen:true, canClose:true },
+    // Patricia 36h~35h : repos mar, travaille sam → samWeek none
+    {name:'Patricia',hours:35,poste:'VRAC',    restDays:[1,6],samWeek:'none',conges:[],canOpen:true, canClose:true },
+    // Elian 31h~30h : repos mar, repos sam sem A
+    {name:'Elian',   hours:30,poste:'BOISSON', restDays:[1,6],samWeek:'A',  conges:[],canOpen:false,canClose:false},
+    // Marie 35h : repos mar, repos sam sem B (travaille sam sem21)
+    {name:'Marie',   hours:35,poste:'GÉNÉRALE',restDays:[1,6],samWeek:'B',  conges:[],canOpen:false,canClose:true },
+    // Laetane 36h~35h : repos mar, repos sam sem A
+    {name:'Laetane', hours:35,poste:'FEL',     restDays:[1,6],samWeek:'A',  conges:[],canOpen:true, canClose:true },
+    // Mickaël 21h~20h : repos mar+mer+jeu, travaille sam
+    {name:'Mickaël', hours:20,poste:'SA',      restDays:[1,2,3,6],samWeek:'none',conges:[],canOpen:false,canClose:true},
   ];
   document.getElementById('teamSize').value=team.length;
   document.getElementById('stepDisplay').textContent=team.length;
@@ -1114,38 +1118,136 @@ function delFav(id){
 // ═══════════════════════════════════════════════
 //  EXPORT PDF
 // ═══════════════════════════════════════════════
-async function exportPDF(){
-  toast('Génération PDF...',2000);
+function exportPDF(){
+  // Sur iOS Safari, on ouvre une fenêtre d'impression qui permet de sauvegarder en PDF
   const cur=document.querySelector('.pg.on');
-  const el=cur?.id==='pg-gantt'?document.getElementById('ganttWrap'):document.getElementById('tblWrap');
-  if(!el){toast('Rien à exporter');return;}
-  try{
-    const cv=await html2canvas(el,{backgroundColor:'#0f0f13',scale:1.5,useCORS:true});
-    const{jsPDF}=window.jspdf;
-    const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a3'});
-    const img=cv.toDataURL('image/png');
-    const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
-    const r=cv.width/cv.height;let w=pw-20,hh=w/r;
-    if(hh>ph-20){hh=ph-20;w=hh*r;}
-    pdf.addImage(img,'PNG',10,10,w,hh);
-    pdf.save(`planning-${curWeek}.pdf`);toast('✅ PDF téléchargé !');
-  }catch(e){toast('Erreur PDF');}
+  const isGantt=cur?.id==='pg-gantt';
+  const el=isGantt?document.getElementById('ganttWrap'):document.getElementById('tblWrap');
+  if(!el||!el.innerHTML.trim()){toast('⚠ Générez d\'abord un planning');return;}
+
+  // Build a clean print window
+  const w=window.open('','_blank','width=1200,height=800');
+  if(!w){toast('⚠ Autorisez les popups pour exporter');return;}
+
+  const title=`Planning Semaine ${curWeek?.split('W')[1]||''} — Type ${wType}`;
+
+  w.document.write(`<!DOCTYPE html><html lang="fr"><head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#fff;color:#111;font-family:'DM Sans',Arial,sans-serif;font-size:11px;padding:12px;}
+    h2{font-size:14px;font-weight:700;margin-bottom:10px;color:#111;}
+    /* Table styles */
+    table{border-collapse:collapse;width:100%;font-size:10px;}
+    th,td{border:1px solid #ccc;padding:4px 5px;text-align:center;vertical-align:middle;}
+    th{background:#f0f0f0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:9px;}
+    .col-emp{text-align:left;min-width:100px;background:#f8f8f8;font-weight:600;}
+    .c-repos{background:#ececec;color:#999;}
+    .c-conge{background:#d4f5e9;color:#2a7a5a;}
+    .c-work{background:#fff;}
+    .c-closed{background:#f5f5f5;color:#ccc;}
+    .hcell{font-weight:700;}
+    .hok{color:#06a87a;}.hov{color:#4ecdc4;}.hun{color:#e03;} 
+    .cnt td{background:#f5f5f5;font-size:9px;font-family:monospace;}
+    .cok{color:#06a87a;font-weight:700;}.clow{color:#e03;font-weight:700;}
+    /* Gantt */
+    .g-day{margin-bottom:16px;page-break-inside:avoid;}
+    .g-day h3{font-size:12px;font-weight:700;background:#ffd166;color:#000;padding:3px 10px;border-radius:3px;display:inline-block;margin-bottom:6px;}
+    .g-table{width:100%;border-collapse:collapse;}
+    .g-table td,.g-table th{border:1px solid #ddd;padding:3px 4px;font-size:9px;}
+    .g-bar-cell{position:relative;height:18px;padding:0;}
+    .g-bar{position:absolute;top:1px;bottom:1px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;overflow:hidden;}
+    @media print{body{padding:6px;}h2{font-size:12px;}.g-day{page-break-inside:avoid;}}
+  </style>
+
+  </head><body>
+  <h2>${title}</h2>`);
+
+if(isGantt){
+// Gantt HTML
+w.document.write(buildPrintGantt());
+} else {
+// Table HTML — clone and clean styles
+const clone=el.cloneNode(true);
+// Fix classes to print-friendly versions
+clone.querySelectorAll(’.c-repos’).forEach(td=>{td.style.background=’#ececec’;td.style.color=’#999’;});
+clone.querySelectorAll(’.c-conge’).forEach(td=>{td.style.background=’#d4f5e9’;td.style.color=’#2a7a5a’;});
+clone.querySelectorAll(’.c-work’).forEach(td=>{td.style.background=’#fff’;});
+clone.querySelectorAll(’.c-closed’).forEach(td=>{td.style.background=’#f5f5f5’;td.style.color=’#ccc’;});
+clone.querySelectorAll(’.hok’).forEach(el2=>{el2.style.color=’#06a87a’;});
+clone.querySelectorAll(’.hov’).forEach(el2=>{el2.style.color=’#0099aa’;});
+clone.querySelectorAll(’.hun’).forEach(el2=>{el2.style.color=’#cc0033’;});
+clone.querySelectorAll(’.st’).forEach(el2=>{el2.style.color=’#111’;el2.style.fontSize=‘9px’;});
+clone.querySelectorAll(’.sp’).forEach(el2=>{el2.style.color=’#666’;el2.style.fontSize=‘8px’;});
+clone.querySelectorAll(’.sa2’).forEach(el2=>{el2.style.color=’#d66000’;el2.style.fontSize=‘8px’;});
+clone.querySelectorAll(’.col-emp’).forEach(td=>{td.style.background=’#f8f8f8’;td.style.color=’#111’;});
+clone.querySelectorAll(’.cnt td’).forEach(td=>{td.style.background=’#f5f5f5’;td.style.fontSize=‘9px’;});
+clone.querySelectorAll(’.cok’).forEach(el2=>{el2.style.color=’#06a87a’;el2.style.fontWeight=‘700’;});
+clone.querySelectorAll(’.clow’).forEach(el2=>{el2.style.color=’#cc0033’;el2.style.fontWeight=‘700’;});
+// Remove sticky positioning for print
+clone.querySelectorAll(’[style]’).forEach(el2=>{
+el2.style.position=’’;el2.style.left=’’;el2.style.zIndex=’’;
+});
+w.document.write(’<div style="overflow-x:auto;">’+clone.innerHTML+’</div>’);
+}
+
+w.document.write(’</body></html>’);
+w.document.close();
+setTimeout(()=>{w.focus();w.print();},600);
+}
+
+function buildPrintGantt(){
+const GS=7*60,GE=20*60,GR=GE-GS;
+const pct=m=>((m-GS)/GR*100).toFixed(2);
+const PCOLS={SA:’#7c6af5’,VRAC:’#4ecdc4’,BOISSON:’#f77f00’,‘GÉNÉRALE’:’#ff6b9d’,FEL:’#a8e063’};
+let h=’’;
+for(let d=0;d<6;d++){
+const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
+const dates=weekDates(curWeek);
+const ds2=dates[d]?`${String(dates[d].getDate()).padStart(2,'0')}/${String(dates[d].getMonth()+1).padStart(2,'0')}`:’’
+let dayTot=0;team.forEach((_,i)=>{const s=plan[i]?.[d];if(s&&!s.repos&&!s.conge&&s.arrive)dayTot+=slotH(s);});
+h+=`<div class="g-day"><h3>${DAYS[d]} ${ds2} — Total ${fmtH(dayTot)}</h3> <table class="g-table"><thead><tr><th style="width:90px;">Nom</th><th>Horaires</th><th style="width:55px;">Total</th></tr></thead><tbody>`;
+team.forEach((emp,i)=>{
+const s=plan[i]?.[d];
+const col=PCOLS[emp.poste]||’#888’;
+let barHtml=’’,tot2=0;
+if(s?.conge){
+barHtml=`<div class="g-bar" style="left:${pct(oM)}%;width:${((cM-oM)/GR*100).toFixed(2)}%;background:rgba(6,180,100,.5);">${s.annotation||'CP'}</div>`;
+tot2=congeH(d);
+}else if(s&&!s.repos&&s.arrive){
+const a=toM(s.arrive),dep=toM(s.depart);
+if(s.pauseS&&s.pauseE){
+const ps=toM(s.pauseS),pe=toM(s.pauseE);
+barHtml+=`<div class="g-bar" style="left:${pct(a)}%;width:${((ps-a)/GR*100).toFixed(2)}%;background:${col};">${s.arrive}–${s.pauseS}</div>`;
+barHtml+=`<div class="g-bar" style="left:${pct(pe)}%;width:${((dep-pe)/GR*100).toFixed(2)}%;background:${col};">${s.pauseE}–${s.depart}</div>`;
+}else{
+barHtml+=`<div class="g-bar" style="left:${pct(a)}%;width:${((dep-a)/GR*100).toFixed(2)}%;background:${col};">${s.arrive}–${s.depart}</div>`;
+}
+tot2=slotH(s);
+}
+const isRepos=!s||s.repos;
+h+=`<tr><td style="font-weight:600;border-left:3px solid ${col};">${emp.name}</td> <td class="g-bar-cell" style="position:relative;height:20px;">${isRepos?'<span style="color:#aaa;font-size:9px;padding:0 5px;">Repos</span>':barHtml}</td> <td style="text-align:center;font-weight:700;color:${col};">${tot2>0?fmtH(tot2):'—'}</td></tr>`;
+});
+h+=`</tbody></table></div>`;
+}
+return h;
 }
 
 // ═══════════════════════════════════════════════
 //  UI
 // ═══════════════════════════════════════════════
 function showTab(name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===name));
-  document.querySelectorAll('.pg').forEach(p=>p.classList.toggle('on',p.id===`pg-${name}`));
-  if(name==='recap')renderRecap();
-  if(name==='favs')renderFavs();
-  if(name==='gantt')renderGantt();
+document.querySelectorAll(’.tab’).forEach(t=>t.classList.toggle(‘on’,t.dataset.tab===name));
+document.querySelectorAll(’.pg’).forEach(p=>p.classList.toggle(‘on’,p.id===`pg-${name}`));
+if(name===‘recap’)renderRecap();
+if(name===‘favs’)renderFavs();
+if(name===‘gantt’)renderGantt();
 }
 function toast(msg,dur=2800){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('on');
-  setTimeout(()=>el.classList.remove('on'),dur);
+const el=document.getElementById(‘toast’);
+el.textContent=msg;el.classList.add(‘on’);
+setTimeout(()=>el.classList.remove(‘on’),dur);
 }
 </script>
 
