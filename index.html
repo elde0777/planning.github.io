@@ -5,13 +5,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="color-scheme" content="dark">
-<title>PlanningPro</title>
+<title>Planning Biocoop Tain Tournon</title>
 
 <!-- PWA iOS -->
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="PlanningPro">
+<meta name="apple-mobile-web-app-title" content="Planning Biocoop">
 <meta name="theme-color" content="#0f0f13">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -19,11 +19,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{
-  --bg:#0f0f13;--sur:#16161d;--s2:#1e1e28;--s3:#252533;
-  --bor:#2e2e3f;--acc:#7c6af5;--a2:#4ecdc4;
-  --txt:#e8e8f0;--t2:#9090a8;--t3:#606078;
-  --red:#ff4d6d;--grn:#06d6a0;--org:#f77f00;--yellow:#ffd166;
-  --sa:#7c6af5;--vrac:#4ecdc4;--bois:#f77f00;--gen:#ff6b9d;--fel:#a8e063;
+  /* Biocoop Tain Tournon */
+  --bg:#0e1a2b;--sur:#122038;--s2:#172840;--s3:#1e3350;
+  --bor:#2a4060;--acc:#1e5cbf;--a2:#78b833;
+  --txt:#f0f4f8;--t2:#8aaccc;--t3:#4a6a8a;
+  --red:#e8345a;--grn:#78b833;--org:#f5a800;--yellow:#f5a800;
+  --sa:#1e5cbf;--vrac:#78b833;--bois:#f5a800;--gen:#4ecdc4;--fel:#a8e063;
+  /* Biocoop brand */
+  --bio-blue:#1e4fc2;--bio-orange:#f5a800;--bio-green:#78b833;--bio-white:#ffffff;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html{background:#0f0f13;color-scheme:dark;}
@@ -35,9 +38,9 @@ body{background:#0f0f13;color:var(--txt);font-family:'DM Sans',sans-serif;font-s
 .hdr-right{margin-left:auto;display:flex;gap:6px;}
 
 /* ── TABS ── */
-.tabs{display:flex;background:var(–bg);border-bottom:1px solid var(–bor);overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tabs{display:flex;background:#0e1a2b;border-bottom:1px solid var(–bor);overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .tab{padding:10px 14px;font-family:‘Syne’,sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border:none;background:transparent;color:var(–t3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0;}
-.tab.on{color:var(–acc);border-bottom-color:var(–acc);}
+.tab.on{color:var(–bio-orange);border-bottom-color:var(–bio-orange);}
 
 /* ── PAGES ── */
 .pg{display:none;flex-direction:column;min-height:calc(100vh - 96px);}
@@ -58,7 +61,7 @@ body{background:#0f0f13;color:var(--txt);font-family:'DM Sans',sans-serif;font-s
 
 /* ── PANEL ── */
 .panel{background:var(–s2);border:1px solid var(–bor);border-radius:10px;overflow:hidden;}
-.ph{padding:9px 12px;font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(–t2);background:var(–s3);border-bottom:1px solid var(–bor);display:flex;align-items:center;justify-content:space-between;}
+.ph{padding:9px 12px;font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(–bio-orange);background:var(–s3);border-bottom:1px solid var(–bor);display:flex;align-items:center;justify-content:space-between;}
 .pb{padding:12px;display:flex;flex-direction:column;gap:9px;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .fld{display:flex;flex-direction:column;gap:3px;}
@@ -83,7 +86,7 @@ display:flex;align-items:center;justify-content:center;
 padding:10px 0;user-select:none;-webkit-user-select:none;
 flex-shrink:0;touch-action:manipulation;
 }
-.step-btn:active{background:var(–acc);color:#fff;}
+.step-btn:active{background:var(–bio-blue);color:#fff;}
 .step-val{
 flex:1;text-align:center;font-family:‘DM Mono’,monospace;font-size:20px;
 font-weight:700;color:var(–txt);background:var(–s2);
@@ -98,20 +101,20 @@ font-family:‘Syne’,sans-serif;font-size:11px;font-weight:700;
 letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;
 touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;
 }
-.btn-p{background:var(–acc);color:#fff;}
+.btn-p{background:var(–bio-blue);color:#fff;}
 .btn-s{background:var(–s3);color:var(–t2);border:1px solid var(–bor);}
 .btn-g{background:rgba(6,214,160,.2);color:var(–grn);border:1px solid rgba(6,214,160,.3);}
 .btn-r{background:var(–red);color:#fff;}
-.btn-grad{background:linear-gradient(135deg,var(–acc),var(–a2));color:#fff;}
+.btn-grad{background:linear-gradient(135deg,var(–bio-blue),var(–bio-green));color:#fff;}
 .btn-full{width:100%;justify-content:center;}
 .btn-sm{padding:6px 10px;font-size:10px;}
 
 /* ── BADGES ── */
 .chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-family:‘DM Mono’,monospace;}
-.chip-i{background:rgba(124,106,245,.15);color:var(–acc);border:1px solid rgba(124,106,245,.3);}
+.chip-i{background:rgba(245,168,0,.15);color:var(–bio-orange);border:1px solid rgba(245,168,0,.35);}
 .wbadge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:‘Syne’,sans-serif;}
-.wb-a{background:rgba(124,106,245,.2);color:var(–acc);border:1px solid rgba(124,106,245,.4);}
-.wb-b{background:rgba(78,205,196,.2);color:var(–a2);border:1px solid rgba(78,205,196,.4);}
+.wb-a{background:rgba(30,92,191,.25);color:#6fa8f5;border:1px solid rgba(30,92,191,.5);}
+.wb-b{background:rgba(120,184,51,.2);color:var(–bio-green);border:1px solid rgba(120,184,51,.4);}
 .poste-b{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;font-family:‘Syne’,sans-serif;letter-spacing:.5px;}
 .pb-SA{background:rgba(124,106,245,.2);color:var(–sa);}
 .pb-VRAC{background:rgba(78,205,196,.2);color:var(–vrac);}
@@ -126,7 +129,7 @@ touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;
 .day-cb{display:flex;flex-direction:column;align-items:center;gap:3px;}
 .day-cb input[type=checkbox]{accent-color:var(–acc);width:16px;height:16px;}
 .day-cb span{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
-.cap-row{display:flex;gap:8px;padding:7px 9px;background:rgba(124,106,245,.08);border:1px solid rgba(124,106,245,.2);border-radius:7px;flex-wrap:wrap;}
+.cap-row{display:flex;gap:8px;padding:7px 9px;background:rgba(30,92,191,.1);border:1px solid rgba(30,92,191,.25);border-radius:7px;flex-wrap:wrap;}
 .cap-lbl{display:flex;align-items:center;gap:5px;font-size:12px;color:var(–txt);cursor:pointer;}
 .cap-lbl input[type=checkbox]{accent-color:var(–acc);width:15px;height:15px;}
 .conge-block{background:rgba(6,214,160,.07);border:1px solid rgba(6,214,160,.2);border-radius:7px;padding:9px;display:flex;flex-direction:column;gap:7px;}
@@ -212,7 +215,7 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* ── SECTION TITLE ── */
-.stitle{font-family:‘Syne’,sans-serif;font-size:13px;font-weight:700;padding-bottom:6px;border-bottom:1px solid var(–bor);margin-bottom:10px;}
+.stitle{font-family:‘Syne’,sans-serif;font-size:13px;font-weight:700;padding-bottom:6px;border-bottom:2px solid var(–bio-orange);margin-bottom:10px;color:var(–bio-orange);}
 
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-thumb{background:var(–bor);border-radius:2px;}
@@ -222,12 +225,14 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 <body>
 
 <div class="hdr">
-  <h1>⬡ PlanningPro</h1>
-  <span class="chip chip-i" id="wkLabel">—</span>
+  <div class="bio-wordmark">PLANNING</div>
+
+<span class="chip chip-i" id="wkLabel">—</span>
+
   <div class="hdr-right">
     <button class="btn btn-s btn-sm" id="btnFav">★</button>
     <button class="btn btn-s btn-sm" id="btnPDF">⬇ PDF</button>
-    <button class="btn btn-grad btn-sm" id="btnAuto">⚡ AUTO</button>
+    <button class="btn btn-grad btn-sm" id="btnAuto">⚡ Planning Auto</button>
   </div>
 </div>
 
@@ -510,6 +515,24 @@ function bindAll(){
   document.getElementById('overlayFav').addEventListener('click',e=>{if(e.target===e.currentTarget)closeFavModal();});
   document.getElementById('btnFCancel').addEventListener('click',closeFavModal);
   document.getElementById('btnFSave').addEventListener('click',confirmFav);
+
+  // ═══ GLOBAL EVENT DELEGATION — handles dynamic elements ═══
+  document.addEventListener('click', e=>{
+    const el = e.target.closest('[data-action]');
+    if(!el) return;
+    const action = el.dataset.action;
+    if(action==='cell'){
+      openModal(parseInt(el.dataset.emp), parseInt(el.dataset.day));
+    } else if(action==='loadfav'){
+      loadFav(parseInt(el.dataset.id));
+    } else if(action==='delfav'){
+      delFav(parseInt(el.dataset.id));
+    } else if(action==='addconge'){
+      addConge(parseInt(el.dataset.idx));
+    } else if(action==='rmconge'){
+      rmConge(parseInt(el.dataset.idx), parseInt(el.dataset.ci));
+    }
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -599,7 +622,7 @@ function renderTeam(){
       <div class="conge-block">
         <div style="display:flex;align-items:center;gap:8px;">
           <span style="font-size:12px;color:var(--grn);font-weight:600;">🌿 Congés payés</span>
-          <button class="btn btn-g btn-sm" type="button" onclick="addConge(${i})">+ Ajouter</button>
+          <button class="btn btn-g btn-sm" type="button" data-action="addconge" data-idx="${i}">+ Ajouter</button>
         </div>
         <div id="cg-${i}">${renderCG(i)}</div>
       </div>`;
@@ -614,7 +637,7 @@ function renderCG(i){
     <input type="date" value="${cg.from}" onchange="team[${i}].conges[${ci}].from=this.value">
     <span style="color:var(--t3);">→</span>
     <input type="date" value="${cg.to}" onchange="team[${i}].conges[${ci}].to=this.value">
-    <button type="button" onclick="rmConge(${i},${ci})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:0 4px;">×</button>
+    <button type="button" data-action="rmconge" data-idx="${i}" data-ci="${ci}" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:0 4px;">×</button>
   </div>`).join('');
 }
 function addConge(i){team[i].conges.push({from:'',to:''});document.getElementById(`cg-${i}`).innerHTML=renderCG(i);}
@@ -902,7 +925,7 @@ function renderPlan(){
           inner=`<span class="st">${sl.arrive} → ${sl.depart}</span><span class="sp" style="color:var(--a2);">${fmtH(wh)} s/pause</span>${an}`;
         }
       }else{cls+='c-work';inner=`<span class="st" style="color:var(--t3);">—</span>`;}
-      h+=`<td class="${cls}" onclick="openModal(${i},${d})"><div class="ci-box">${inner}</div></td>`;
+      h+=`<td class="${cls}" data-action="cell" data-emp="${i}" data-day="${d}"><div class="ci-box">${inner}</div></td>`;
     }
     h+=`<td class="hcell ${hc}" style="background:${hbg}"><div class="hval ${hc}">${fmtH(tot)}</div><div class="hexp">${hs} / ${emp.hours}:00</div></td></tr>`;
   });
@@ -1104,8 +1127,8 @@ function renderFavs(){
   em.style.display=favs.length?'none':'block';
   el.innerHTML=favs.map(f=>`<div class="fav-item">
     <div style="flex:1;"><div class="fav-name">${f.name}</div><div class="fav-meta">Sem.${f.week?.split('W')[1]||'?'} · ${f.wType||'?'} · ${f.date}</div></div>
-    <button class="btn btn-p btn-sm" onclick="loadFav(${f.id})">Charger</button>
-    <button class="btn btn-r btn-sm" onclick="delFav(${f.id})">✕</button>
+    <button class="btn btn-p btn-sm" data-action="loadfav" data-id="${f.id}">Charger</button>
+    <button class="btn btn-r btn-sm" data-action="delfav" data-id="${f.id}">✕</button>
   </div>`).join('');
 }
 function loadFav(id){
