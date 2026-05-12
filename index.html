@@ -23,9 +23,13 @@
 html,body{background:#0e1a2b!important;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;-webkit-text-size-adjust:100%;}
 
 /* HEADER */
-.hdr{background:#1e4fc2!important;border-bottom:2px solid rgba(245,168,0,.4);padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.4);}
-.bio-wordmark{font-family:‘Syne’,sans-serif;font-size:26px;font-weight:800;letter-spacing:4px;text-transform:uppercase;background:linear-gradient(135deg,#fff 40%,var(–bio-orange) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.hdr-right{margin-left:auto;display:flex;gap:6px;}
+.hdr{background:#1e4fc2!important;border-bottom:2px solid rgba(245,168,0,.5);padding:8px 12px 6px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:6px;}
+.hdr-row1{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.hdr-row2{display:flex;align-items:center;gap:6px;}
+.bio-wordmark{font-family:‘Syne’,sans-serif;font-size:20px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;text-shadow:0 0 16px rgba(245,168,0,.5);}
+.hdr-utils{display:flex;gap:5px;align-items:center;}
+.btn-autofill{flex:1;background:linear-gradient(135deg,#f5a800,#e8920a)!important;color:#000!important;font-family:‘Syne’,sans-serif;font-weight:800;font-size:12px;letter-spacing:.5px;border:none;border-radius:8px;padding:9px 0;cursor:pointer;text-align:center;touch-action:manipulation;}
+.btn-autofill:active{opacity:.85;}
 
 /* TABS */
 .tabs{display:flex;background:#0e1a2b!important;border-bottom:1px solid var(–bor);overflow-x:auto;-webkit-overflow-scrolling:touch;}
@@ -176,18 +180,30 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-thumb{background:var(–bor);border-radius:2px;}
+
+/* AIDE */
+.aide-section{background:var(–s2);border:1px solid var(–bor);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.aide-title{padding:10px 14px;font-family:‘Syne’,sans-serif;font-size:12px;font-weight:700;color:var(–bio-orange);background:var(–s3);border-bottom:1px solid var(–bor);}
+.aide-body{padding:10px 14px;display:flex;flex-direction:column;gap:8px;}
+.aide-item{font-size:12px;color:var(–t2);line-height:1.6;}
+.aide-item strong{color:var(–txt);}
+.aide-tag{display:inline-block;background:rgba(245,168,0,.15);color:var(–bio-orange);border:1px solid rgba(245,168,0,.3);border-radius:4px;padding:1px 7px;font-size:10px;font-family:‘Syne’,sans-serif;font-weight:700;margin-right:6px;white-space:nowrap;}
 </style>
 
 </head>
 <body>
 
 <div class="hdr">
-  <div class="bio-wordmark">PLANNING</div>
-  <span class="chip chip-i" id="wkLabel">—</span>
-  <div class="hdr-right">
-    <button class="btn btn-s btn-sm" onclick="openFavModal()">★</button>
-    <button class="btn btn-s btn-sm" onclick="exportPDF()">⬇ PDF</button>
-    <button class="btn btn-grad btn-sm" onclick="autoFill()">⚡ Auto</button>
+  <div class="hdr-row1">
+    <div class="bio-wordmark">PLANNING</div>
+    <div class="hdr-utils">
+      <span class="chip chip-i" id="wkLabel" style="font-size:9px;padding:2px 6px;">—</span>
+      <button class="btn btn-s btn-sm" onclick="openFavModal()" style="padding:6px 9px;font-size:12px;">★</button>
+      <button class="btn btn-s btn-sm" onclick="exportPDF()" style="padding:6px 9px;font-size:10px;font-weight:700;">PDF</button>
+    </div>
+  </div>
+  <div class="hdr-row2">
+    <button class="btn-autofill" onclick="autoFill()">⚡ GÉNÉRER LE PLANNING</button>
   </div>
 </div>
 
@@ -197,6 +213,7 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
   <button class="tab" onclick="showTab('gantt',this)">📊 Gantt</button>
   <button class="tab" onclick="showTab('recap',this)">📋 Récap</button>
   <button class="tab" onclick="showTab('favs',this)">★ Favoris</button>
+  <button class="tab" onclick="showTab('aide',this)">❓ Aide</button>
 </div>
 
 <!-- CONFIG -->
@@ -299,6 +316,97 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
     <div class="stitle">★ Plannings favoris</div>
     <div id="favsList"></div>
     <p id="favsEmpty" style="color:var(--t3);font-size:12px;display:none;">Aucun favori sauvegardé.</p>
+  </div>
+</div>
+
+<!-- AIDE -->
+
+<div class="pg" id="pg-aide">
+  <div class="scroll-body" style="max-width:640px;">
+    <div class="stitle">❓ Guide d'utilisation</div>
+
+```
+<div class="aide-section">
+  <div class="aide-title">⚙ Configuration — Équipe</div>
+  <div class="aide-body">
+    <div class="aide-item"><span class="aide-tag">−/+</span> Choisissez le nombre de membres de votre équipe (1 à 20). La liste se met à jour immédiatement.</div>
+    <div class="aide-item"><span class="aide-tag">Nom</span> Prénom ou nom affiché sur le planning.</div>
+    <div class="aide-item"><span class="aide-tag">Poste</span> SA · VRAC · BOISSON · GÉNÉRALE · FEL — détermine la couleur de la barre sur la vue Gantt.</div>
+    <div class="aide-item"><span class="aide-tag">Contrat</span> 35h · 30h · 25h · 20h — l'algorithme vise exactement ce nombre d'heures par semaine.</div>
+    <div class="aide-item"><span class="aide-tag">Repos fixes</span> Cochez les jours où la personne ne travaille jamais. Le dimanche est toujours coché automatiquement.</div>
+    <div class="aide-item"><span class="aide-tag">Repos samedi</span> Rotation A/B : "Semaine A" = repos les semaines impaires, "Semaine B" = semaines paires. Idéal pour alterner les samedis dans l'équipe.</div>
+    <div class="aide-item"><span class="aide-tag">🔓 Ouvrir</span> Cette personne peut assurer l'ouverture du magasin (arrivée à 7h45 ou 8h00).</div>
+    <div class="aide-item"><span class="aide-tag">🔒 Fermer</span> Cette personne peut assurer la fermeture (départ à 19h30 ou 18h30 le samedi).</div>
+    <div class="aide-item"><span class="aide-tag">🌿 Congés</span> Saisissez une date de début et de fin. Les heures de congé sont comptabilisées automatiquement dans le total semaine mais la personne n'est pas comptée dans les effectifs présents.</div>
+  </div>
+</div>
+
+<div class="aide-section">
+  <div class="aide-title">⚙ Configuration — Horaires & règles</div>
+  <div class="aide-body">
+    <div class="aide-item"><span class="aide-tag">Ouv. LMV</span> Heure d'ouverture les Lundi, Mercredi et Vendredi (ex: 07:45).</div>
+    <div class="aide-item"><span class="aide-tag">Ouv. MJS</span> Heure d'ouverture les Mardi, Jeudi et Samedi (ex: 08:00).</div>
+    <div class="aide-item"><span class="aide-tag">Ferm. Lun–Ven</span> Heure de fermeture du lundi au vendredi (ex: 19:30).</div>
+    <div class="aide-item"><span class="aide-tag">Ferm. Samedi</span> Heure de fermeture le samedi (ex: 18:30).</div>
+    <div class="aide-item"><span class="aide-tag">Min ouv. LMV</span> Nombre minimum de personnes présentes à l'ouverture les LMV (recommandé : 4).</div>
+    <div class="aide-item"><span class="aide-tag">Min ouv. MJS</span> Nombre minimum à l'ouverture les MJS (recommandé : 3).</div>
+    <div class="aide-item"><span class="aide-tag">Min fermeture</span> Nombre minimum de personnes présentes jusqu'à la fermeture (recommandé : 3). Au moins une doit savoir fermer.</div>
+    <div class="aide-item"><span class="aide-tag">Pause min/max</span> Durée minimale et maximale de la pause déjeuner en heures. Ex: min 1h, max 2h. Les pauses sont allongées si nécessaire pour respecter le contrat d'heures.</div>
+    <div class="aide-item"><span class="aide-tag">Début/Fin pause</span> Plage horaire dans laquelle la pause doit se situer. Ex: début min 11h00, fin max 15h00.</div>
+    <div class="aide-item"><span class="aide-tag">Pas de pause si ≤</span> Si la journée de travail est inférieure ou égale à ce nombre d'heures, aucune pause n'est imposée. Ex: 6h — un shift 7h45→13h45 sera sans pause.</div>
+  </div>
+</div>
+
+<div class="aide-section">
+  <div class="aide-title">⚡ Bouton Auto-remplir</div>
+  <div class="aide-body">
+    <div class="aide-item">Génère automatiquement le planning de la semaine en respectant toutes les règles configurées : contrats d'heures, ouvertures, fermetures, pauses, repos, congés.</div>
+    <div class="aide-item"><span class="aide-tag">Après génération</span> Vous pouvez ajuster chaque cellule en tapant dessus pour ouvrir le modal de modification.</div>
+  </div>
+</div>
+
+<div class="aide-section">
+  <div class="aide-title">📅 Vue Planning</div>
+  <div class="aide-body">
+    <div class="aide-item">Tableau avec une ligne par personne et une colonne par jour. Chaque cellule affiche les horaires au format <strong>arrivée/début pause — fin pause/départ</strong>.</div>
+    <div class="aide-item"><span class="aide-tag">Vert ✓</span> Total d'heures conforme au contrat.</div>
+    <div class="aide-item"><span class="aide-tag">Turquoise +</span> Heures supplémentaires.</div>
+    <div class="aide-item"><span class="aide-tag">Rouge −</span> Heures manquantes par rapport au contrat.</div>
+    <div class="aide-item"><span class="aide-tag">Lignes du bas</span> 🔓 Ouverture · 👥 Présents · 🔒 Fermeture — en vert si le minimum est respecté, en rouge sinon.</div>
+  </div>
+</div>
+
+<div class="aide-section">
+  <div class="aide-title">📊 Vue Gantt</div>
+  <div class="aide-body">
+    <div class="aide-item">Vue visuelle par jour avec des barres horizontales représentant les plages de travail de chaque personne. La couleur correspond au poste.</div>
+    <div class="aide-item"><span class="aide-tag">Ligne 👥</span> Nombre de personnes en poste (hors pause) par tranche de 15 minutes. Orange si moins de 2, vert si suffisant.</div>
+  </div>
+</div>
+
+<div class="aide-section">
+  <div class="aide-title">📋 Récap</div>
+  <div class="aide-body">
+    <div class="aide-item">Résumé par personne avec total d'heures, barre de progression et détail jour par jour.</div>
+  </div>
+</div>
+
+<div class="aide-section">
+  <div class="aide-title">★ Favoris</div>
+  <div class="aide-body">
+    <div class="aide-item">Sauvegardez un planning comme favori pour le réutiliser plus tard comme base. Les favoris sont stockés sur cet appareil.</div>
+    <div class="aide-item"><span class="aide-tag">Charger</span> Recharge toute la configuration et le planning d'un favori sauvegardé.</div>
+  </div>
+</div>
+
+<div class="aide-section">
+  <div class="aide-title">PDF / Impression</div>
+  <div class="aide-body">
+    <div class="aide-item">Le bouton PDF lance l'impression iOS. Choisissez "Enregistrer en PDF" dans les options pour obtenir un fichier. La vue active (Planning ou Gantt) est celle qui s'imprime.</div>
+  </div>
+</div>
+```
+
   </div>
 </div>
 
@@ -845,19 +953,65 @@ function toast(msg,dur=2800){const el=document.getElementById('toast');el.textCo
 
 <style>
 @media print{
-  .hdr,.tabs,.wbar,.hdr-right{display:none!important;}
-  body{background:#fff!important;color:#000;}
+  /* Masquer l'interface */
+  .hdr,.tabs,.wbar,.hdr-utils,.hdr-row1,.hdr-row2{display:none!important;}
+  body{background:#fff!important;color:#000!important;font-size:11px;}
   .pg{display:flex!important;}
   .pg:not(.on){display:none!important;}
-  .tbl-outer{overflow:visible!important;}
-  table.ptbl th{background:#eee!important;color:#000!important;}
-  .col-emp{background:#f5f5f5!important;color:#000!important;}
-  .c-repos{background:#e0e0e0!important;}.c-conge{background:#d4f5e9!important;}
-  .st{color:#000!important;}.sp{color:#555!important;}
-  .hok{color:#2a8a5a!important;}.hun{color:#c00!important;}.hov{color:#0088aa!important;}
-  .cok{color:#2a8a5a!important;}.clow{color:#c00!important;}
-  .g-name{background:#f5f5f5!important;color:#000!important;}
-  .g-line,.g-cc{background:#fff!important;}
+
+  /* ── TABLE PLANNING ── */
+  .tbl-outer{overflow:visible!important;border:2px solid #333!important;border-radius:0!important;}
+  table.ptbl{width:100%!important;border-collapse:collapse!important;}
+  table.ptbl th,table.ptbl td{
+    border:1.5px solid #444!important;
+    padding:4px 5px!important;
+    text-align:center!important;
+    vertical-align:middle!important;
+  }
+  table.ptbl thead th{background:#2a4a7f!important;color:#fff!important;font-size:9px!important;}
+  .col-emp{background:#1a3a6f!important;color:#fff!important;border-right:2px solid #333!important;}
+  .day-hdr .dn{color:#fff!important;font-size:10px!important;}
+  .day-hdr .dh{color:#ccc!important;font-size:8px!important;}
+
+  /* Cellules */
+  .c-repos{background:#d8d8d8!important;}
+  .c-repos .st{color:#666!important;}
+  .c-conge{background:#c8ecd8!important;}
+  .c-conge .st{color:#1a6a3a!important;}
+  .c-work{background:#fff!important;}
+  .c-closed{background:#f0f0f0!important;opacity:.5!important;}
+  .st{color:#000!important;font-size:9px!important;}
+  .sp{color:#333!important;font-size:8px!important;}
+  .sa2{color:#b85000!important;font-size:8px!important;}
+
+  /* Heures totales */
+  .hcell{border-left:2px solid #333!important;}
+  .hval{font-size:12px!important;font-weight:700!important;}
+  .hok{color:#1a7a4a!important;}.hov{color:#006688!important;}.hun{color:#cc0000!important;}
+  .hexp{color:#333!important;font-size:8px!important;}
+
+  /* Lignes comptage */
+  .cnt td{background:#e8eef8!important;color:#000!important;border:1px solid #666!important;font-size:9px!important;}
+  .cok{color:#1a7a4a!important;font-weight:700!important;}
+  .clow{color:#cc0000!important;font-weight:700!important;}
+
+  /* ── GANTT ── */
+  .g-day{page-break-inside:avoid!important;margin-bottom:14px!important;}
+  .g-day-hdr h3{background:#f5a800!important;color:#000!important;font-size:11px!important;padding:3px 8px!important;}
+  .g-total{color:#333!important;font-size:10px!important;}
+  .g-grid{border:1.5px solid #333!important;}
+  .g-row{border-bottom:1px solid #999!important;}
+  .g-name{background:#e8eef8!important;color:#000!important;font-size:10px!important;font-weight:700!important;border-right:1.5px solid #333!important;padding:3px 6px!important;}
+  .g-line{background:#f8f8f8!important;border-right:1px solid #ccc!important;}
+  .g-bar{color:#fff!important;font-size:7px!important;font-weight:700!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  .g-tot{background:#e8eef8!important;color:#000!important;font-size:10px!important;font-weight:700!important;border-left:1px solid #999!important;}
+  .g-hrow .g-hmarks{background:#ddd!important;}
+  .g-hm{color:#333!important;font-size:8px!important;}
+  .g-crow .g-cline{background:#eee!important;border-top:1px solid #999!important;}
+  .g-cc{color:#000!important;font-size:9px!important;font-weight:700!important;border-right:1px solid #ddd!important;}
+
+  /* Force couleurs barres Gantt à l'impression */
+  * {-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
 }
 </style>
 
