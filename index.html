@@ -360,15 +360,15 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
     <div class="modal-handle"></div>
     <h3 id="mTitle">Modifier les horaires</h3>
     <div class="modal-grid">
-      <div class="fld"><label>Arrivée</label><input type="text" id="mArrive" placeholder="07:45" oninput="calcModal()"></div>
-      <div class="fld"><label>Départ</label><input type="text" id="mDepart" placeholder="19:30" oninput="calcModal()"></div>
-      <div class="fld"><label>Début pause</label><input type="text" id="mPauseS" placeholder="12:00" oninput="calcModal()"></div>
-      <div class="fld"><label>Fin pause</label><input type="text" id="mPauseE" placeholder="13:00" oninput="calcModal()"></div>
+      <div class="fld"><label>Arrivée</label><input type="text" id="mArrive" placeholder="07:45"></div>
+      <div class="fld"><label>Départ</label><input type="text" id="mDepart" placeholder="19:30"></div>
+      <div class="fld"><label>Début pause</label><input type="text" id="mPauseS" placeholder="12:00"></div>
+      <div class="fld"><label>Fin pause</label><input type="text" id="mPauseE" placeholder="13:00"></div>
     </div>
     <div class="modal-checks">
       <label class="check-lbl"><input type="checkbox" id="mRepos"> Repos</label>
       <label class="check-lbl"><input type="checkbox" id="mConge"> Congé payé</label>
-      <label class="check-lbl"><input type="checkbox" id="mNoPause" onchange="calcModal()"> Sans pause</label>
+      <label class="check-lbl"><input type="checkbox" id="mNoPause"> Sans pause</label>
     </div>
     <div class="anno-strip">
       <button class="anno-btn" data-anno="">—</button>
@@ -516,22 +516,44 @@ function bindAll(){
   document.getElementById('btnFCancel').addEventListener('click',closeFavModal);
   document.getElementById('btnFSave').addEventListener('click',confirmFav);
 
-  // ═══ GLOBAL EVENT DELEGATION — handles dynamic elements ═══
+  // ═══ GLOBAL EVENT DELEGATION ═══
   document.addEventListener('click', e=>{
     const el = e.target.closest('[data-action]');
     if(!el) return;
     const action = el.dataset.action;
-    if(action==='cell'){
-      openModal(parseInt(el.dataset.emp), parseInt(el.dataset.day));
-    } else if(action==='loadfav'){
-      loadFav(parseInt(el.dataset.id));
-    } else if(action==='delfav'){
-      delFav(parseInt(el.dataset.id));
-    } else if(action==='addconge'){
-      addConge(parseInt(el.dataset.idx));
-    } else if(action==='rmconge'){
-      rmConge(parseInt(el.dataset.idx), parseInt(el.dataset.ci));
-    }
+    const idx = parseInt(el.dataset.idx);
+    if(action==='cell')      openModal(parseInt(el.dataset.emp), parseInt(el.dataset.day));
+    else if(action==='loadfav')  loadFav(parseInt(el.dataset.id));
+    else if(action==='delfav')   delFav(parseInt(el.dataset.id));
+    else if(action==='addconge') addConge(idx);
+    else if(action==='rmconge')  rmConge(idx, parseInt(el.dataset.ci));
+  });
+
+  // ═══ GLOBAL CHANGE/INPUT DELEGATION ═══
+  document.addEventListener('change', e=>{
+    const el = e.target.closest('[data-action]')||e.target;
+    const action = el.dataset?.action;
+    const idx = parseInt(el.dataset?.idx);
+    if(!action||isNaN(idx)&&!['mNoPause'].includes(el.id)) return;
+    if(action==='empposte')  { team[idx].poste=el.value; }
+    else if(action==='emphours') { team[idx].hours=parseInt(el.value); }
+    else if(action==='emprest')  { toggleRest(idx, parseInt(el.dataset.di), el.checked); }
+    else if(action==='empsam')   { team[idx].samWeek=el.value; }
+    else if(action==='empopen')  { team[idx].canOpen=el.checked; }
+    else if(action==='empclose') { team[idx].canClose=el.checked; }
+    else if(action==='cgfrom')   { team[idx].conges[parseInt(el.dataset.ci)].from=el.value; }
+    else if(action==='cgto')     { team[idx].conges[parseInt(el.dataset.ci)].to=el.value; }
+    // Modal no-pause checkbox
+    if(el.id==='mNoPause') calcModal();
+  });
+
+  document.addEventListener('input', e=>{
+    const el = e.target;
+    const action = el.dataset?.action;
+    const idx = parseInt(el.dataset?.idx);
+    if(action==='empname' && !isNaN(idx)) team[idx].name=el.value;
+    // Modal inputs
+    if(['mArrive','mDepart','mPauseS','mPauseE'].includes(el.id)) calcModal();
   });
 }
 
@@ -586,11 +608,11 @@ function renderTeam(){
     d.innerHTML=`
       <div class="emp-top">
         <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);min-width:20px;">${i+1}.</span>
-        <input type="text" value="${emp.name}" placeholder="Nom" style="flex:1;min-width:80px;" oninput="team[${i}].name=this.value">
-        <select style="width:100px;" onchange="team[${i}].poste=this.value">
+        <input type="text" value="${emp.name}" placeholder="Nom" style="flex:1;min-width:80px;" data-action="empname" data-idx="${i}">
+        <select style="width:100px;" data-action="empposte" data-idx="${i}">
           ${POSTES.map(p=>`<option value="${p}" ${emp.poste===p?'selected':''}>${p}</option>`).join('')}
         </select>
-        <select style="width:65px;" onchange="team[${i}].hours=parseInt(this.value)">
+        <select style="width:65px;" data-action="emphours" data-idx="${i}">
           <option value="35" ${emp.hours===35?'selected':''}>35h</option>
           <option value="30" ${emp.hours===30?'selected':''}>30h</option>
           <option value="25" ${emp.hours===25?'selected':''}>25h</option>
@@ -601,14 +623,14 @@ function renderTeam(){
         <label style="margin-bottom:5px;">Jours de repos fixes</label>
         <div class="days-grid">
           ${DAYS.map((dd,di)=>`<div class="day-cb">
-            <input type="checkbox" ${emp.restDays.includes(di)?'checked':''} ${di===6?'disabled checked':''} onchange="toggleRest(${i},${di},this.checked)">
+            <input type="checkbox" ${emp.restDays.includes(di)?'checked':''} ${di===6?'disabled checked':''} data-action="emprest" data-idx="${i}" data-di="${di}">
             <span>${DS[di].slice(0,2)}</span>
           </div>`).join('')}
         </div>
       </div>
       <div class="fld">
         <label>Repos samedi (rotation)</label>
-        <select onchange="team[${i}].samWeek=this.value">
+        <select data-action="empsam" data-idx="${i}">
           <option value="none" ${emp.samWeek==='none'?'selected':''}>Jamais de repos le sam.</option>
           <option value="A"    ${emp.samWeek==='A'   ?'selected':''}>Repos sam. semaine A</option>
           <option value="B"    ${emp.samWeek==='B'   ?'selected':''}>Repos sam. semaine B</option>
@@ -616,8 +638,8 @@ function renderTeam(){
         </select>
       </div>
       <div class="cap-row">
-        <label class="cap-lbl"><input type="checkbox" ${emp.canOpen?'checked':''} onchange="team[${i}].canOpen=this.checked"> 🔓 Peut ouvrir</label>
-        <label class="cap-lbl"><input type="checkbox" ${emp.canClose?'checked':''} onchange="team[${i}].canClose=this.checked"> 🔒 Peut fermer</label>
+        <label class="cap-lbl"><input type="checkbox" ${emp.canOpen?'checked':''} data-action="empopen" data-idx="${i}"> 🔓 Peut ouvrir</label>
+        <label class="cap-lbl"><input type="checkbox" ${emp.canClose?'checked':''} data-action="empclose" data-idx="${i}"> 🔒 Peut fermer</label>
       </div>
       <div class="conge-block">
         <div style="display:flex;align-items:center;gap:8px;">
@@ -634,9 +656,9 @@ function renderCG(i){
   const c=team[i].conges||[];
   if(!c.length)return`<span style="font-size:11px;color:var(--t3);">Aucun congé saisi</span>`;
   return c.map((cg,ci)=>`<div class="conge-row">
-    <input type="date" value="${cg.from}" onchange="team[${i}].conges[${ci}].from=this.value">
+    <input type="date" value="${cg.from}" data-action="cgfrom" data-idx="${i}" data-ci="${ci}">
     <span style="color:var(--t3);">→</span>
-    <input type="date" value="${cg.to}" onchange="team[${i}].conges[${ci}].to=this.value">
+    <input type="date" value="${cg.to}" data-action="cgto" data-idx="${i}" data-ci="${ci}">
     <button type="button" data-action="rmconge" data-idx="${i}" data-ci="${ci}" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:0 4px;">×</button>
   </div>`).join('');
 }
