@@ -221,6 +221,890 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 ::-webkit-scrollbar-thumb{background:var(–bor);border-radius:2px;}
 </style>
 
+<script defer>
+
+// ═══════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════
+const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+const DS=['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
+const OPEN={0:'07:45',1:'08:00',2:'07:45',3:'08:00',4:'07:45',5:'08:00',6:null};
+const CLOSE={0:'19:30',1:'19:30',2:'19:30',3:'19:30',4:'19:30',5:'18:30',6:null};
+const POSTES=['SA','VRAC','BOISSON','GÉNÉRALE','FEL'];
+const PCOL={SA:'#7c6af5',VRAC:'#4ecdc4',BOISSON:'#f77f00','GÉNÉRALE':'#ff6b9d',FEL:'#a8e063'};
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let team=[], plan={}, curWeek=null, wType='A', mTarget=null;
+
+// ═══════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════
+const toM=t=>{if(!t||!t.includes(':'))return 0;const[h,m]=t.split(':').map(Number);return h*60+m;};
+const toT=m=>{const h=Math.floor(m/60),mm=m%60;return`${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;};
+const rnd=(a,b)=>Math.round(a+Math.random()*(b-a));
+const fmtH=h=>{
+  if(!h&&h!==0)return'0:00';
+  const s=h<0?'-':'';const a=Math.abs(h);
+  const hh=Math.floor(a);const mm=Math.round((a-hh)*60);
+  return`${s}${hh}:${String(mm===60?0:mm).padStart(2,'0')}`.replace(/^(-?)(\d):/, '$1$2:');
+};
+const cfg=id=>parseFloat(document.getElementById(id)?.value||0)||0;
+const cfgS=id=>document.getElementById(id)?.value||'';
+
+function weekNum(d){
+  const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));
+  return Math.ceil((((dt-new Date(Date.UTC(dt.getUTCFullYear(),0,1)))/86400000)+1)/7);
+}
+function weekDates(ws){
+  if(!ws)return[];
+  const[yr,wp]=ws.split('-W');
+  const y=parseInt(yr),w=parseInt(wp);
+  const j4=new Date(y,0,4);
+  const sow=new Date(j4);sow.setDate(j4.getDate()-(j4.getDay()||7)+1);
+  const mon=new Date(sow);mon.setDate(sow.getDate()+(w-1)*7);
+  return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+}
+const dateStr=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+function initApp(){
+  // Week init
+  const now=new Date();
+  curWeek=`${now.getFullYear()}-W${String(weekNum(now)).padStart(2,'0')}`;
+  setAllWeekPickers(curWeek);
+  updateWType();
+
+  // Demo team
+  team=[
+    // Corine 35h : repos mar + sam semaine A (sam sem21 impaire = type A → repos sam)
+    {name:'Corine',  hours:35,poste:'SA',      restDays:[1,6],samWeek:'A',  conges:[],canOpen:true, canClose:true },
+    // Patricia 36h~35h : repos mar, travaille sam → samWeek none
+    {name:'Patricia',hours:35,poste:'VRAC',    restDays:[1,6],samWeek:'none',conges:[],canOpen:true, canClose:true },
+    // Elian 31h~30h : repos mar, repos sam sem A
+    {name:'Elian',   hours:30,poste:'BOISSON', restDays:[1,6],samWeek:'A',  conges:[],canOpen:false,canClose:false},
+    // Marie 35h : repos mar, repos sam sem B (travaille sam sem21)
+    {name:'Marie',   hours:35,poste:'GÉNÉRALE',restDays:[1,6],samWeek:'B',  conges:[],canOpen:false,canClose:true },
+    // Laetane 36h~35h : repos mar, repos sam sem A
+    {name:'Laetane', hours:35,poste:'FEL',     restDays:[1,6],samWeek:'A',  conges:[],canOpen:true, canClose:true },
+    // Mickaël 21h~20h : repos mar+mer+jeu, travaille sam
+    {name:'Mickaël', hours:20,poste:'SA',      restDays:[1,2,3,6],samWeek:'none',conges:[],canOpen:false,canClose:true},
+  ];
+  document.getElementById('teamSize').value=team.length;
+  document.getElementById('stepDisplay').textContent=team.length;
+  renderTeam();updBadges();renderFavs();
+  bindAll();
+  bindAll();
+}
+
+function bindAll(){
+  // onclick handles tabs + buttons — only need week pickers here
+  // Week pickers
+  document.getElementById('weekPicker').addEventListener('change',e=>{curWeek=e.target.value;setAllWeekPickers(curWeek);updateWType();});
+  document.getElementById('weekPicker2').addEventListener('change',e=>{curWeek=e.target.value;setAllWeekPickers(curWeek);updateWType();if(Object.keys(plan).length){renderPlan();renderGantt();}});
+  document.getElementById('weekPicker3').addEventListener('change',e=>{curWeek=e.target.value;setAllWeekPickers(curWeek);updateWType();if(Object.keys(plan).length){renderPlan();renderGantt();}});
+  // Modal cell
+  document.getElementById('overlayCell').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+  // modal buttons use onclick
+  // anno buttons use onclick
+  // Modal fav
+  document.getElementById('overlayFav').addEventListener('click',e=>{if(e.target===e.currentTarget)closeFavModal();});
+  // fav buttons use onclick
+
+  // ═══ GLOBAL EVENT DELEGATION ═══
+  document.addEventListener('click', e=>{
+    const el = e.target.closest('[data-action]');
+    if(!el) return;
+    const action = el.dataset.action;
+    const idx = parseInt(el.dataset.idx);
+    if(action==='cell')      openModal(parseInt(el.dataset.emp), parseInt(el.dataset.day));
+    else if(action==='loadfav')  loadFav(parseInt(el.dataset.id));
+    else if(action==='delfav')   delFav(parseInt(el.dataset.id));
+    else if(action==='addconge') addConge(idx);
+    else if(action==='rmconge')  rmConge(idx, parseInt(el.dataset.ci));
+  });
+
+  // ═══ GLOBAL CHANGE/INPUT DELEGATION ═══
+  document.addEventListener('change', e=>{
+    const el = e.target.closest('[data-action]')||e.target;
+    const action = el.dataset?.action;
+    const idx = parseInt(el.dataset?.idx);
+    if(!action||isNaN(idx)&&!['mNoPause'].includes(el.id)) return;
+    if(action==='empposte')  { team[idx].poste=el.value; }
+    else if(action==='emphours') { team[idx].hours=parseInt(el.value); }
+    else if(action==='emprest')  { toggleRest(idx, parseInt(el.dataset.di), el.checked); }
+    else if(action==='empsam')   { team[idx].samWeek=el.value; }
+    else if(action==='empopen')  { team[idx].canOpen=el.checked; }
+    else if(action==='empclose') { team[idx].canClose=el.checked; }
+    else if(action==='cgfrom')   { team[idx].conges[parseInt(el.dataset.ci)].from=el.value; }
+    else if(action==='cgto')     { team[idx].conges[parseInt(el.dataset.ci)].to=el.value; }
+    // Modal no-pause checkbox
+    if(el.id==='mNoPause') calcModal();
+  });
+
+  document.addEventListener('input', e=>{
+    const el = e.target;
+    const action = el.dataset?.action;
+    const idx = parseInt(el.dataset?.idx);
+    if(action==='empname' && !isNaN(idx)) team[idx].name=el.value;
+    // Modal inputs
+    if(['mArrive','mDepart','mPauseS','mPauseE'].includes(el.id)) calcModal();
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  WEEK
+// ═══════════════════════════════════════════════
+function setAllWeekPickers(w){
+  ['weekPicker','weekPicker2','weekPicker3'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value=w;
+  });
+}
+function updateWType(){
+  if(!curWeek)return;
+  const w=parseInt(curWeek.split('W')[1]);
+  wType=(w%2===0)?'B':'A';
+  const cls=`wbadge wb-${wType.toLowerCase()}`;
+  const txt=`Semaine ${wType}`;
+  ['wkBadge1','wkBadge2','wkBadge3'].forEach(id=>{const el=document.getElementById(id);if(el){el.className=cls;el.textContent=txt;}});
+  const wl=document.getElementById('wkLabel');
+  if(wl)wl.textContent=`Sem.${curWeek.split('W')[1]} — ${wType}`;
+}
+
+// ═══════════════════════════════════════════════
+//  TEAM
+// ═══════════════════════════════════════════════
+function stepTeam(delta){
+  const inp=document.getElementById('teamSize');
+  let v=parseInt(inp.value)||8;
+  v=Math.max(1,Math.min(20,v+delta));
+  inp.value=v;
+  document.getElementById('stepDisplay').textContent=v;
+  buildTeam();
+}
+function buildTeam(){
+  const n=parseInt(document.getElementById('teamSize').value)||8;
+  const old=team.slice();
+  team=Array.from({length:n},(_,i)=>old[i]||{name:`Employé ${i+1}`,hours:35,poste:'SA',restDays:[6],samWeek:'none',conges:[],canOpen:false,canClose:false});
+  renderTeam();updBadges();plan={};
+  toast(`✓ Équipe de ${n} membres`);
+}
+function updBadges(){
+  ['tcBadge','tcBadge2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=team.length;});
+}
+
+function renderTeam(){
+  const el=document.getElementById('teamList');
+  if(!el)return;
+  el.innerHTML='';
+  team.forEach((emp,i)=>{
+    const d=document.createElement('div');
+    d.className='emp-row';
+    d.innerHTML=`
+      <div class="emp-top">
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);min-width:20px;">${i+1}.</span>
+        <input type="text" value="${emp.name}" placeholder="Nom" style="flex:1;min-width:80px;" data-action="empname" data-idx="${i}">
+        <select style="width:100px;" data-action="empposte" data-idx="${i}">
+          ${POSTES.map(p=>`<option value="${p}" ${emp.poste===p?'selected':''}>${p}</option>`).join('')}
+        </select>
+        <select style="width:65px;" data-action="emphours" data-idx="${i}">
+          <option value="35" ${emp.hours===35?'selected':''}>35h</option>
+          <option value="30" ${emp.hours===30?'selected':''}>30h</option>
+          <option value="25" ${emp.hours===25?'selected':''}>25h</option>
+          <option value="20" ${emp.hours===20?'selected':''}>20h</option>
+        </select>
+      </div>
+      <div>
+        <label style="margin-bottom:5px;">Jours de repos fixes</label>
+        <div class="days-grid">
+          ${DAYS.map((dd,di)=>`<div class="day-cb">
+            <input type="checkbox" ${emp.restDays.includes(di)?'checked':''} ${di===6?'disabled checked':''} data-action="emprest" data-idx="${i}" data-di="${di}">
+            <span>${DS[di].slice(0,2)}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="fld">
+        <label>Repos samedi (rotation)</label>
+        <select data-action="empsam" data-idx="${i}">
+          <option value="none" ${emp.samWeek==='none'?'selected':''}>Jamais de repos le sam.</option>
+          <option value="A"    ${emp.samWeek==='A'   ?'selected':''}>Repos sam. semaine A</option>
+          <option value="B"    ${emp.samWeek==='B'   ?'selected':''}>Repos sam. semaine B</option>
+          <option value="AB"   ${emp.samWeek==='AB'  ?'selected':''}>Toujours repos le sam.</option>
+        </select>
+      </div>
+      <div class="cap-row">
+        <label class="cap-lbl"><input type="checkbox" ${emp.canOpen?'checked':''} data-action="empopen" data-idx="${i}"> 🔓 Peut ouvrir</label>
+        <label class="cap-lbl"><input type="checkbox" ${emp.canClose?'checked':''} data-action="empclose" data-idx="${i}"> 🔒 Peut fermer</label>
+      </div>
+      <div class="conge-block">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;color:var(--grn);font-weight:600;">🌿 Congés payés</span>
+          <button class="btn btn-g btn-sm" type="button" data-action="addconge" data-idx="${i}">+ Ajouter</button>
+        </div>
+        <div id="cg-${i}">${renderCG(i)}</div>
+      </div>`;
+    el.appendChild(d);
+  });
+}
+
+function renderCG(i){
+  const c=team[i].conges||[];
+  if(!c.length)return`<span style="font-size:11px;color:var(--t3);">Aucun congé saisi</span>`;
+  return c.map((cg,ci)=>`<div class="conge-row">
+    <input type="date" value="${cg.from}" data-action="cgfrom" data-idx="${i}" data-ci="${ci}">
+    <span style="color:var(--t3);">→</span>
+    <input type="date" value="${cg.to}" data-action="cgto" data-idx="${i}" data-ci="${ci}">
+    <button type="button" data-action="rmconge" data-idx="${i}" data-ci="${ci}" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:0 4px;">×</button>
+  </div>`).join('');
+}
+function addConge(i){team[i].conges.push({from:'',to:''});document.getElementById(`cg-${i}`).innerHTML=renderCG(i);}
+function rmConge(i,ci){team[i].conges.splice(ci,1);document.getElementById(`cg-${i}`).innerHTML=renderCG(i);}
+function toggleRest(i,di,v){if(di===6)return;if(v){if(!team[i].restDays.includes(di))team[i].restDays.push(di);}else{team[i].restDays=team[i].restDays.filter(d=>d!==di);}}
+
+// ═══════════════════════════════════════════════
+//  REST / CONGE
+// ═══════════════════════════════════════════════
+function isRest(emp,d){
+  if(d===6)return true;
+  if(emp.restDays.includes(d))return true;
+  if(d===5){
+    if(emp.samWeek==='AB')return true;
+    if(emp.samWeek==='A'&&wType==='A')return true;
+    if(emp.samWeek==='B'&&wType==='B')return true;
+  }
+  return false;
+}
+function isConge(emp,d){
+  if(!emp.conges?.length)return false;
+  const dates=weekDates(curWeek);if(!dates[d])return false;
+  const ds=dateStr(dates[d]);
+  return emp.conges.some(c=>c.from&&c.to&&ds>=c.from&&ds<=c.to);
+}
+
+// ═══════════════════════════════════════════════
+//  HOURS
+// ═══════════════════════════════════════════════
+function slotH(sl){
+  if(!sl||sl.repos||sl.conge||!sl.arrive||!sl.depart)return 0;
+  const a=toM(sl.arrive),d=toM(sl.depart);
+  if(!sl.pauseS||!sl.pauseE)return Math.max(0,(d-a))/60;
+  return Math.max(0,(d-a-(toM(sl.pauseE)-toM(sl.pauseS))))/60;
+}
+function congeH(d){
+  const o=OPEN[d],c=CLOSE[d];if(!o||!c)return 0;
+  return Math.round(((toM(c)-toM(o))/60-cfg('pauseMin'))*100)/100;
+}
+function totalH(i){
+  let t=0;
+  for(let d=0;d<6;d++){const sl=plan[i]?.[d];if(!sl)continue;t+=sl.conge?congeH(d):slotH(sl);}
+  return Math.round(t*100)/100;
+}
+
+// ═══════════════════════════════════════════════
+//  AUTOFILL
+// ═══════════════════════════════════════════════
+function initPlan(){
+  plan={};
+  team.forEach((emp,i)=>{
+    plan[i]={};
+    for(let d=0;d<7;d++){
+      if(d===6||isRest(emp,d))plan[i][d]={repos:true,conge:false,annotation:''};
+      else if(isConge(emp,d))plan[i][d]={repos:false,conge:true,annotation:'CP'};
+      else plan[i][d]=null;
+    }
+  });
+}
+
+function autoFill(){
+  initPlan();
+  const pMinH=cfg('pauseMin')||1;
+  const pMaxH=cfg('pauseMax')||2;
+  const pSMin=toM(cfgS('pauseStart')||'11:00');
+  const pEMax=toM(cfgS('pauseEnd')||'15:00');
+  const mLMV=cfg('minLMV')||4;
+  const mMJS=cfg('minMJS')||3;
+  const mCl=cfg('minClose')||3;
+  const noPH=cfg('noPauseH')||6;
+
+  // Pre-compute each person's work days
+  const ep=team.map((emp,i)=>{
+    const wd=[];
+    for(let d=0;d<6;d++)if(!isRest(emp,d)&&!isConge(emp,d))wd.push(d);
+    let cgH=0;for(let d=0;d<6;d++)if(isConge(emp,d))cgH+=congeH(d);
+    return{emp,i,wd,cgH,target:Math.max(0,emp.hours-cgH)};
+  });
+
+  for(let d=0;d<6;d++){
+    const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
+    const isLMV=[0,2,4].includes(d);
+    const minO=isLMV?mLMV:mMJS;
+
+    const avail=ep.filter(x=>!isRest(x.emp,d)&&!isConge(x.emp,d));
+    if(!avail.length)continue;
+    avail.forEach(x=>{x.curH=totalH(x.i);});
+    avail.sort((a,b)=>(b.emp.hours-b.curH)-(a.emp.hours-a.curH));
+
+    // Pick openers
+    const opens=new Set();
+    avail.filter(x=>x.emp.canOpen).slice(0,1).forEach(x=>opens.add(x.i));
+    for(const x of avail){if(opens.size>=minO)break;opens.add(x.i);}
+
+    // Pick closers
+    const closes=new Set();
+    avail.filter(x=>x.emp.canClose).slice(0,1).forEach(x=>closes.add(x.i));
+    for(const x of avail){if(closes.size>=mCl)break;closes.add(x.i);}
+
+    avail.forEach(({emp,i,wd,curH,target})=>{
+      const isO=opens.has(i),isC=closes.has(i);
+      const needed=Math.max(0,emp.hours-curH);
+      const dLeft=wd.filter(dd=>dd>d).length;
+      let tgt=dLeft===0?Math.min((cM-oM)/60,needed):Math.min((cM-oM)/60,needed/(dLeft+1));
+      if(wd.length<=3)tgt=Math.max(tgt,needed/Math.max(1,dLeft+1));
+      tgt=Math.min(tgt,(cM-oM)/60);
+      if(tgt<2.5&&!isO&&!isC)return;
+      if(tgt<=0)return;
+
+      const needPause=tgt>noPH;
+      const pH=needPause?(pMinH+Math.random()*(pMaxH-pMinH)):0;
+      const pM=Math.round(pH*60);
+      const wM=Math.round(tgt*60);
+      const shM=wM+pM;
+
+      let arr,dep;
+      if(isO&&isC){arr=oM;dep=cM;}
+      else if(isO){arr=oM;dep=Math.min(cM-15,arr+shM);}
+      else if(isC){dep=cM;arr=Math.max(oM+15,dep-shM);}
+      else{arr=oM+rnd(15,90);dep=Math.min(cM-15,arr+shM);}
+      if(dep-arr<150)return;
+
+      if(!needPause){
+        plan[i][d]={arrive:toT(arr),pauseS:null,pauseE:null,depart:toT(dep),repos:false,conge:false,annotation:''};
+        return;
+      }
+
+      // Smart pause placement (avoid overlap = ≥2 working at all times)
+      let pS=Math.max(arr+60,pSMin),pL=Math.min(dep-pM-60,pEMax-pM);
+      if(pL<pS)pL=pS;
+      const existing=[];
+      for(let ei=0;ei<team.length;ei++){const s=plan[ei]?.[d];if(s&&s.pauseS&&s.pauseE)existing.push({s:toM(s.pauseS),e:toM(s.pauseE)});}
+      let bS=pS,bOv=Infinity;
+      for(let c=pS;c<=pL;c+=15){
+        let ov=0;for(const e of existing){const s=Math.max(c,e.s),ee=Math.min(c+pM,e.e);if(ee>s)ov+=(ee-s);}
+        const sc=ov+Math.random()*5;if(sc<bOv){bOv=sc;bS=c;}
+      }
+      plan[i][d]={arrive:toT(arr),pauseS:toT(bS),pauseE:toT(bS+pM),depart:toT(dep),repos:false,conge:false,annotation:''};
+    });
+
+    // Ensure min closers (shift their arrive earlier without adding hours)
+    let aCl=avail.filter(({i})=>{const s=plan[i]?.[d];return s&&s.depart&&toM(s.depart)>=cM-5;}).length;
+    if(aCl<mCl){
+      const cands=avail.filter(({emp,i})=>{
+        const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)return false;
+        if(toM(s.depart)>=cM-5)return false;
+        const extra=(cM-toM(s.depart))/60;
+        return(totalH(i)+extra)<=(emp.hours+5);
+      }).sort((a,b)=>(b.emp.canClose?1:0)-(a.emp.canClose?1:0)||(totalH(a.i)-totalH(b.i)));
+      for(const cd of cands){
+        if(aCl>=mCl)break;
+        const s=plan[cd.i][d];
+        const pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
+        const wM2=toM(s.depart)-toM(s.arrive)-pM2;
+        const nArr=Math.max(oM,cM-wM2-pM2);
+        s.arrive=toT(nArr);s.depart=toT(cM);
+        if(s.pauseS&&s.pauseE){
+          let nps=toM(s.pauseS);
+          if(nps<nArr+60)nps=nArr+60;
+          if(nps+pM2>cM-60)nps=cM-pM2-60;
+          s.pauseS=toT(nps);s.pauseE=toT(nps+pM2);
+        }
+        aCl++;
+      }
+    }
+  }
+
+  // Balance hours to target by extending pauses
+  team.forEach((emp,i)=>{
+    let tot=totalH(i);const target=emp.hours;
+    if(tot<=target+0.05)return;
+    const pCap=Math.max(pMaxH||2,2)*60;
+    const days=[];
+    for(let d=0;d<6;d++){const s=plan[i]?.[d];if(s&&!s.repos&&!s.conge&&s.pauseS&&s.pauseE)days.push({d,pM:toM(s.pauseE)-toM(s.pauseS),s});}
+    days.sort((a,b)=>a.pM-b.pM);
+    for(const {s,pM:pM2} of days){
+      if(tot<=target+0.05)break;
+      const ovM=Math.ceil((tot-target)*60);
+      const addM=Math.min(pCap-pM2,ovM);if(addM<=0)continue;
+      let nps=toM(s.pauseS),npe=toM(s.pauseE)+addM;
+      const dep=toM(s.depart);
+      if(npe>dep-60){const sh=npe-(dep-60);npe-=sh;nps=Math.max(toM(s.arrive)+60,nps-sh);}
+      s.pauseS=toT(nps);s.pauseE=toT(npe);tot=totalH(i);
+    }
+    if(tot>target+0.1){
+      for(let d=0;d<6;d++){
+        if(tot<=target+0.05)break;
+        const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)continue;
+        const ovM=Math.ceil((tot-target)*60);
+        const nd=toM(s.depart)-ovM;
+        const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;
+        if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}
+      }
+    }
+  });
+
+  // Ensure ≥2 working during all pauses
+  for(let d=0;d<6;d++){
+    const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);if(!oM||!cM)continue;
+    for(let iter=0;iter<8;iter++){
+      let fixed=false;
+      for(let t=oM;t<cM;t+=5){
+        let working=0;const onP=[];
+        team.forEach((_,i)=>{
+          const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)return;
+          const a=toM(s.arrive),dep=toM(s.depart);
+          if(t>=a&&t<dep){
+            if(s.pauseS&&s.pauseE&&t>=toM(s.pauseS)&&t<toM(s.pauseE))onP.push(i);
+            else working++;
+          }
+        });
+        if(working<2&&onP.length>0){
+          for(const ei of onP){
+            const s=plan[ei][d];if(!s.pauseS)continue;
+            const ps=toM(s.pauseS),pe=toM(s.pauseE),pd=pe-ps,arr=toM(s.arrive),dep=toM(s.depart);
+            const pSMin2=toM(cfgS('pauseStart')||'11:00'),pEMax2=toM(cfgS('pauseEnd')||'15:00');
+            for(const sh of[-30,-60,30,60,-15,15,-45,45,-90,90]){
+              const nps=ps+sh,npe=nps+pd;
+              if(nps<arr+30||npe>dep-30||nps<pSMin2||npe>pEMax2)continue;
+              const oS=s.pauseS,oE=s.pauseE;s.pauseS=toT(nps);s.pauseE=toT(npe);
+              let w=0;
+              team.forEach((_,i2)=>{
+                const s2=plan[i2]?.[d];if(!s2?.arrive||s2.repos||s2.conge)return;
+                const a2=toM(s2.arrive),d2=toM(s2.depart);
+                if(t>=a2&&t<d2){if(!(s2.pauseS&&s2.pauseE&&t>=toM(s2.pauseS)&&t<toM(s2.pauseE)))w++;}
+              });
+              if(w>=2){fixed=true;break;}
+              s.pauseS=oS;s.pauseE=oE;
+            }
+            if(fixed)break;
+          }
+          if(fixed)break;
+        }
+      }
+      if(!fixed)break;
+    }
+  }
+
+  renderPlan();renderGantt();
+  toast('⚡ Planning généré !');
+  showTab('planning');
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER PLANNING TABLE
+// ═══════════════════════════════════════════════
+function goPlanning(){updateWType();initPlan();renderPlan();renderGantt();showTab('planning');}
+
+function renderPlan(){
+  const wrap=document.getElementById('tblWrap');if(!wrap)return;
+  let h=`<table class="ptbl"><thead><tr><th class="col-emp">Employé</th>`;
+  for(let d=0;d<7;d++){
+    const o=OPEN[d],c=CLOSE[d];
+    h+=`<th class="day-hdr" style="min-width:130px;"><div class="dn">${DAYS[d].slice(0,3).toUpperCase()}</div><div class="dh">${o?`${o}–${c}`:'Fermé'}</div></th>`;
+  }
+  h+=`<th style="min-width:80px;font-size:10px;">Total</th></tr></thead><tbody>`;
+
+  team.forEach((emp,i)=>{
+    const tot=totalH(i),diff=Math.round((tot-emp.hours)*100)/100;
+    const hc=diff>0.05?'hov':diff<-0.05?'hun':'hok';
+    const hs=Math.abs(diff)<0.05?'✓':(diff>0?`+${fmtH(diff)}`:`-${fmtH(Math.abs(diff))}`);
+    const hbg=diff>0.05?'rgba(78,205,196,.08)':diff<-0.05?'rgba(255,77,109,.08)':'rgba(6,214,160,.08)';
+    h+=`<tr><td class="col-emp"><div style="padding:6px 0;display:flex;flex-direction:column;gap:3px;">
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-weight:700;font-size:12px;">${emp.name}</span>
+        <span class="poste-b pb-${emp.poste.replace('É','E').replace('È','E')}">${emp.poste}</span>
+      </div>
+      <span style="font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;">${emp.hours}:00/sem</span>
+    </div></td>`;
+    for(let d=0;d<7;d++){
+      if(d===6){h+=`<td class="cell c-closed"><div class="ci-box"><span style="font-size:9px;color:var(--t3);">Fermé</span></div></td>`;continue;}
+      const sl=plan[i]?.[d];
+      let cls='cell ',inner='';
+      if(!sl||sl.repos){
+        cls+='c-repos';inner=`<span class="st">REPOS</span>`;
+      }else if(sl.conge){
+        cls+='c-conge';inner=`<span class="st">🌿 CONGÉ</span><span class="sp">${fmtH(congeH(d))} comptées</span>`;
+      }else if(sl.arrive){
+        cls+='c-work';
+        const wh=slotH(sl);
+        const an=sl.annotation?`<span class="sa2">${sl.annotation}</span>`:'';
+        if(sl.pauseS&&sl.pauseE){
+          inner=`<span class="st">${sl.arrive}/${sl.pauseS}</span><span class="sp">${sl.pauseS}–${sl.pauseE}</span><span class="st">${sl.pauseE}/${sl.depart}</span><span class="sp" style="color:var(--a2);">${fmtH(wh)}</span>${an}`;
+        }else{
+          inner=`<span class="st">${sl.arrive} → ${sl.depart}</span><span class="sp" style="color:var(--a2);">${fmtH(wh)} s/pause</span>${an}`;
+        }
+      }else{cls+='c-work';inner=`<span class="st" style="color:var(--t3);">—</span>`;}
+      h+=`<td class="${cls}" data-action="cell" data-emp="${i}" data-day="${d}"><div class="ci-box">${inner}</div></td>`;
+    }
+    h+=`<td class="hcell ${hc}" style="background:${hbg}"><div class="hval ${hc}">${fmtH(tot)}</div><div class="hexp">${hs} / ${emp.hours}:00</div></td></tr>`;
+  });
+  h+=buildCnt();h+=`</tbody></table>`;
+  wrap.innerHTML=h;renderRecap();
+}
+
+function buildCnt(){
+  const ml=cfg('minLMV')||4,mm=cfg('minMJS')||3,mc=cfg('minClose')||3;
+  let r0=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">🔓 Ouv.</td>`;
+  let r1=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">👥 Présents</td>`;
+  let r2=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">🔒 Ferm. ≥${mc}</td>`;
+  for(let d=0;d<7;d++){
+    if(d===6){r0+=`<td>—</td>`;r1+=`<td>—</td>`;r2+=`<td>—</td>`;continue;}
+    const ms=[0,2,4].includes(d)?ml:mm;
+    const o=cntOpen(d),p=cntPresent(d),c=cntClose(d);
+    r0+=`<td class="${o>=ms?'cok':'clow'}">${o}/${ms}</td>`;
+    r1+=`<td class="${p>=ms?'cok':'clow'}">${p}/${ms}</td>`;
+    r2+=`<td class="${c>=mc?'cok':'clow'}">${c}/${mc}</td>`;
+  }
+  return r0+`<td></td></tr>`+r1+`<td></td></tr>`+r2+`<td></td></tr>`;
+}
+const cntPresent=d=>team.filter((_,i)=>{const s=plan[i]?.[d];return s&&!s.repos&&!s.conge&&s.arrive;}).length;
+const cntOpen=d=>{const o=OPEN[d];if(!o)return 0;const oM=toM(o);return team.filter((_,i)=>{const s=plan[i]?.[d];return s&&s.arrive&&!s.repos&&!s.conge&&toM(s.arrive)<=oM+5;}).length;};
+const cntClose=d=>{const c=CLOSE[d];if(!c)return 0;const cM=toM(c);return team.filter((_,i)=>{const s=plan[i]?.[d];return s&&s.depart&&!s.repos&&!s.conge&&toM(s.depart)>=cM-5;}).length;};
+
+// ═══════════════════════════════════════════════
+//  GANTT
+// ═══════════════════════════════════════════════
+function renderGantt(){
+  const wrap=document.getElementById('ganttWrap');if(!wrap)return;
+  if(!Object.keys(plan).length){wrap.innerHTML=`<p style="color:var(--t3);padding:20px;">Générez d'abord un planning.</p>`;return;}
+  const GS=7*60,GE=20*60,GR=GE-GS;
+  const pct=m=>((m-GS)/GR*100).toFixed(2);
+  let h='';
+  for(let d=0;d<6;d++){
+    const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
+    const dates=weekDates(curWeek);
+    const ds2=dates[d]?`${String(dates[d].getDate()).padStart(2,'0')}/${String(dates[d].getMonth()+1).padStart(2,'0')}`:'';
+    let dayTot=0;team.forEach((_,i)=>{const s=plan[i]?.[d];if(s&&!s.repos&&!s.conge&&s.arrive)dayTot+=slotH(s);});
+    h+=`<div class="g-day"><div class="g-day-hdr"><h3>${DAYS[d]} ${ds2}</h3><span class="g-total">Total ${fmtH(dayTot)}</span></div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><div class="g-grid">
+    <div class="g-hours-row">
+      <div style="background:var(--s3);padding:0 6px;display:flex;align-items:center;"><span style="font-size:9px;color:var(--t3);">Heure</span></div>
+      <div class="g-hour-marks">`;
+    for(let hh=7;hh<=19;hh++) h+=`<div class="g-hm" style="left:${pct(hh*60)}%">${hh}h</div>`;
+    h+=`</div><div style="background:var(--s3);"></div></div>`;
+    team.forEach((emp,i)=>{
+      const s=plan[i]?.[d];
+      const col=PCOL[emp.poste]||'#888';
+      let bars='',tot2=0;
+      if(s?.conge){
+        bars+=`<div class="g-bar" style="left:${pct(oM)}%;width:${((cM-oM)/GR*100).toFixed(2)}%;background:rgba(6,214,160,.35);border:1px dashed var(--grn);">${s.annotation||'CP'}</div>`;
+        tot2=congeH(d);
+      }else if(s&&!s.repos&&s.arrive){
+        const a=toM(s.arrive),dep=toM(s.depart);
+        if(s.pauseS&&s.pauseE){
+          const ps=toM(s.pauseS),pe=toM(s.pauseE);
+          bars+=`<div class="g-bar" style="left:${pct(a)}%;width:${((ps-a)/GR*100).toFixed(2)}%;background:${col};color:#fff;">${s.arrive}–${s.pauseS}</div>`;
+          bars+=`<div class="g-bar" style="left:${pct(pe)}%;width:${((dep-pe)/GR*100).toFixed(2)}%;background:${col};color:#fff;">${s.pauseE}–${s.depart}</div>`;
+        }else{
+          bars+=`<div class="g-bar" style="left:${pct(a)}%;width:${((dep-a)/GR*100).toFixed(2)}%;background:${col};color:#fff;">${s.arrive}–${s.depart}</div>`;
+        }
+        if(s.annotation)bars+=`<div class="g-bar" style="left:${pct(a)}%;background:transparent;"><span style="font-size:8px;font-weight:700;color:#fff;background:rgba(0,0,0,.5);padding:1px 3px;border-radius:2px;">${s.annotation}</span></div>`;
+        tot2=slotH(s);
+      }
+      h+=`<div class="g-row"><div class="g-name" style="border-left:3px solid ${col};">${emp.name}</div><div class="g-line">${bars}</div><div class="g-tot">${tot2>0?fmtH(tot2):'—'}</div></div>`;
+    });
+    // Count row
+    const SLOTS=Math.floor(GR/15);
+    h+=`<div class="g-cnt-row"><div style="background:var(--s2);padding:0 5px;display:flex;align-items:center;"><span style="font-size:9px;color:var(--t3);">👥</span></div><div class="g-cnt-line">`;
+    for(let s=0;s<SLOTS;s++){
+      const tS=GS+s*15;let cnt=0;
+      team.forEach((_,i)=>{
+        const sl=plan[i]?.[d];if(!sl?.arrive||sl.repos||sl.conge)return;
+        const a=toM(sl.arrive),dep=toM(sl.depart);
+        if(tS>=a&&tS<dep){if(sl.pauseS&&sl.pauseE&&tS>=toM(sl.pauseS)&&tS<toM(sl.pauseE)){}else cnt++;}
+      });
+      const inShop=tS>=oM&&tS<cM;
+      const bg=!inShop?'transparent':cnt===0?'rgba(255,77,109,.2)':cnt<2?'rgba(247,127,0,.2)':'rgba(6,214,160,.06)';
+      const col2=cnt===0?'var(--t3)':cnt<2?'var(--org)':'var(--txt)';
+      h+=`<div class="g-cnt-cell" style="background:${bg};color:${col2};">${inShop?cnt:''}</div>`;
+    }
+    h+=`</div><div style="background:var(--s2);"></div></div>`;
+    h+=`</div></div></div>`;
+  }
+  wrap.innerHTML=h;
+}
+
+// ═══════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════
+function openModal(i,d){
+  if(d===6)return;
+  mTarget={i,d};
+  const s=plan[i]?.[d];
+  const o=OPEN[d],c=CLOSE[d];
+  document.getElementById('mTitle').textContent=`${team[i].name} — ${DAYS[d]}`;
+  document.getElementById('mArrive').value=s?.arrive||o||'';
+  document.getElementById('mDepart').value=s?.depart||c||'';
+  document.getElementById('mPauseS').value=s?.pauseS||'12:00';
+  document.getElementById('mPauseE').value=s?.pauseE||'13:00';
+  document.getElementById('mRepos').checked=!!s?.repos;
+  document.getElementById('mConge').checked=!!s?.conge;
+  document.getElementById('mNoPause').checked=!!(s?.arrive&&(!s.pauseS||!s.pauseE));
+  const anno=s?.annotation||'';
+  document.getElementById('mAnno').value=anno;
+  document.querySelectorAll('.anno-btn').forEach(b=>{b.classList.toggle('on',b.dataset.anno===anno);});
+  calcModal();
+  document.getElementById('overlayCell').classList.add('on');
+}
+function closeModal(){document.getElementById('overlayCell').classList.remove('on');mTarget=null;}
+function calcModal(){
+  const a=document.getElementById('mArrive').value;
+  const dep=document.getElementById('mDepart').value;
+  const np=document.getElementById('mNoPause').checked;
+  const info=document.getElementById('mInfo');
+  if(!a||!dep){info.textContent='';return;}
+  if(np){info.textContent=`⏱ ${fmtH((toM(dep)-toM(a))/60)} travaillées (sans pause)`;return;}
+  const ps=document.getElementById('mPauseS').value;
+  const pe=document.getElementById('mPauseE').value;
+  if(!ps||!pe){info.textContent='';return;}
+  const w=Math.max(0,(toM(dep)-toM(a)-(toM(pe)-toM(ps))))/60;
+  const p=(toM(pe)-toM(ps))/60;
+  info.textContent=`⏱ ${fmtH(w)} travaillées · pause ${fmtH(p)}`;
+}
+function saveModal(){
+  if(!mTarget)return;
+  const{i,d}=mTarget;
+  const anno=document.getElementById('mAnno').value.trim();
+  if(document.getElementById('mRepos').checked){plan[i][d]={repos:true,conge:false,annotation:anno};}
+  else if(document.getElementById('mConge').checked){plan[i][d]={repos:false,conge:true,annotation:anno||'CP'};}
+  else{
+    const np=document.getElementById('mNoPause').checked;
+    plan[i][d]={
+      arrive:document.getElementById('mArrive').value,
+      pauseS:np?null:document.getElementById('mPauseS').value,
+      pauseE:np?null:document.getElementById('mPauseE').value,
+      depart:document.getElementById('mDepart').value,
+      repos:false,conge:false,annotation:anno
+    };
+  }
+  closeModal();renderPlan();renderGantt();
+}
+
+// ═══════════════════════════════════════════════
+//  RECAP
+// ═══════════════════════════════════════════════
+function renderRecap(){
+  const el=document.getElementById('recapWrap');if(!el)return;
+  if(!Object.keys(plan).length){el.innerHTML=`<p style="color:var(--t3)">Générez d'abord un planning.</p>`;return;}
+  let h=`<div class="rcards">`;
+  team.forEach((emp,i)=>{
+    const tot=totalH(i),diff=Math.round((tot-emp.hours)*100)/100;
+    const col=diff>0.05?'var(--a2)':diff<-0.05?'var(--red)':'var(--grn)';
+    const sign=Math.abs(diff)<0.05?'✓':(diff>0?`+${fmtH(diff)}`:`-${fmtH(Math.abs(diff))}`);
+    h+=`<div class="rcard"><div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">
+      <span style="font-weight:700;font-size:13px;">${emp.name}</span>
+      <span class="poste-b pb-${emp.poste.replace('É','E').replace('È','E')}">${emp.poste}</span>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:${col};">${fmtH(tot)} <span style="font-size:13px;">${sign}</span></div>
+    <div style="background:var(--s3);border-radius:4px;height:5px;margin:6px 0;overflow:hidden;"><div style="height:100%;background:${col};width:${Math.min(100,(tot/emp.hours)*100)}%;"></div></div>
+    <div style="font-size:10px;color:var(--t3);margin-bottom:9px;">Contrat ${emp.hours}:00/sem</div>
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      ${Array.from({length:6},(_,d)=>{
+        const s=plan[i]?.[d];
+        if(!s||s.repos)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t3);">${DS[d].slice(0,3)} — Repos</div>`;
+        if(s.conge)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--grn);">${DS[d].slice(0,3)} 🌿 ${s.annotation||'CP'}</div>`;
+        if(!s.arrive)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t3);">${DS[d].slice(0,3)} —</div>`;
+        const wh=slotH(s),np=s.pauseS?'':'·s/p',an=s.annotation?` [${s.annotation}]`:'';
+        return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t2);">${DS[d].slice(0,3)} ${s.arrive}→${s.depart} (${fmtH(wh)})${np}${an}</div>`;
+      }).join('')}
+    </div></div>`;
+  });
+  h+=`</div>`;
+  el.innerHTML=h;
+}
+
+// ═══════════════════════════════════════════════
+//  FAVORITES
+// ═══════════════════════════════════════════════
+function openFavModal(){
+  if(!Object.keys(plan).length){toast('⚠ Générez d\'abord un planning');return;}
+  document.getElementById('favName').value=`Sem.${curWeek?.split('W')[1]||''} — Type ${wType}`;
+  document.getElementById('overlayFav').classList.add('on');
+}
+function closeFavModal(){document.getElementById('overlayFav').classList.remove('on');}
+function confirmFav(){
+  const name=document.getElementById('favName').value.trim()||`Favori ${Date.now()}`;
+  const favs=JSON.parse(localStorage.getItem('ppFavs')||'[]');
+  favs.unshift({id:Date.now(),name,week:curWeek,wType,date:new Date().toLocaleDateString('fr-FR'),team:JSON.parse(JSON.stringify(team)),plan:JSON.parse(JSON.stringify(plan))});
+  localStorage.setItem('ppFavs',JSON.stringify(favs));
+  closeFavModal();renderFavs();toast(`★ "${name}" sauvegardé !`);
+}
+function renderFavs(){
+  const el=document.getElementById('favsList'),em=document.getElementById('favsEmpty');
+  if(!el)return;
+  const favs=JSON.parse(localStorage.getItem('ppFavs')||'[]');
+  em.style.display=favs.length?'none':'block';
+  el.innerHTML=favs.map(f=>`<div class="fav-item">
+    <div style="flex:1;"><div class="fav-name">${f.name}</div><div class="fav-meta">Sem.${f.week?.split('W')[1]||'?'} · ${f.wType||'?'} · ${f.date}</div></div>
+    <button class="btn btn-p btn-sm" data-action="loadfav" data-id="${f.id}">Charger</button>
+    <button class="btn btn-r btn-sm" data-action="delfav" data-id="${f.id}">✕</button>
+  </div>`).join('');
+}
+function loadFav(id){
+  const fav=JSON.parse(localStorage.getItem('ppFavs')||'[]').find(f=>f.id===id);
+  if(!fav)return;
+  team=fav.team;plan=fav.plan;curWeek=fav.week;wType=fav.wType;
+  setAllWeekPickers(curWeek);updateWType();
+  document.getElementById('teamSize').value=team.length;
+  document.getElementById('stepDisplay').textContent=team.length;
+  renderTeam();updBadges();renderPlan();renderGantt();
+  showTab('planning');toast(`✓ "${fav.name}" chargé !`);
+}
+function delFav(id){
+  let favs=JSON.parse(localStorage.getItem('ppFavs')||'[]').filter(f=>f.id!==id);
+  localStorage.setItem('ppFavs',JSON.stringify(favs));renderFavs();
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT PDF
+// ═══════════════════════════════════════════════
+function exportPDF(){
+  // Sur iOS Safari, on ouvre une fenêtre d'impression qui permet de sauvegarder en PDF
+  const cur=document.querySelector('.pg.on');
+  const isGantt=cur?.id==='pg-gantt';
+  const el=isGantt?document.getElementById('ganttWrap'):document.getElementById('tblWrap');
+  if(!el||!el.innerHTML.trim()){toast('⚠ Générez d\'abord un planning');return;}
+
+  // Build a clean print window
+  const w=window.open('','_blank','width=1200,height=800');
+  if(!w){toast('⚠ Autorisez les popups pour exporter');return;}
+
+  const title=`Planning Semaine ${curWeek?.split('W')[1]||''} — Type ${wType}`;
+
+  w.document.write(`<!DOCTYPE html><!-- v1778593418 --><html lang="fr"><head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#fff;color:#111;font-family:'DM Sans',Arial,sans-serif;font-size:11px;padding:12px;}
+    h2{font-size:14px;font-weight:700;margin-bottom:10px;color:#111;}
+    /* Table styles */
+    table{border-collapse:collapse;width:100%;font-size:10px;}
+    th,td{border:1px solid #ccc;padding:4px 5px;text-align:center;vertical-align:middle;}
+    th{background:#f0f0f0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:9px;}
+    .col-emp{text-align:left;min-width:100px;background:#f8f8f8;font-weight:600;}
+    .c-repos{background:#ececec;color:#999;}
+    .c-conge{background:#d4f5e9;color:#2a7a5a;}
+    .c-work{background:#fff;}
+    .c-closed{background:#f5f5f5;color:#ccc;}
+    .hcell{font-weight:700;}
+    .hok{color:#06a87a;}.hov{color:#4ecdc4;}.hun{color:#e03;} 
+    .cnt td{background:#f5f5f5;font-size:9px;font-family:monospace;}
+    .cok{color:#06a87a;font-weight:700;}.clow{color:#e03;font-weight:700;}
+    /* Gantt */
+    .g-day{margin-bottom:16px;page-break-inside:avoid;}
+    .g-day h3{font-size:12px;font-weight:700;background:#ffd166;color:#000;padding:3px 10px;border-radius:3px;display:inline-block;margin-bottom:6px;}
+    .g-table{width:100%;border-collapse:collapse;}
+    .g-table td,.g-table th{border:1px solid #ddd;padding:3px 4px;font-size:9px;}
+    .g-bar-cell{position:relative;height:18px;padding:0;}
+    .g-bar{position:absolute;top:1px;bottom:1px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;overflow:hidden;}
+    @media print{body{padding:6px;}h2{font-size:12px;}.g-day{page-break-inside:avoid;}}
+  </style>
+
+  </head><body>
+  <h2>${title}</h2>`);
+
+if(isGantt){
+// Gantt HTML
+w.document.write(buildPrintGantt());
+} else {
+// Table HTML — clone and clean styles
+const clone=el.cloneNode(true);
+// Fix classes to print-friendly versions
+clone.querySelectorAll(’.c-repos’).forEach(td=>{td.style.background=’#ececec’;td.style.color=’#999’;});
+clone.querySelectorAll(’.c-conge’).forEach(td=>{td.style.background=’#d4f5e9’;td.style.color=’#2a7a5a’;});
+clone.querySelectorAll(’.c-work’).forEach(td=>{td.style.background=’#fff’;});
+clone.querySelectorAll(’.c-closed’).forEach(td=>{td.style.background=’#f5f5f5’;td.style.color=’#ccc’;});
+clone.querySelectorAll(’.hok’).forEach(el2=>{el2.style.color=’#06a87a’;});
+clone.querySelectorAll(’.hov’).forEach(el2=>{el2.style.color=’#0099aa’;});
+clone.querySelectorAll(’.hun’).forEach(el2=>{el2.style.color=’#cc0033’;});
+clone.querySelectorAll(’.st’).forEach(el2=>{el2.style.color=’#111’;el2.style.fontSize=‘9px’;});
+clone.querySelectorAll(’.sp’).forEach(el2=>{el2.style.color=’#666’;el2.style.fontSize=‘8px’;});
+clone.querySelectorAll(’.sa2’).forEach(el2=>{el2.style.color=’#d66000’;el2.style.fontSize=‘8px’;});
+clone.querySelectorAll(’.col-emp’).forEach(td=>{td.style.background=’#f8f8f8’;td.style.color=’#111’;});
+clone.querySelectorAll(’.cnt td’).forEach(td=>{td.style.background=’#f5f5f5’;td.style.fontSize=‘9px’;});
+clone.querySelectorAll(’.cok’).forEach(el2=>{el2.style.color=’#06a87a’;el2.style.fontWeight=‘700’;});
+clone.querySelectorAll(’.clow’).forEach(el2=>{el2.style.color=’#cc0033’;el2.style.fontWeight=‘700’;});
+// Remove sticky positioning for print
+clone.querySelectorAll(’[style]’).forEach(el2=>{
+el2.style.position=’’;el2.style.left=’’;el2.style.zIndex=’’;
+});
+w.document.write(’<div style="overflow-x:auto;">’+clone.innerHTML+’</div>’);
+}
+
+w.document.write(’</body></html>’);
+w.document.close();
+setTimeout(()=>{w.focus();w.print();},600);
+}
+
+function buildPrintGantt(){
+const GS=7*60,GE=20*60,GR=GE-GS;
+const pct=m=>((m-GS)/GR*100).toFixed(2);
+const PCOLS={SA:’#7c6af5’,VRAC:’#4ecdc4’,BOISSON:’#f77f00’,‘GÉNÉRALE’:’#ff6b9d’,FEL:’#a8e063’};
+let h=’’;
+for(let d=0;d<6;d++){
+const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
+const dates=weekDates(curWeek);
+const ds2=dates[d]?`${String(dates[d].getDate()).padStart(2,'0')}/${String(dates[d].getMonth()+1).padStart(2,'0')}`:’’
+let dayTot=0;team.forEach((_,i)=>{const s=plan[i]?.[d];if(s&&!s.repos&&!s.conge&&s.arrive)dayTot+=slotH(s);});
+h+=`<div class="g-day"><h3>${DAYS[d]} ${ds2} — Total ${fmtH(dayTot)}</h3> <table class="g-table"><thead><tr><th style="width:90px;">Nom</th><th>Horaires</th><th style="width:55px;">Total</th></tr></thead><tbody>`;
+team.forEach((emp,i)=>{
+const s=plan[i]?.[d];
+const col=PCOLS[emp.poste]||’#888’;
+let barHtml=’’,tot2=0;
+if(s?.conge){
+barHtml=`<div class="g-bar" style="left:${pct(oM)}%;width:${((cM-oM)/GR*100).toFixed(2)}%;background:rgba(6,180,100,.5);">${s.annotation||'CP'}</div>`;
+tot2=congeH(d);
+}else if(s&&!s.repos&&s.arrive){
+const a=toM(s.arrive),dep=toM(s.depart);
+if(s.pauseS&&s.pauseE){
+const ps=toM(s.pauseS),pe=toM(s.pauseE);
+barHtml+=`<div class="g-bar" style="left:${pct(a)}%;width:${((ps-a)/GR*100).toFixed(2)}%;background:${col};">${s.arrive}–${s.pauseS}</div>`;
+barHtml+=`<div class="g-bar" style="left:${pct(pe)}%;width:${((dep-pe)/GR*100).toFixed(2)}%;background:${col};">${s.pauseE}–${s.depart}</div>`;
+}else{
+barHtml+=`<div class="g-bar" style="left:${pct(a)}%;width:${((dep-a)/GR*100).toFixed(2)}%;background:${col};">${s.arrive}–${s.depart}</div>`;
+}
+tot2=slotH(s);
+}
+const isRepos=!s||s.repos;
+h+=`<tr><td style="font-weight:600;border-left:3px solid ${col};">${emp.name}</td> <td class="g-bar-cell" style="position:relative;height:20px;">${isRepos?'<span style="color:#aaa;font-size:9px;padding:0 5px;">Repos</span>':barHtml}</td> <td style="text-align:center;font-weight:700;color:${col};">${tot2>0?fmtH(tot2):'—'}</td></tr>`;
+});
+h+=`</tbody></table></div>`;
+}
+return h;
+}
+
+// ═══════════════════════════════════════════════
+//  UI
+// ═══════════════════════════════════════════════
+function showTab(name){
+document.querySelectorAll(’.tab’).forEach(t=>t.classList.toggle(‘on’,t.dataset.tab===name));
+document.querySelectorAll(’.pg’).forEach(p=>p.classList.toggle(‘on’,p.id===`pg-${name}`));
+if(name===‘recap’)renderRecap();
+if(name===‘favs’)renderFavs();
+if(name===‘gantt’)renderGantt();
+}
+function toast(msg,dur=2800){
+const el=document.getElementById(‘toast’);
+el.textContent=msg;el.classList.add(‘on’);
+setTimeout(()=>el.classList.remove(‘on’),dur);
+}
+
+window.addEventListener(‘load’, initApp);
+
+</script>
 </head>
 <body>
 
@@ -403,828 +1287,5 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 </div>
 
 <div class="toast" id="toast"></div>
-<script>
-// ═══════════════════════════════════════════════
-//  CONSTANTS
-// ═══════════════════════════════════════════════
-const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
-const DS=['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
-const OPEN={0:'07:45',1:'08:00',2:'07:45',3:'08:00',4:'07:45',5:'08:00',6:null};
-const CLOSE={0:'19:30',1:'19:30',2:'19:30',3:'19:30',4:'19:30',5:'18:30',6:null};
-const POSTES=['SA','VRAC','BOISSON','GÉNÉRALE','FEL'];
-const PCOL={SA:'#7c6af5',VRAC:'#4ecdc4',BOISSON:'#f77f00','GÉNÉRALE':'#ff6b9d',FEL:'#a8e063'};
-
-// ═══════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════
-let team=[], plan={}, curWeek=null, wType=‘A’, mTarget=null;
-
-// ═══════════════════════════════════════════════
-//  UTILS
-// ═══════════════════════════════════════════════
-const toM=t=>{if(!t||!t.includes(’:’))return 0;const[h,m]=t.split(’:’).map(Number);return h*60+m;};
-const toT=m=>{const h=Math.floor(m/60),mm=m%60;return`${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;};
-const rnd=(a,b)=>Math.round(a+Math.random()*(b-a));
-const fmtH=h=>{
-if(!h&&h!==0)return’0:00’;
-const s=h<0?’-’:’’;const a=Math.abs(h);
-const hh=Math.floor(a);const mm=Math.round((a-hh)*60);
-return`${s}${hh}:${String(mm===60?0:mm).padStart(2,'0')}`.replace(/^(-?)(\d):/, ‘$1$2:’);
-};
-const cfg=id=>parseFloat(document.getElementById(id)?.value||0)||0;
-const cfgS=id=>document.getElementById(id)?.value||’’;
-
-function weekNum(d){
-const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
-dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));
-return Math.ceil((((dt-new Date(Date.UTC(dt.getUTCFullYear(),0,1)))/86400000)+1)/7);
-}
-function weekDates(ws){
-if(!ws)return[];
-const[yr,wp]=ws.split(’-W’);
-const y=parseInt(yr),w=parseInt(wp);
-const j4=new Date(y,0,4);
-const sow=new Date(j4);sow.setDate(j4.getDate()-(j4.getDay()||7)+1);
-const mon=new Date(sow);mon.setDate(sow.getDate()+(w-1)*7);
-return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
-}
-const dateStr=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-
-// ═══════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════
-function initApp(){
-// Week init
-const now=new Date();
-curWeek=`${now.getFullYear()}-W${String(weekNum(now)).padStart(2,'0')}`;
-setAllWeekPickers(curWeek);
-updateWType();
-
-// Demo team
-team=[
-// Corine 35h : repos mar + sam semaine A (sam sem21 impaire = type A → repos sam)
-{name:‘Corine’,  hours:35,poste:‘SA’,      restDays:[1,6],samWeek:‘A’,  conges:[],canOpen:true, canClose:true },
-// Patricia 36h~35h : repos mar, travaille sam → samWeek none
-{name:‘Patricia’,hours:35,poste:‘VRAC’,    restDays:[1,6],samWeek:‘none’,conges:[],canOpen:true, canClose:true },
-// Elian 31h~30h : repos mar, repos sam sem A
-{name:‘Elian’,   hours:30,poste:‘BOISSON’, restDays:[1,6],samWeek:‘A’,  conges:[],canOpen:false,canClose:false},
-// Marie 35h : repos mar, repos sam sem B (travaille sam sem21)
-{name:‘Marie’,   hours:35,poste:‘GÉNÉRALE’,restDays:[1,6],samWeek:‘B’,  conges:[],canOpen:false,canClose:true },
-// Laetane 36h~35h : repos mar, repos sam sem A
-{name:‘Laetane’, hours:35,poste:‘FEL’,     restDays:[1,6],samWeek:‘A’,  conges:[],canOpen:true, canClose:true },
-// Mickaël 21h~20h : repos mar+mer+jeu, travaille sam
-{name:‘Mickaël’, hours:20,poste:‘SA’,      restDays:[1,2,3,6],samWeek:‘none’,conges:[],canOpen:false,canClose:true},
-];
-document.getElementById(‘teamSize’).value=team.length;
-document.getElementById(‘stepDisplay’).textContent=team.length;
-renderTeam();updBadges();renderFavs();
-bindAll();
-bindAll();
-}
-
-function bindAll(){
-// onclick handles tabs + buttons — only need week pickers here
-// Week pickers
-document.getElementById(‘weekPicker’).addEventListener(‘change’,e=>{curWeek=e.target.value;setAllWeekPickers(curWeek);updateWType();});
-document.getElementById(‘weekPicker2’).addEventListener(‘change’,e=>{curWeek=e.target.value;setAllWeekPickers(curWeek);updateWType();if(Object.keys(plan).length){renderPlan();renderGantt();}});
-document.getElementById(‘weekPicker3’).addEventListener(‘change’,e=>{curWeek=e.target.value;setAllWeekPickers(curWeek);updateWType();if(Object.keys(plan).length){renderPlan();renderGantt();}});
-// Modal cell
-document.getElementById(‘overlayCell’).addEventListener(‘click’,e=>{if(e.target===e.currentTarget)closeModal();});
-// modal buttons use onclick
-// anno buttons use onclick
-// Modal fav
-document.getElementById(‘overlayFav’).addEventListener(‘click’,e=>{if(e.target===e.currentTarget)closeFavModal();});
-// fav buttons use onclick
-
-// ═══ GLOBAL EVENT DELEGATION ═══
-document.addEventListener(‘click’, e=>{
-const el = e.target.closest(’[data-action]’);
-if(!el) return;
-const action = el.dataset.action;
-const idx = parseInt(el.dataset.idx);
-if(action===‘cell’)      openModal(parseInt(el.dataset.emp), parseInt(el.dataset.day));
-else if(action===‘loadfav’)  loadFav(parseInt(el.dataset.id));
-else if(action===‘delfav’)   delFav(parseInt(el.dataset.id));
-else if(action===‘addconge’) addConge(idx);
-else if(action===‘rmconge’)  rmConge(idx, parseInt(el.dataset.ci));
-});
-
-// ═══ GLOBAL CHANGE/INPUT DELEGATION ═══
-document.addEventListener(‘change’, e=>{
-const el = e.target.closest(’[data-action]’)||e.target;
-const action = el.dataset?.action;
-const idx = parseInt(el.dataset?.idx);
-if(!action||isNaN(idx)&&![‘mNoPause’].includes(el.id)) return;
-if(action===‘empposte’)  { team[idx].poste=el.value; }
-else if(action===‘emphours’) { team[idx].hours=parseInt(el.value); }
-else if(action===‘emprest’)  { toggleRest(idx, parseInt(el.dataset.di), el.checked); }
-else if(action===‘empsam’)   { team[idx].samWeek=el.value; }
-else if(action===‘empopen’)  { team[idx].canOpen=el.checked; }
-else if(action===‘empclose’) { team[idx].canClose=el.checked; }
-else if(action===‘cgfrom’)   { team[idx].conges[parseInt(el.dataset.ci)].from=el.value; }
-else if(action===‘cgto’)     { team[idx].conges[parseInt(el.dataset.ci)].to=el.value; }
-// Modal no-pause checkbox
-if(el.id===‘mNoPause’) calcModal();
-});
-
-document.addEventListener(‘input’, e=>{
-const el = e.target;
-const action = el.dataset?.action;
-const idx = parseInt(el.dataset?.idx);
-if(action===‘empname’ && !isNaN(idx)) team[idx].name=el.value;
-// Modal inputs
-if([‘mArrive’,‘mDepart’,‘mPauseS’,‘mPauseE’].includes(el.id)) calcModal();
-});
-}
-
-// ═══════════════════════════════════════════════
-//  WEEK
-// ═══════════════════════════════════════════════
-function setAllWeekPickers(w){
-[‘weekPicker’,‘weekPicker2’,‘weekPicker3’].forEach(id=>{
-const el=document.getElementById(id);if(el)el.value=w;
-});
-}
-function updateWType(){
-if(!curWeek)return;
-const w=parseInt(curWeek.split(‘W’)[1]);
-wType=(w%2===0)?‘B’:‘A’;
-const cls=`wbadge wb-${wType.toLowerCase()}`;
-const txt=`Semaine ${wType}`;
-[‘wkBadge1’,‘wkBadge2’,‘wkBadge3’].forEach(id=>{const el=document.getElementById(id);if(el){el.className=cls;el.textContent=txt;}});
-const wl=document.getElementById(‘wkLabel’);
-if(wl)wl.textContent=`Sem.${curWeek.split('W')[1]} — ${wType}`;
-}
-
-// ═══════════════════════════════════════════════
-//  TEAM
-// ═══════════════════════════════════════════════
-function stepTeam(delta){
-const inp=document.getElementById(‘teamSize’);
-let v=parseInt(inp.value)||8;
-v=Math.max(1,Math.min(20,v+delta));
-inp.value=v;
-document.getElementById(‘stepDisplay’).textContent=v;
-buildTeam();
-}
-function buildTeam(){
-const n=parseInt(document.getElementById(‘teamSize’).value)||8;
-const old=team.slice();
-team=Array.from({length:n},(_,i)=>old[i]||{name:`Employé ${i+1}`,hours:35,poste:‘SA’,restDays:[6],samWeek:‘none’,conges:[],canOpen:false,canClose:false});
-renderTeam();updBadges();plan={};
-toast(`✓ Équipe de ${n} membres`);
-}
-function updBadges(){
-[‘tcBadge’,‘tcBadge2’].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=team.length;});
-}
-
-function renderTeam(){
-const el=document.getElementById(‘teamList’);
-if(!el)return;
-el.innerHTML=’’;
-team.forEach((emp,i)=>{
-const d=document.createElement(‘div’);
-d.className=‘emp-row’;
-d.innerHTML=` <div class="emp-top"> <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);min-width:20px;">${i+1}.</span> <input type="text" value="${emp.name}" placeholder="Nom" style="flex:1;min-width:80px;" data-action="empname" data-idx="${i}"> <select style="width:100px;" data-action="empposte" data-idx="${i}"> ${POSTES.map(p=>`<option value=”${p}” ${emp.poste===p?‘selected’:’’}>${p}</option>`).join('')} </select> <select style="width:65px;" data-action="emphours" data-idx="${i}"> <option value="35" ${emp.hours===35?'selected':''}>35h</option> <option value="30" ${emp.hours===30?'selected':''}>30h</option> <option value="25" ${emp.hours===25?'selected':''}>25h</option> <option value="20" ${emp.hours===20?'selected':''}>20h</option> </select> </div> <div> <label style="margin-bottom:5px;">Jours de repos fixes</label> <div class="days-grid"> ${DAYS.map((dd,di)=>`<div class="day-cb">
-<input type=“checkbox” ${emp.restDays.includes(di)?‘checked’:’’} ${di===6?‘disabled checked’:’’} data-action=“emprest” data-idx=”${i}” data-di=”${di}”>
-<span>${DS[di].slice(0,2)}</span>
-</div>`).join('')} </div> </div> <div class="fld"> <label>Repos samedi (rotation)</label> <select data-action="empsam" data-idx="${i}"> <option value="none" ${emp.samWeek==='none'?'selected':''}>Jamais de repos le sam.</option> <option value="A"    ${emp.samWeek==='A'   ?'selected':''}>Repos sam. semaine A</option> <option value="B"    ${emp.samWeek==='B'   ?'selected':''}>Repos sam. semaine B</option> <option value="AB"   ${emp.samWeek==='AB'  ?'selected':''}>Toujours repos le sam.</option> </select> </div> <div class="cap-row"> <label class="cap-lbl"><input type="checkbox" ${emp.canOpen?'checked':''} data-action="empopen" data-idx="${i}"> 🔓 Peut ouvrir</label> <label class="cap-lbl"><input type="checkbox" ${emp.canClose?'checked':''} data-action="empclose" data-idx="${i}"> 🔒 Peut fermer</label> </div> <div class="conge-block"> <div style="display:flex;align-items:center;gap:8px;"> <span style="font-size:12px;color:var(--grn);font-weight:600;">🌿 Congés payés</span> <button class="btn btn-g btn-sm" type="button" data-action="addconge" data-idx="${i}">+ Ajouter</button> </div> <div id="cg-${i}">${renderCG(i)}</div> </div>`;
-el.appendChild(d);
-});
-}
-
-function renderCG(i){
-const c=team[i].conges||[];
-if(!c.length)return`<span style="font-size:11px;color:var(--t3);">Aucun congé saisi</span>`;
-return c.map((cg,ci)=>`<div class="conge-row">
-<input type="date" value="${cg.from}" data-action="cgfrom" data-idx="${i}" data-ci="${ci}">
-<span style="color:var(--t3);">→</span>
-<input type="date" value="${cg.to}" data-action="cgto" data-idx="${i}" data-ci="${ci}">
-<button type="button" data-action="rmconge" data-idx="${i}" data-ci="${ci}" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:0 4px;">×</button>
-
-  </div>`).join('');
-}
-function addConge(i){team[i].conges.push({from:'',to:''});document.getElementById(`cg-${i}`).innerHTML=renderCG(i);}
-function rmConge(i,ci){team[i].conges.splice(ci,1);document.getElementById(`cg-${i}`).innerHTML=renderCG(i);}
-function toggleRest(i,di,v){if(di===6)return;if(v){if(!team[i].restDays.includes(di))team[i].restDays.push(di);}else{team[i].restDays=team[i].restDays.filter(d=>d!==di);}}
-
-// ═══════════════════════════════════════════════
-//  REST / CONGE
-// ═══════════════════════════════════════════════
-function isRest(emp,d){
-if(d===6)return true;
-if(emp.restDays.includes(d))return true;
-if(d===5){
-if(emp.samWeek===‘AB’)return true;
-if(emp.samWeek===‘A’&&wType===‘A’)return true;
-if(emp.samWeek===‘B’&&wType===‘B’)return true;
-}
-return false;
-}
-function isConge(emp,d){
-if(!emp.conges?.length)return false;
-const dates=weekDates(curWeek);if(!dates[d])return false;
-const ds=dateStr(dates[d]);
-return emp.conges.some(c=>c.from&&c.to&&ds>=c.from&&ds<=c.to);
-}
-
-// ═══════════════════════════════════════════════
-//  HOURS
-// ═══════════════════════════════════════════════
-function slotH(sl){
-if(!sl||sl.repos||sl.conge||!sl.arrive||!sl.depart)return 0;
-const a=toM(sl.arrive),d=toM(sl.depart);
-if(!sl.pauseS||!sl.pauseE)return Math.max(0,(d-a))/60;
-return Math.max(0,(d-a-(toM(sl.pauseE)-toM(sl.pauseS))))/60;
-}
-function congeH(d){
-const o=OPEN[d],c=CLOSE[d];if(!o||!c)return 0;
-return Math.round(((toM(c)-toM(o))/60-cfg(‘pauseMin’))*100)/100;
-}
-function totalH(i){
-let t=0;
-for(let d=0;d<6;d++){const sl=plan[i]?.[d];if(!sl)continue;t+=sl.conge?congeH(d):slotH(sl);}
-return Math.round(t*100)/100;
-}
-
-// ═══════════════════════════════════════════════
-//  AUTOFILL
-// ═══════════════════════════════════════════════
-function initPlan(){
-plan={};
-team.forEach((emp,i)=>{
-plan[i]={};
-for(let d=0;d<7;d++){
-if(d===6||isRest(emp,d))plan[i][d]={repos:true,conge:false,annotation:’’};
-else if(isConge(emp,d))plan[i][d]={repos:false,conge:true,annotation:‘CP’};
-else plan[i][d]=null;
-}
-});
-}
-
-function autoFill(){
-initPlan();
-const pMinH=cfg(‘pauseMin’)||1;
-const pMaxH=cfg(‘pauseMax’)||2;
-const pSMin=toM(cfgS(‘pauseStart’)||‘11:00’);
-const pEMax=toM(cfgS(‘pauseEnd’)||‘15:00’);
-const mLMV=cfg(‘minLMV’)||4;
-const mMJS=cfg(‘minMJS’)||3;
-const mCl=cfg(‘minClose’)||3;
-const noPH=cfg(‘noPauseH’)||6;
-
-// Pre-compute each person’s work days
-const ep=team.map((emp,i)=>{
-const wd=[];
-for(let d=0;d<6;d++)if(!isRest(emp,d)&&!isConge(emp,d))wd.push(d);
-let cgH=0;for(let d=0;d<6;d++)if(isConge(emp,d))cgH+=congeH(d);
-return{emp,i,wd,cgH,target:Math.max(0,emp.hours-cgH)};
-});
-
-for(let d=0;d<6;d++){
-const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
-const isLMV=[0,2,4].includes(d);
-const minO=isLMV?mLMV:mMJS;
-
-```
-const avail=ep.filter(x=>!isRest(x.emp,d)&&!isConge(x.emp,d));
-if(!avail.length)continue;
-avail.forEach(x=>{x.curH=totalH(x.i);});
-avail.sort((a,b)=>(b.emp.hours-b.curH)-(a.emp.hours-a.curH));
-
-// Pick openers
-const opens=new Set();
-avail.filter(x=>x.emp.canOpen).slice(0,1).forEach(x=>opens.add(x.i));
-for(const x of avail){if(opens.size>=minO)break;opens.add(x.i);}
-
-// Pick closers
-const closes=new Set();
-avail.filter(x=>x.emp.canClose).slice(0,1).forEach(x=>closes.add(x.i));
-for(const x of avail){if(closes.size>=mCl)break;closes.add(x.i);}
-
-avail.forEach(({emp,i,wd,curH,target})=>{
-  const isO=opens.has(i),isC=closes.has(i);
-  const needed=Math.max(0,emp.hours-curH);
-  const dLeft=wd.filter(dd=>dd>d).length;
-  let tgt=dLeft===0?Math.min((cM-oM)/60,needed):Math.min((cM-oM)/60,needed/(dLeft+1));
-  if(wd.length<=3)tgt=Math.max(tgt,needed/Math.max(1,dLeft+1));
-  tgt=Math.min(tgt,(cM-oM)/60);
-  if(tgt<2.5&&!isO&&!isC)return;
-  if(tgt<=0)return;
-
-  const needPause=tgt>noPH;
-  const pH=needPause?(pMinH+Math.random()*(pMaxH-pMinH)):0;
-  const pM=Math.round(pH*60);
-  const wM=Math.round(tgt*60);
-  const shM=wM+pM;
-
-  let arr,dep;
-  if(isO&&isC){arr=oM;dep=cM;}
-  else if(isO){arr=oM;dep=Math.min(cM-15,arr+shM);}
-  else if(isC){dep=cM;arr=Math.max(oM+15,dep-shM);}
-  else{arr=oM+rnd(15,90);dep=Math.min(cM-15,arr+shM);}
-  if(dep-arr<150)return;
-
-  if(!needPause){
-    plan[i][d]={arrive:toT(arr),pauseS:null,pauseE:null,depart:toT(dep),repos:false,conge:false,annotation:''};
-    return;
-  }
-
-  // Smart pause placement (avoid overlap = ≥2 working at all times)
-  let pS=Math.max(arr+60,pSMin),pL=Math.min(dep-pM-60,pEMax-pM);
-  if(pL<pS)pL=pS;
-  const existing=[];
-  for(let ei=0;ei<team.length;ei++){const s=plan[ei]?.[d];if(s&&s.pauseS&&s.pauseE)existing.push({s:toM(s.pauseS),e:toM(s.pauseE)});}
-  let bS=pS,bOv=Infinity;
-  for(let c=pS;c<=pL;c+=15){
-    let ov=0;for(const e of existing){const s=Math.max(c,e.s),ee=Math.min(c+pM,e.e);if(ee>s)ov+=(ee-s);}
-    const sc=ov+Math.random()*5;if(sc<bOv){bOv=sc;bS=c;}
-  }
-  plan[i][d]={arrive:toT(arr),pauseS:toT(bS),pauseE:toT(bS+pM),depart:toT(dep),repos:false,conge:false,annotation:''};
-});
-
-// Ensure min closers (shift their arrive earlier without adding hours)
-let aCl=avail.filter(({i})=>{const s=plan[i]?.[d];return s&&s.depart&&toM(s.depart)>=cM-5;}).length;
-if(aCl<mCl){
-  const cands=avail.filter(({emp,i})=>{
-    const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)return false;
-    if(toM(s.depart)>=cM-5)return false;
-    const extra=(cM-toM(s.depart))/60;
-    return(totalH(i)+extra)<=(emp.hours+5);
-  }).sort((a,b)=>(b.emp.canClose?1:0)-(a.emp.canClose?1:0)||(totalH(a.i)-totalH(b.i)));
-  for(const cd of cands){
-    if(aCl>=mCl)break;
-    const s=plan[cd.i][d];
-    const pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
-    const wM2=toM(s.depart)-toM(s.arrive)-pM2;
-    const nArr=Math.max(oM,cM-wM2-pM2);
-    s.arrive=toT(nArr);s.depart=toT(cM);
-    if(s.pauseS&&s.pauseE){
-      let nps=toM(s.pauseS);
-      if(nps<nArr+60)nps=nArr+60;
-      if(nps+pM2>cM-60)nps=cM-pM2-60;
-      s.pauseS=toT(nps);s.pauseE=toT(nps+pM2);
-    }
-    aCl++;
-  }
-}
-```
-
-}
-
-// Balance hours to target by extending pauses
-team.forEach((emp,i)=>{
-let tot=totalH(i);const target=emp.hours;
-if(tot<=target+0.05)return;
-const pCap=Math.max(pMaxH||2,2)*60;
-const days=[];
-for(let d=0;d<6;d++){const s=plan[i]?.[d];if(s&&!s.repos&&!s.conge&&s.pauseS&&s.pauseE)days.push({d,pM:toM(s.pauseE)-toM(s.pauseS),s});}
-days.sort((a,b)=>a.pM-b.pM);
-for(const {s,pM:pM2} of days){
-if(tot<=target+0.05)break;
-const ovM=Math.ceil((tot-target)*60);
-const addM=Math.min(pCap-pM2,ovM);if(addM<=0)continue;
-let nps=toM(s.pauseS),npe=toM(s.pauseE)+addM;
-const dep=toM(s.depart);
-if(npe>dep-60){const sh=npe-(dep-60);npe-=sh;nps=Math.max(toM(s.arrive)+60,nps-sh);}
-s.pauseS=toT(nps);s.pauseE=toT(npe);tot=totalH(i);
-}
-if(tot>target+0.1){
-for(let d=0;d<6;d++){
-if(tot<=target+0.05)break;
-const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)continue;
-const ovM=Math.ceil((tot-target)*60);
-const nd=toM(s.depart)-ovM;
-const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;
-if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}
-}
-}
-});
-
-// Ensure ≥2 working during all pauses
-for(let d=0;d<6;d++){
-const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);if(!oM||!cM)continue;
-for(let iter=0;iter<8;iter++){
-let fixed=false;
-for(let t=oM;t<cM;t+=5){
-let working=0;const onP=[];
-team.forEach((*,i)=>{
-const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)return;
-const a=toM(s.arrive),dep=toM(s.depart);
-if(t>=a&&t<dep){
-if(s.pauseS&&s.pauseE&&t>=toM(s.pauseS)&&t<toM(s.pauseE))onP.push(i);
-else working++;
-}
-});
-if(working<2&&onP.length>0){
-for(const ei of onP){
-const s=plan[ei][d];if(!s.pauseS)continue;
-const ps=toM(s.pauseS),pe=toM(s.pauseE),pd=pe-ps,arr=toM(s.arrive),dep=toM(s.depart);
-const pSMin2=toM(cfgS(‘pauseStart’)||‘11:00’),pEMax2=toM(cfgS(‘pauseEnd’)||‘15:00’);
-for(const sh of[-30,-60,30,60,-15,15,-45,45,-90,90]){
-const nps=ps+sh,npe=nps+pd;
-if(nps<arr+30||npe>dep-30||nps<pSMin2||npe>pEMax2)continue;
-const oS=s.pauseS,oE=s.pauseE;s.pauseS=toT(nps);s.pauseE=toT(npe);
-let w=0;
-team.forEach((*,i2)=>{
-const s2=plan[i2]?.[d];if(!s2?.arrive||s2.repos||s2.conge)return;
-const a2=toM(s2.arrive),d2=toM(s2.depart);
-if(t>=a2&&t<d2){if(!(s2.pauseS&&s2.pauseE&&t>=toM(s2.pauseS)&&t<toM(s2.pauseE)))w++;}
-});
-if(w>=2){fixed=true;break;}
-s.pauseS=oS;s.pauseE=oE;
-}
-if(fixed)break;
-}
-if(fixed)break;
-}
-}
-if(!fixed)break;
-}
-}
-
-renderPlan();renderGantt();
-toast(‘⚡ Planning généré !’);
-showTab(‘planning’);
-}
-
-// ═══════════════════════════════════════════════
-//  RENDER PLANNING TABLE
-// ═══════════════════════════════════════════════
-function goPlanning(){updateWType();initPlan();renderPlan();renderGantt();showTab(‘planning’);}
-
-function renderPlan(){
-const wrap=document.getElementById(‘tblWrap’);if(!wrap)return;
-let h=`<table class="ptbl"><thead><tr><th class="col-emp">Employé</th>`;
-for(let d=0;d<7;d++){
-const o=OPEN[d],c=CLOSE[d];
-h+=`<th class="day-hdr" style="min-width:130px;"><div class="dn">${DAYS[d].slice(0,3).toUpperCase()}</div><div class="dh">${o?`${o}–${c}`:'Fermé'}</div></th>`;
-}
-h+=`<th style="min-width:80px;font-size:10px;">Total</th></tr></thead><tbody>`;
-
-team.forEach((emp,i)=>{
-const tot=totalH(i),diff=Math.round((tot-emp.hours)*100)/100;
-const hc=diff>0.05?‘hov’:diff<-0.05?‘hun’:‘hok’;
-const hs=Math.abs(diff)<0.05?‘✓’:(diff>0?`+${fmtH(diff)}`:`-${fmtH(Math.abs(diff))}`);
-const hbg=diff>0.05?‘rgba(78,205,196,.08)’:diff<-0.05?‘rgba(255,77,109,.08)’:‘rgba(6,214,160,.08)’;
-h+=`<tr><td class="col-emp"><div style="padding:6px 0;display:flex;flex-direction:column;gap:3px;"> <div style="display:flex;align-items:center;gap:5px;"> <span style="font-weight:700;font-size:12px;">${emp.name}</span> <span class="poste-b pb-${emp.poste.replace('É','E').replace('È','E')}">${emp.poste}</span> </div> <span style="font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;">${emp.hours}:00/sem</span> </div></td>`;
-for(let d=0;d<7;d++){
-if(d===6){h+=`<td class="cell c-closed"><div class="ci-box"><span style="font-size:9px;color:var(--t3);">Fermé</span></div></td>`;continue;}
-const sl=plan[i]?.[d];
-let cls=‘cell ‘,inner=’’;
-if(!sl||sl.repos){
-cls+=‘c-repos’;inner=`<span class="st">REPOS</span>`;
-}else if(sl.conge){
-cls+=‘c-conge’;inner=`<span class="st">🌿 CONGÉ</span><span class="sp">${fmtH(congeH(d))} comptées</span>`;
-}else if(sl.arrive){
-cls+=‘c-work’;
-const wh=slotH(sl);
-const an=sl.annotation?`<span class="sa2">${sl.annotation}</span>`:’’;
-if(sl.pauseS&&sl.pauseE){
-inner=`<span class="st">${sl.arrive}/${sl.pauseS}</span><span class="sp">${sl.pauseS}–${sl.pauseE}</span><span class="st">${sl.pauseE}/${sl.depart}</span><span class="sp" style="color:var(--a2);">${fmtH(wh)}</span>${an}`;
-}else{
-inner=`<span class="st">${sl.arrive} → ${sl.depart}</span><span class="sp" style="color:var(--a2);">${fmtH(wh)} s/pause</span>${an}`;
-}
-}else{cls+=‘c-work’;inner=`<span class="st" style="color:var(--t3);">—</span>`;}
-h+=`<td class="${cls}" data-action="cell" data-emp="${i}" data-day="${d}"><div class="ci-box">${inner}</div></td>`;
-}
-h+=`<td class="hcell ${hc}" style="background:${hbg}"><div class="hval ${hc}">${fmtH(tot)}</div><div class="hexp">${hs} / ${emp.hours}:00</div></td></tr>`;
-});
-h+=buildCnt();h+=`</tbody></table>`;
-wrap.innerHTML=h;renderRecap();
-}
-
-function buildCnt(){
-const ml=cfg(‘minLMV’)||4,mm=cfg(‘minMJS’)||3,mc=cfg(‘minClose’)||3;
-let r0=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">🔓 Ouv.</td>`;
-let r1=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">👥 Présents</td>`;
-let r2=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">🔒 Ferm. ≥${mc}</td>`;
-for(let d=0;d<7;d++){
-if(d===6){r0+=`<td>—</td>`;r1+=`<td>—</td>`;r2+=`<td>—</td>`;continue;}
-const ms=[0,2,4].includes(d)?ml:mm;
-const o=cntOpen(d),p=cntPresent(d),c=cntClose(d);
-r0+=`<td class="${o>=ms?'cok':'clow'}">${o}/${ms}</td>`;
-r1+=`<td class="${p>=ms?'cok':'clow'}">${p}/${ms}</td>`;
-r2+=`<td class="${c>=mc?'cok':'clow'}">${c}/${mc}</td>`;
-}
-return r0+`<td></td></tr>`+r1+`<td></td></tr>`+r2+`<td></td></tr>`;
-}
-const cntPresent=d=>team.filter((*,i)=>{const s=plan[i]?.[d];return s&&!s.repos&&!s.conge&&s.arrive;}).length;
-const cntOpen=d=>{const o=OPEN[d];if(!o)return 0;const oM=toM(o);return team.filter((*,i)=>{const s=plan[i]?.[d];return s&&s.arrive&&!s.repos&&!s.conge&&toM(s.arrive)<=oM+5;}).length;};
-const cntClose=d=>{const c=CLOSE[d];if(!c)return 0;const cM=toM(c);return team.filter((_,i)=>{const s=plan[i]?.[d];return s&&s.depart&&!s.repos&&!s.conge&&toM(s.depart)>=cM-5;}).length;};
-
-// ═══════════════════════════════════════════════
-//  GANTT
-// ═══════════════════════════════════════════════
-function renderGantt(){
-const wrap=document.getElementById(‘ganttWrap’);if(!wrap)return;
-if(!Object.keys(plan).length){wrap.innerHTML=`<p style="color:var(--t3);padding:20px;">Générez d'abord un planning.</p>`;return;}
-const GS=7*60,GE=20*60,GR=GE-GS;
-const pct=m=>((m-GS)/GR*100).toFixed(2);
-let h=’’;
-for(let d=0;d<6;d++){
-const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
-const dates=weekDates(curWeek);
-const ds2=dates[d]?`${String(dates[d].getDate()).padStart(2,'0')}/${String(dates[d].getMonth()+1).padStart(2,'0')}`:’’;
-let dayTot=0;team.forEach((_,i)=>{const s=plan[i]?.[d];if(s&&!s.repos&&!s.conge&&s.arrive)dayTot+=slotH(s);});
-h+=`<div class="g-day"><div class="g-day-hdr"><h3>${DAYS[d]} ${ds2}</h3><span class="g-total">Total ${fmtH(dayTot)}</span></div> <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><div class="g-grid"> <div class="g-hours-row"> <div style="background:var(--s3);padding:0 6px;display:flex;align-items:center;"><span style="font-size:9px;color:var(--t3);">Heure</span></div> <div class="g-hour-marks">`;
-for(let hh=7;hh<=19;hh++) h+=`<div class="g-hm" style="left:${pct(hh*60)}%">${hh}h</div>`;
-h+=`</div><div style="background:var(--s3);"></div></div>`;
-team.forEach((emp,i)=>{
-const s=plan[i]?.[d];
-const col=PCOL[emp.poste]||’#888’;
-let bars=’’,tot2=0;
-if(s?.conge){
-bars+=`<div class="g-bar" style="left:${pct(oM)}%;width:${((cM-oM)/GR*100).toFixed(2)}%;background:rgba(6,214,160,.35);border:1px dashed var(--grn);">${s.annotation||'CP'}</div>`;
-tot2=congeH(d);
-}else if(s&&!s.repos&&s.arrive){
-const a=toM(s.arrive),dep=toM(s.depart);
-if(s.pauseS&&s.pauseE){
-const ps=toM(s.pauseS),pe=toM(s.pauseE);
-bars+=`<div class="g-bar" style="left:${pct(a)}%;width:${((ps-a)/GR*100).toFixed(2)}%;background:${col};color:#fff;">${s.arrive}–${s.pauseS}</div>`;
-bars+=`<div class="g-bar" style="left:${pct(pe)}%;width:${((dep-pe)/GR*100).toFixed(2)}%;background:${col};color:#fff;">${s.pauseE}–${s.depart}</div>`;
-}else{
-bars+=`<div class="g-bar" style="left:${pct(a)}%;width:${((dep-a)/GR*100).toFixed(2)}%;background:${col};color:#fff;">${s.arrive}–${s.depart}</div>`;
-}
-if(s.annotation)bars+=`<div class="g-bar" style="left:${pct(a)}%;background:transparent;"><span style="font-size:8px;font-weight:700;color:#fff;background:rgba(0,0,0,.5);padding:1px 3px;border-radius:2px;">${s.annotation}</span></div>`;
-tot2=slotH(s);
-}
-h+=`<div class="g-row"><div class="g-name" style="border-left:3px solid ${col};">${emp.name}</div><div class="g-line">${bars}</div><div class="g-tot">${tot2>0?fmtH(tot2):'—'}</div></div>`;
-});
-// Count row
-const SLOTS=Math.floor(GR/15);
-h+=`<div class="g-cnt-row"><div style="background:var(--s2);padding:0 5px;display:flex;align-items:center;"><span style="font-size:9px;color:var(--t3);">👥</span></div><div class="g-cnt-line">`;
-for(let s=0;s<SLOTS;s++){
-const tS=GS+s*15;let cnt=0;
-team.forEach((_,i)=>{
-const sl=plan[i]?.[d];if(!sl?.arrive||sl.repos||sl.conge)return;
-const a=toM(sl.arrive),dep=toM(sl.depart);
-if(tS>=a&&tS<dep){if(sl.pauseS&&sl.pauseE&&tS>=toM(sl.pauseS)&&tS<toM(sl.pauseE)){}else cnt++;}
-});
-const inShop=tS>=oM&&tS<cM;
-const bg=!inShop?‘transparent’:cnt===0?‘rgba(255,77,109,.2)’:cnt<2?‘rgba(247,127,0,.2)’:‘rgba(6,214,160,.06)’;
-const col2=cnt===0?‘var(–t3)’:cnt<2?‘var(–org)’:‘var(–txt)’;
-h+=`<div class="g-cnt-cell" style="background:${bg};color:${col2};">${inShop?cnt:''}</div>`;
-}
-h+=`</div><div style="background:var(--s2);"></div></div>`;
-h+=`</div></div></div>`;
-}
-wrap.innerHTML=h;
-}
-
-// ═══════════════════════════════════════════════
-//  MODAL
-// ═══════════════════════════════════════════════
-function openModal(i,d){
-if(d===6)return;
-mTarget={i,d};
-const s=plan[i]?.[d];
-const o=OPEN[d],c=CLOSE[d];
-document.getElementById(‘mTitle’).textContent=`${team[i].name} — ${DAYS[d]}`;
-document.getElementById(‘mArrive’).value=s?.arrive||o||’’;
-document.getElementById(‘mDepart’).value=s?.depart||c||’’;
-document.getElementById(‘mPauseS’).value=s?.pauseS||‘12:00’;
-document.getElementById(‘mPauseE’).value=s?.pauseE||‘13:00’;
-document.getElementById(‘mRepos’).checked=!!s?.repos;
-document.getElementById(‘mConge’).checked=!!s?.conge;
-document.getElementById(‘mNoPause’).checked=!!(s?.arrive&&(!s.pauseS||!s.pauseE));
-const anno=s?.annotation||’’;
-document.getElementById(‘mAnno’).value=anno;
-document.querySelectorAll(’.anno-btn’).forEach(b=>{b.classList.toggle(‘on’,b.dataset.anno===anno);});
-calcModal();
-document.getElementById(‘overlayCell’).classList.add(‘on’);
-}
-function closeModal(){document.getElementById(‘overlayCell’).classList.remove(‘on’);mTarget=null;}
-function calcModal(){
-const a=document.getElementById(‘mArrive’).value;
-const dep=document.getElementById(‘mDepart’).value;
-const np=document.getElementById(‘mNoPause’).checked;
-const info=document.getElementById(‘mInfo’);
-if(!a||!dep){info.textContent=’’;return;}
-if(np){info.textContent=`⏱ ${fmtH((toM(dep)-toM(a))/60)} travaillées (sans pause)`;return;}
-const ps=document.getElementById(‘mPauseS’).value;
-const pe=document.getElementById(‘mPauseE’).value;
-if(!ps||!pe){info.textContent=’’;return;}
-const w=Math.max(0,(toM(dep)-toM(a)-(toM(pe)-toM(ps))))/60;
-const p=(toM(pe)-toM(ps))/60;
-info.textContent=`⏱ ${fmtH(w)} travaillées · pause ${fmtH(p)}`;
-}
-function saveModal(){
-if(!mTarget)return;
-const{i,d}=mTarget;
-const anno=document.getElementById(‘mAnno’).value.trim();
-if(document.getElementById(‘mRepos’).checked){plan[i][d]={repos:true,conge:false,annotation:anno};}
-else if(document.getElementById(‘mConge’).checked){plan[i][d]={repos:false,conge:true,annotation:anno||‘CP’};}
-else{
-const np=document.getElementById(‘mNoPause’).checked;
-plan[i][d]={
-arrive:document.getElementById(‘mArrive’).value,
-pauseS:np?null:document.getElementById(‘mPauseS’).value,
-pauseE:np?null:document.getElementById(‘mPauseE’).value,
-depart:document.getElementById(‘mDepart’).value,
-repos:false,conge:false,annotation:anno
-};
-}
-closeModal();renderPlan();renderGantt();
-}
-
-// ═══════════════════════════════════════════════
-//  RECAP
-// ═══════════════════════════════════════════════
-function renderRecap(){
-const el=document.getElementById(‘recapWrap’);if(!el)return;
-if(!Object.keys(plan).length){el.innerHTML=`<p style="color:var(--t3)">Générez d'abord un planning.</p>`;return;}
-let h=`<div class="rcards">`;
-team.forEach((emp,i)=>{
-const tot=totalH(i),diff=Math.round((tot-emp.hours)*100)/100;
-const col=diff>0.05?‘var(–a2)’:diff<-0.05?‘var(–red)’:‘var(–grn)’;
-const sign=Math.abs(diff)<0.05?‘✓’:(diff>0?`+${fmtH(diff)}`:`-${fmtH(Math.abs(diff))}`);
-h+=`<div class="rcard"><div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;"> <span style="font-weight:700;font-size:13px;">${emp.name}</span> <span class="poste-b pb-${emp.poste.replace('É','E').replace('È','E')}">${emp.poste}</span> </div> <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:${col};">${fmtH(tot)} <span style="font-size:13px;">${sign}</span></div> <div style="background:var(--s3);border-radius:4px;height:5px;margin:6px 0;overflow:hidden;"><div style="height:100%;background:${col};width:${Math.min(100,(tot/emp.hours)*100)}%;"></div></div> <div style="font-size:10px;color:var(--t3);margin-bottom:9px;">Contrat ${emp.hours}:00/sem</div> <div style="display:flex;flex-direction:column;gap:3px;"> ${Array.from({length:6},(_,d)=>{ const s=plan[i]?.[d]; if(!s||s.repos)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t3);">${DS[d].slice(0,3)} — Repos</div>`; if(s.conge)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--grn);">${DS[d].slice(0,3)} 🌿 ${s.annotation||‘CP’}</div>`; if(!s.arrive)return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t3);">${DS[d].slice(0,3)} —</div>`; const wh=slotH(s),np=s.pauseS?'':'·s/p',an=s.annotation?` [${s.annotation}]`:''; return`<div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t2);">${DS[d].slice(0,3)} ${s.arrive}→${s.depart} (${fmtH(wh)})${np}${an}</div>`; }).join('')} </div></div>`;
-});
-h+=`</div>`;
-el.innerHTML=h;
-}
-
-// ═══════════════════════════════════════════════
-//  FAVORITES
-// ═══════════════════════════════════════════════
-function openFavModal(){
-if(!Object.keys(plan).length){toast(‘⚠ Générez d'abord un planning’);return;}
-document.getElementById(‘favName’).value=`Sem.${curWeek?.split('W')[1]||''} — Type ${wType}`;
-document.getElementById(‘overlayFav’).classList.add(‘on’);
-}
-function closeFavModal(){document.getElementById(‘overlayFav’).classList.remove(‘on’);}
-function confirmFav(){
-const name=document.getElementById(‘favName’).value.trim()||`Favori ${Date.now()}`;
-const favs=JSON.parse(localStorage.getItem(‘ppFavs’)||’[]’);
-favs.unshift({id:Date.now(),name,week:curWeek,wType,date:new Date().toLocaleDateString(‘fr-FR’),team:JSON.parse(JSON.stringify(team)),plan:JSON.parse(JSON.stringify(plan))});
-localStorage.setItem(‘ppFavs’,JSON.stringify(favs));
-closeFavModal();renderFavs();toast(`★ "${name}" sauvegardé !`);
-}
-function renderFavs(){
-const el=document.getElementById(‘favsList’),em=document.getElementById(‘favsEmpty’);
-if(!el)return;
-const favs=JSON.parse(localStorage.getItem(‘ppFavs’)||’[]’);
-em.style.display=favs.length?‘none’:‘block’;
-el.innerHTML=favs.map(f=>`<div class="fav-item">
-<div style="flex:1;"><div class="fav-name">${f.name}</div><div class="fav-meta">Sem.${f.week?.split(‘W’)[1]||’?’} · ${f.wType||’?’} · ${f.date}</div></div>
-<button class="btn btn-p btn-sm" data-action="loadfav" data-id="${f.id}">Charger</button>
-<button class="btn btn-r btn-sm" data-action="delfav" data-id="${f.id}">✕</button>
-
-  </div>`).join('');
-}
-function loadFav(id){
-  const fav=JSON.parse(localStorage.getItem('ppFavs')||'[]').find(f=>f.id===id);
-  if(!fav)return;
-  team=fav.team;plan=fav.plan;curWeek=fav.week;wType=fav.wType;
-  setAllWeekPickers(curWeek);updateWType();
-  document.getElementById('teamSize').value=team.length;
-  document.getElementById('stepDisplay').textContent=team.length;
-  renderTeam();updBadges();renderPlan();renderGantt();
-  showTab('planning');toast(`✓ "${fav.name}" chargé !`);
-}
-function delFav(id){
-  let favs=JSON.parse(localStorage.getItem('ppFavs')||'[]').filter(f=>f.id!==id);
-  localStorage.setItem('ppFavs',JSON.stringify(favs));renderFavs();
-}
-
-// ═══════════════════════════════════════════════
-//  EXPORT PDF
-// ═══════════════════════════════════════════════
-function exportPDF(){
-// Sur iOS Safari, on ouvre une fenêtre d’impression qui permet de sauvegarder en PDF
-const cur=document.querySelector(’.pg.on’);
-const isGantt=cur?.id===‘pg-gantt’;
-const el=isGantt?document.getElementById(‘ganttWrap’):document.getElementById(‘tblWrap’);
-if(!el||!el.innerHTML.trim()){toast(‘⚠ Générez d'abord un planning’);return;}
-
-// Build a clean print window
-const w=window.open(’’,’_blank’,‘width=1200,height=800’);
-if(!w){toast(‘⚠ Autorisez les popups pour exporter’);return;}
-
-const title=`Planning Semaine ${curWeek?.split('W')[1]||''} — Type ${wType}`;
-
-w.document.write(`<!DOCTYPE html><!-- v1778593418 --><html lang="fr"><head>
-<meta charset="UTF-8">
-
-  <title>${title}</title>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{background:#fff;color:#111;font-family:'DM Sans',Arial,sans-serif;font-size:11px;padding:12px;}
-    h2{font-size:14px;font-weight:700;margin-bottom:10px;color:#111;}
-    /* Table styles */
-    table{border-collapse:collapse;width:100%;font-size:10px;}
-    th,td{border:1px solid #ccc;padding:4px 5px;text-align:center;vertical-align:middle;}
-    th{background:#f0f0f0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:9px;}
-    .col-emp{text-align:left;min-width:100px;background:#f8f8f8;font-weight:600;}
-    .c-repos{background:#ececec;color:#999;}
-    .c-conge{background:#d4f5e9;color:#2a7a5a;}
-    .c-work{background:#fff;}
-    .c-closed{background:#f5f5f5;color:#ccc;}
-    .hcell{font-weight:700;}
-    .hok{color:#06a87a;}.hov{color:#4ecdc4;}.hun{color:#e03;} 
-    .cnt td{background:#f5f5f5;font-size:9px;font-family:monospace;}
-    .cok{color:#06a87a;font-weight:700;}.clow{color:#e03;font-weight:700;}
-    /* Gantt */
-    .g-day{margin-bottom:16px;page-break-inside:avoid;}
-    .g-day h3{font-size:12px;font-weight:700;background:#ffd166;color:#000;padding:3px 10px;border-radius:3px;display:inline-block;margin-bottom:6px;}
-    .g-table{width:100%;border-collapse:collapse;}
-    .g-table td,.g-table th{border:1px solid #ddd;padding:3px 4px;font-size:9px;}
-    .g-bar-cell{position:relative;height:18px;padding:0;}
-    .g-bar{position:absolute;top:1px;bottom:1px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;overflow:hidden;}
-    @media print{body{padding:6px;}h2{font-size:12px;}.g-day{page-break-inside:avoid;}}
-  </style>
-  </head><body>
-  <h2>${title}</h2>`);
-
-if(isGantt){
-// Gantt HTML
-w.document.write(buildPrintGantt());
-} else {
-// Table HTML — clone and clean styles
-const clone=el.cloneNode(true);
-// Fix classes to print-friendly versions
-clone.querySelectorAll(’.c-repos’).forEach(td=>{td.style.background=’#ececec’;td.style.color=’#999’;});
-clone.querySelectorAll(’.c-conge’).forEach(td=>{td.style.background=’#d4f5e9’;td.style.color=’#2a7a5a’;});
-clone.querySelectorAll(’.c-work’).forEach(td=>{td.style.background=’#fff’;});
-clone.querySelectorAll(’.c-closed’).forEach(td=>{td.style.background=’#f5f5f5’;td.style.color=’#ccc’;});
-clone.querySelectorAll(’.hok’).forEach(el2=>{el2.style.color=’#06a87a’;});
-clone.querySelectorAll(’.hov’).forEach(el2=>{el2.style.color=’#0099aa’;});
-clone.querySelectorAll(’.hun’).forEach(el2=>{el2.style.color=’#cc0033’;});
-clone.querySelectorAll(’.st’).forEach(el2=>{el2.style.color=’#111’;el2.style.fontSize=‘9px’;});
-clone.querySelectorAll(’.sp’).forEach(el2=>{el2.style.color=’#666’;el2.style.fontSize=‘8px’;});
-clone.querySelectorAll(’.sa2’).forEach(el2=>{el2.style.color=’#d66000’;el2.style.fontSize=‘8px’;});
-clone.querySelectorAll(’.col-emp’).forEach(td=>{td.style.background=’#f8f8f8’;td.style.color=’#111’;});
-clone.querySelectorAll(’.cnt td’).forEach(td=>{td.style.background=’#f5f5f5’;td.style.fontSize=‘9px’;});
-clone.querySelectorAll(’.cok’).forEach(el2=>{el2.style.color=’#06a87a’;el2.style.fontWeight=‘700’;});
-clone.querySelectorAll(’.clow’).forEach(el2=>{el2.style.color=’#cc0033’;el2.style.fontWeight=‘700’;});
-// Remove sticky positioning for print
-clone.querySelectorAll(’[style]’).forEach(el2=>{
-el2.style.position=’’;el2.style.left=’’;el2.style.zIndex=’’;
-});
-w.document.write(’<div style="overflow-x:auto;">’+clone.innerHTML+’</div>’);
-}
-
-w.document.write(’</body></html>’);
-w.document.close();
-setTimeout(()=>{w.focus();w.print();},600);
-}
-
-function buildPrintGantt(){
-const GS=7*60,GE=20*60,GR=GE-GS;
-const pct=m=>((m-GS)/GR*100).toFixed(2);
-const PCOLS={SA:’#7c6af5’,VRAC:’#4ecdc4’,BOISSON:’#f77f00’,‘GÉNÉRALE’:’#ff6b9d’,FEL:’#a8e063’};
-let h=’’;
-for(let d=0;d<6;d++){
-const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
-const dates=weekDates(curWeek);
-const ds2=dates[d]?`${String(dates[d].getDate()).padStart(2,'0')}/${String(dates[d].getMonth()+1).padStart(2,'0')}`:’’
-let dayTot=0;team.forEach((_,i)=>{const s=plan[i]?.[d];if(s&&!s.repos&&!s.conge&&s.arrive)dayTot+=slotH(s);});
-h+=`<div class="g-day"><h3>${DAYS[d]} ${ds2} — Total ${fmtH(dayTot)}</h3> <table class="g-table"><thead><tr><th style="width:90px;">Nom</th><th>Horaires</th><th style="width:55px;">Total</th></tr></thead><tbody>`;
-team.forEach((emp,i)=>{
-const s=plan[i]?.[d];
-const col=PCOLS[emp.poste]||’#888’;
-let barHtml=’’,tot2=0;
-if(s?.conge){
-barHtml=`<div class="g-bar" style="left:${pct(oM)}%;width:${((cM-oM)/GR*100).toFixed(2)}%;background:rgba(6,180,100,.5);">${s.annotation||'CP'}</div>`;
-tot2=congeH(d);
-}else if(s&&!s.repos&&s.arrive){
-const a=toM(s.arrive),dep=toM(s.depart);
-if(s.pauseS&&s.pauseE){
-const ps=toM(s.pauseS),pe=toM(s.pauseE);
-barHtml+=`<div class="g-bar" style="left:${pct(a)}%;width:${((ps-a)/GR*100).toFixed(2)}%;background:${col};">${s.arrive}–${s.pauseS}</div>`;
-barHtml+=`<div class="g-bar" style="left:${pct(pe)}%;width:${((dep-pe)/GR*100).toFixed(2)}%;background:${col};">${s.pauseE}–${s.depart}</div>`;
-}else{
-barHtml+=`<div class="g-bar" style="left:${pct(a)}%;width:${((dep-a)/GR*100).toFixed(2)}%;background:${col};">${s.arrive}–${s.depart}</div>`;
-}
-tot2=slotH(s);
-}
-const isRepos=!s||s.repos;
-h+=`<tr><td style="font-weight:600;border-left:3px solid ${col};">${emp.name}</td> <td class="g-bar-cell" style="position:relative;height:20px;">${isRepos?'<span style="color:#aaa;font-size:9px;padding:0 5px;">Repos</span>':barHtml}</td> <td style="text-align:center;font-weight:700;color:${col};">${tot2>0?fmtH(tot2):'—'}</td></tr>`;
-});
-h+=`</tbody></table></div>`;
-}
-return h;
-}
-
-// ═══════════════════════════════════════════════
-//  UI
-// ═══════════════════════════════════════════════
-function showTab(name){
-document.querySelectorAll(’.tab’).forEach(t=>t.classList.toggle(‘on’,t.dataset.tab===name));
-document.querySelectorAll(’.pg’).forEach(p=>p.classList.toggle(‘on’,p.id===`pg-${name}`));
-if(name===‘recap’)renderRecap();
-if(name===‘favs’)renderFavs();
-if(name===‘gantt’)renderGantt();
-}
-function toast(msg,dur=2800){
-const el=document.getElementById(‘toast’);
-el.textContent=msg;el.classList.add(‘on’);
-setTimeout(()=>el.classList.remove(‘on’),dur);
-}
-
-window.addEventListener(‘load’, initApp);
-</script>
-
 </body>
 </html>
