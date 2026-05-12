@@ -15,7 +15,7 @@
   --bor:#2e2e3f;--acc:#7c6af5;--a2:#4ecdc4;
   --txt:#e8e8f0;--t2:#9090a8;--t3:#606078;
   --red:#ff4d6d;--grn:#06d6a0;--org:#f77f00;--yellow:#ffd166;
-  --sa:#7c6af5;--vrac:#4ecdc4;--bois:#f77f00;--gen:#ff6b9d;
+  --sa:#7c6af5;--vrac:#4ecdc4;--bois:#f77f00;--gen:#ff6b9d;--fel:#a8e063;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html{background:#0f0f13;color-scheme:dark;}
@@ -109,6 +109,7 @@ touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;
 .pb-VRAC{background:rgba(78,205,196,.2);color:var(–vrac);}
 .pb-BOISSON{background:rgba(247,127,0,.2);color:var(–bois);}
 .pb-GENERALE{background:rgba(255,107,157,.2);color:var(–gen);}
+.pb-FEL{background:rgba(168,224,99,.2);color:#a8e063;}
 
 /* ── EMP ROW ── */
 .emp-row{background:var(–s3);border:1px solid var(–bor);border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:9px;}
@@ -398,8 +399,8 @@ const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 const DS=['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
 const OPEN={0:'07:45',1:'08:00',2:'07:45',3:'08:00',4:'07:45',5:'08:00',6:null};
 const CLOSE={0:'19:30',1:'19:30',2:'19:30',3:'19:30',4:'19:30',5:'18:30',6:null};
-const POSTES=['SA','VRAC','BOISSON','GÉNÉRALE'];
-const PCOL={SA:'#7c6af5',VRAC:'#4ecdc4',BOISSON:'#f77f00','GÉNÉRALE':'#ff6b9d'};
+const POSTES=['SA','VRAC','BOISSON','GÉNÉRALE','FEL'];
+const PCOL={SA:'#7c6af5',VRAC:'#4ecdc4',BOISSON:'#f77f00','GÉNÉRALE':'#ff6b9d',FEL:'#a8e063'};
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -557,6 +558,8 @@ function renderTeam(){
         <select style="width:65px;" onchange="team[${i}].hours=parseInt(this.value)">
           <option value="35" ${emp.hours===35?'selected':''}>35h</option>
           <option value="30" ${emp.hours===30?'selected':''}>30h</option>
+          <option value="25" ${emp.hours===25?'selected':''}>25h</option>
+          <option value="20" ${emp.hours===20?'selected':''}>20h</option>
         </select>
       </div>
       <div>
