@@ -417,10 +417,10 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
     <div class="modal-handle"></div>
     <h3 id="mTitle">Modifier</h3>
     <div class="modal-grid">
-      <div class="fld"><label>Arrivée</label><input type="text" id="mArrive" placeholder="07:45" oninput="calcModal()"></div>
-      <div class="fld"><label>Départ</label><input type="text" id="mDepart" placeholder="19:30" oninput="calcModal()"></div>
-      <div class="fld"><label>Début pause</label><input type="text" id="mPauseS" placeholder="12:00" oninput="calcModal()"></div>
-      <div class="fld"><label>Fin pause</label><input type="text" id="mPauseE" placeholder="13:00" oninput="calcModal()"></div>
+      <div class="fld"><label>Arrivée</label><select id="mArrive" onchange="calcModal()"></select></div>
+      <div class="fld"><label>Départ</label><select id="mDepart" onchange="calcModal()"></select></div>
+      <div class="fld"><label>Début pause</label><select id="mPauseS" onchange="calcModal()"></select></div>
+      <div class="fld"><label>Fin pause</label><select id="mPauseE" onchange="calcModal()"></select></div>
     </div>
     <div class="modal-checks">
       <label class="check-lbl"><input type="checkbox" id="mRepos"> Repos</label>
@@ -476,7 +476,12 @@ let team=[], plan={}, curWeek=null, wType='A', mTarget=null;
 
 // ═══ UTILS ═══
 const toM=t=>{if(!t||!t.includes(':'))return 0;const[h,m]=t.split(':').map(Number);return h*60+m;};
-const toT=m=>{const h=Math.floor(m/60),mm=m%60;return`${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;};
+const toT=m=>{
+  // Round to nearest 5 minutes
+  const r=Math.round(m/5)*5;
+  const h=Math.floor(r/60),mm=r%60;
+  return`${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+};
 const rnd=(a,b)=>Math.round(a+Math.random()*(b-a));
 const fmtH=h=>{if(!h&&h!==0)return'0:00';const s=h<0?'-':'';const a=Math.abs(h);const hh=Math.floor(a);const mm=Math.round((a-hh)*60);return`${s}${hh}:${String(mm===60?0:mm).padStart(2,'0')}`;};
 const cfg=id=>parseFloat(document.getElementById(id)?.value||0)||0;
@@ -645,94 +650,261 @@ function initPlan(){
 
 function autoFill(){
   initPlan();
-  const pMinH=cfg('pauseMin')||1,pMaxH=cfg('pauseMax')||2;
-  const pSMin=toM(cfgS('pauseStart')||'11:00'),pEMax=toM(cfgS('pauseEnd')||'15:00');
-  const mLMV=cfg('minLMV')||4,mMJS=cfg('minMJS')||3,mCl=cfg('minClose')||3;
+  const pMinH=Math.max(cfg('pauseMin')||1, 1);
+  const pMaxH=Math.min(cfg('pauseMax')||2, 3);
+  const pSMin=toM(cfgS('pauseStart')||'11:00');
+  const pEMax=toM(cfgS('pauseEnd')||'15:00');
+  const mLMV=Math.max(cfg('minLMV')||4, 1);
+  const mMJS=Math.max(cfg('minMJS')||3, 1);
+  const mCl=Math.max(cfg('minClose')||3, 1);
   const noPH=cfg('noPauseH')||6;
+
+  // Pre-compute work days per person
   const ep=team.map((emp,i)=>{
-    const wd=[];for(let d=0;d<6;d++)if(!isRest(emp,d)&&!isConge(emp,d))wd.push(d);
-    let cgH=0;for(let d=0;d<6;d++)if(isConge(emp,d))cgH+=congeH(d);
-    return{emp,i,wd,target:Math.max(0,emp.hours-cgH)};
+    const wd=[];
+    for(let d=0;d<6;d++) if(!isRest(emp,d)&&!isConge(emp,d)) wd.push(d);
+    let cgH=0;
+    for(let d=0;d<6;d++) if(isConge(emp,d)) cgH+=congeH(d);
+    return{emp,i,wd,cgH,target:Math.max(0,emp.hours-cgH)};
   });
+
+  // ── DAY BY DAY ──
   for(let d=0;d<6;d++){
-    const oM=toM(OPEN[d]),cM=toM(CLOSE[d]),isLMV=[0,2,4].includes(d),minO=isLMV?mLMV:mMJS;
+    const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
+    if(!oM||!cM)continue;
+    const isLMV=[0,2,4].includes(d);
+    const minO=isLMV?mLMV:mMJS;
+
+    // Available workers
     const avail=ep.filter(x=>!isRest(x.emp,d)&&!isConge(x.emp,d));
     if(!avail.length)continue;
+
+    // Sort by hours deficit (most needed first)
     avail.forEach(x=>{x.curH=totalH(x.i);});
     avail.sort((a,b)=>(b.emp.hours-b.curH)-(a.emp.hours-a.curH));
-    const opens=new Set(),closes=new Set();
-    avail.filter(x=>x.emp.canOpen).slice(0,1).forEach(x=>opens.add(x.i));
-    for(const x of avail){if(opens.size>=minO)break;opens.add(x.i);}
-    avail.filter(x=>x.emp.canClose).slice(0,1).forEach(x=>closes.add(x.i));
-    for(const x of avail){if(closes.size>=mCl)break;closes.add(x.i);}
-    avail.forEach(({emp,i,wd,curH,target})=>{
-      const isO=opens.has(i),isC=closes.has(i);
+
+    // ── STEP 1: Assign openers ──
+    const opens=new Set();
+    // Priority: canOpen + most deficit
+    const canOpenList=avail.filter(x=>x.emp.canOpen);
+    if(canOpenList.length>0) opens.add(canOpenList[0].i);
+    // Fill up to minO
+    for(const x of avail){ if(opens.size>=minO)break; opens.add(x.i); }
+
+    // ── STEP 2: Assign closers ──
+    const closes=new Set();
+    const canCloseList=avail.filter(x=>x.emp.canClose);
+    if(canCloseList.length>0) closes.add(canCloseList[0].i);
+    for(const x of avail){ if(closes.size>=mCl)break; closes.add(x.i); }
+
+    // ── STEP 3: Assign shifts ──
+    avail.forEach(({emp,i,wd,curH})=>{
+      const isO=opens.has(i), isC=closes.has(i);
       const needed=Math.max(0,emp.hours-curH);
       const dLeft=wd.filter(dd=>dd>d).length;
-      let tgt=dLeft===0?Math.min((cM-oM)/60,needed):Math.min((cM-oM)/60,needed/(dLeft+1));
-      if(wd.length<=3)tgt=Math.max(tgt,needed/Math.max(1,dLeft+1));
-      tgt=Math.min(tgt,(cM-oM)/60);
-      if(tgt<2.5&&!isO&&!isC)return;if(tgt<=0)return;
-      const needP=tgt>noPH,pH=needP?(pMinH+Math.random()*(pMaxH-pMinH)):0,pM=Math.round(pH*60);
-      const shM=Math.round(tgt*60)+pM;
+
+      // Target hours today
+      let tgt;
+      if(dLeft===0){
+        tgt=Math.min((cM-oM)/60, needed);
+      } else {
+        tgt=needed/(dLeft+1);
+        // Boost if short week
+        if(wd.length<=3) tgt=Math.max(tgt, needed/Math.max(1,dLeft+1));
+      }
+      tgt=Math.min(tgt,(cM-oM)/60-pMinH);
+      tgt=Math.max(tgt,0);
+
+      // Skip if not needed and not opener/closer
+      if(tgt<2&&!isO&&!isC) return;
+      if(tgt<=0&&!isO&&!isC) return;
+      // Ensure minimum 3h if assigned
+      tgt=Math.max(tgt, isO||isC ? 4 : 3);
+
+      const needP=tgt>noPH;
+      const pH=needP?(pMinH+Math.random()*(pMaxH-pMinH)):0;
+      const pM=Math.round(pH*60/5)*5; // round to 5min
+      const wM=Math.round(tgt*60/5)*5;
+      const shM=wM+pM;
+
+      // ── Determine arrive/depart based on role ──
       let arr,dep;
-      if(isO&&isC){arr=oM;dep=cM;}
-      else if(isO){arr=oM;dep=Math.min(cM-15,arr+shM);}
-      else if(isC){dep=cM;arr=Math.max(oM+15,dep-shM);}
-      else{arr=oM+rnd(15,90);dep=Math.min(cM-15,arr+shM);}
-      if(dep-arr<150)return;
-      if(!needP){plan[i][d]={arrive:toT(arr),pauseS:null,pauseE:null,depart:toT(dep),repos:false,conge:false,annotation:''};return;}
-      let pS=Math.max(arr+60,pSMin),pL=Math.min(dep-pM-60,pEMax-pM);if(pL<pS)pL=pS;
-      const ex=[];for(let ei=0;ei<team.length;ei++){const s=plan[ei]?.[d];if(s&&s.pauseS&&s.pauseE)ex.push({s:toM(s.pauseS),e:toM(s.pauseE)});}
-      let bS=pS,bOv=Infinity;
-      for(let cc=pS;cc<=pL;cc+=15){let ov=0;for(const e of ex){const s=Math.max(cc,e.s),ee=Math.min(cc+pM,e.e);if(ee>s)ov+=(ee-s);}const sc=ov+Math.random()*5;if(sc<bOv){bOv=sc;bS=cc;}}
-      plan[i][d]={arrive:toT(arr),pauseS:toT(bS),pauseE:toT(bS+pM),depart:toT(dep),repos:false,conge:false,annotation:''};
+      if(isO&&isC){
+        // Full day
+        arr=oM;dep=cM;
+      } else if(isO){
+        // Morning shift — arrives at open, leaves early
+        arr=oM;
+        dep=Math.min(cM-30, arr+shM);
+        dep=Math.round(dep/5)*5;
+      } else if(isC){
+        // Closing shift — arrives later, stays till close
+        dep=cM;
+        arr=Math.max(oM+30, dep-shM);
+        arr=Math.round(arr/5)*5;
+      } else {
+        // Mid shift
+        const offset=Math.round(rnd(15,90)/5)*5;
+        arr=oM+offset;
+        dep=Math.min(cM-30, arr+shM);
+        dep=Math.round(dep/5)*5;
+      }
+
+      // Sanity check
+      if(dep-arr<150) return; // min 2h30
+
+      if(!needP){
+        plan[i][d]={arrive:toT(arr),pauseS:null,pauseE:null,depart:toT(dep),repos:false,conge:false,annotation:''};
+        return;
+      }
+
+      // ── Smart pause placement ──
+      // Must be within [pSMin, pEMax] and within shift
+      let pS=Math.max(arr+Math.round(60/5)*5, pSMin);
+      let pL=Math.min(dep-pM-Math.round(60/5)*5, pEMax-pM);
+      if(pL<pS) pL=pS;
+
+      // Minimize overlap with existing pauses (ensure ≥2 working at all times)
+      const existing=[];
+      for(let ei=0;ei<team.length;ei++){
+        const es=plan[ei]?.[d];
+        if(es&&es.pauseS&&es.pauseE) existing.push({s:toM(es.pauseS),e:toM(es.pauseE)});
+      }
+
+      let bestS=pS, bestOv=Infinity;
+      for(let cc=pS;cc<=pL;cc+=5){
+        let ov=0;
+        for(const e of existing){
+          const s=Math.max(cc,e.s),ee=Math.min(cc+pM,e.e);
+          if(ee>s)ov+=(ee-s);
+        }
+        const score=ov+Math.random()*3;
+        if(score<bestOv){bestOv=score;bestS=cc;}
+      }
+      bestS=Math.round(bestS/5)*5;
+
+      plan[i][d]={
+        arrive:toT(arr),
+        pauseS:toT(bestS),
+        pauseE:toT(bestS+pM),
+        depart:toT(dep),
+        repos:false,conge:false,annotation:''
+      };
     });
-    let aCl=avail.filter(({i})=>{const s=plan[i]?.[d];return s&&s.depart&&toM(s.depart)>=cM-5;}).length;
+
+    // ── STEP 4: Force closers without overloading hours ──
+    let aCl=avail.filter(({i})=>{
+      const s=plan[i]?.[d];
+      return s&&s.depart&&toM(s.depart)>=cM-5;
+    }).length;
+
     if(aCl<mCl){
-      const cands=avail.filter(({emp,i})=>{const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)return false;if(toM(s.depart)>=cM-5)return false;return(totalH(i)+((cM-toM(s.depart))/60))<=(emp.hours+5);}).sort((a,b)=>(b.emp.canClose?1:0)-(a.emp.canClose?1:0));
+      const cands=avail.filter(({emp,i})=>{
+        const s=plan[i]?.[d];
+        if(!s?.arrive||s.repos||s.conge) return false;
+        if(toM(s.depart)>=cM-5) return false;
+        const extra=(cM-toM(s.depart))/60;
+        return (totalH(i)+extra)<=(emp.hours+5);
+      }).sort((a,b)=>(b.emp.canClose?1:0)-(a.emp.canClose?1:0)||(totalH(a.i)-totalH(b.i)));
+
       for(const cd of cands){
         if(aCl>=mCl)break;
-        const s=plan[cd.i][d];const pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
-        const wM2=toM(s.depart)-toM(s.arrive)-pM2;const nArr=Math.max(oM,cM-wM2-pM2);
+        const s=plan[cd.i][d];
+        const pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
+        const wM2=toM(s.depart)-toM(s.arrive)-pM2;
+        // Shift arrive earlier to keep same work hours
+        const nArr=Math.round(Math.max(oM,cM-wM2-pM2)/5)*5;
         s.arrive=toT(nArr);s.depart=toT(cM);
-        if(s.pauseS&&s.pauseE){let nps=toM(s.pauseS);if(nps<nArr+60)nps=nArr+60;if(nps+pM2>cM-60)nps=cM-pM2-60;s.pauseS=toT(nps);s.pauseE=toT(nps+pM2);}
+        if(s.pauseS&&s.pauseE){
+          let nps=toM(s.pauseS);
+          if(nps<nArr+60) nps=nArr+60;
+          if(nps+pM2>cM-60) nps=cM-pM2-60;
+          nps=Math.round(nps/5)*5;
+          s.pauseS=toT(nps);s.pauseE=toT(nps+pM2);
+        }
         aCl++;
       }
     }
   }
+
+  // ── STEP 5: Balance hours to target by extending pauses ──
   team.forEach((emp,i)=>{
-    let tot=totalH(i);const target=emp.hours;if(tot<=target+0.05)return;
-    const pCap=Math.max((cfg('pauseMax')||2),2)*60;
-    const days=[];for(let d=0;d<6;d++){const s=plan[i]?.[d];if(s&&!s.repos&&!s.conge&&s.pauseS&&s.pauseE)days.push({d,pM:toM(s.pauseE)-toM(s.pauseS),s});}
-    days.sort((a,b)=>a.pM-b.pM);
-    for(const{s,pM:pM2}of days){
-      if(tot<=target+0.05)break;
-      const ovM=Math.ceil((tot-target)*60),addM=Math.min(pCap-pM2,ovM);if(addM<=0)continue;
-      let nps=toM(s.pauseS),npe=toM(s.pauseE)+addM;const dep=toM(s.depart);
-      if(npe>dep-60){const sh=npe-(dep-60);npe-=sh;nps=Math.max(toM(s.arrive)+60,nps-sh);}
-      s.pauseS=toT(nps);s.pauseE=toT(npe);tot=totalH(i);
+    let tot=totalH(i);
+    const target=emp.hours;
+    if(tot<=target+0.1) return;
+
+    const pCapM=Math.round(pMaxH*60/5)*5;
+    // Try extending pauses first
+    const days=[];
+    for(let d=0;d<6;d++){
+      const s=plan[i]?.[d];
+      if(s&&!s.repos&&!s.conge&&s.pauseS&&s.pauseE)
+        days.push({d,pM:toM(s.pauseE)-toM(s.pauseS),s});
     }
+    days.sort((a,b)=>a.pM-b.pM);
+
+    for(const{s,pM:pM2}of days){
+      if(tot<=target+0.1)break;
+      const ovM=Math.ceil((tot-target)*60/5)*5;
+      const addM=Math.min(pCapM-pM2, ovM);
+      if(addM<=5)continue;
+      let nps=toM(s.pauseS), npe=toM(s.pauseE)+addM;
+      const dep=toM(s.depart);
+      if(npe>dep-60){ const sh=npe-(dep-60); npe-=sh; nps=Math.max(toM(s.arrive)+60,nps-sh); }
+      nps=Math.round(nps/5)*5; npe=Math.round(npe/5)*5;
+      s.pauseS=toT(nps);s.pauseE=toT(npe);
+      tot=totalH(i);
+    }
+
+    // If still over, shorten last shift
     if(tot>target+0.1){
-      for(let d=0;d<6;d++){if(tot<=target+0.05)break;const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)continue;const ovM=Math.ceil((tot-target)*60);const nd=toM(s.depart)-ovM;const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}}
+      for(let d=5;d>=0;d--){
+        if(tot<=target+0.1)break;
+        const s=plan[i]?.[d];
+        if(!s?.arrive||s.repos||s.conge)continue;
+        const ovM=Math.ceil((tot-target)*60/5)*5;
+        const nd=Math.round((toM(s.depart)-ovM)/5)*5;
+        const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;
+        if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}
+      }
     }
   });
+
+  // ── STEP 6: Ensure ≥2 working during pauses ──
   for(let d=0;d<6;d++){
-    const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);if(!oM||!cM)continue;
-    for(let iter=0;iter<6;iter++){
+    const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
+    if(!oM||!cM)continue;
+    for(let iter=0;iter<8;iter++){
       let fixed=false;
       for(let t=oM;t<cM;t+=5){
         let working=0;const onP=[];
-        team.forEach((_,i)=>{const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)return;const a=toM(s.arrive),dep=toM(s.depart);if(t>=a&&t<dep){if(s.pauseS&&s.pauseE&&t>=toM(s.pauseS)&&t<toM(s.pauseE))onP.push(i);else working++;}});
+        team.forEach((_,i)=>{
+          const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)return;
+          const a=toM(s.arrive),dep=toM(s.depart);
+          if(t>=a&&t<dep){
+            if(s.pauseS&&s.pauseE&&t>=toM(s.pauseS)&&t<toM(s.pauseE))onP.push(i);
+            else working++;
+          }
+        });
         if(working<2&&onP.length>0){
           for(const ei of onP){
             const s=plan[ei][d];if(!s.pauseS)continue;
-            const ps=toM(s.pauseS),pe=toM(s.pauseE),pd=pe-ps,arr=toM(s.arrive),dep=toM(s.depart);
+            const ps=toM(s.pauseS),pe=toM(s.pauseE),pd=pe-ps;
+            const arr=toM(s.arrive),dep=toM(s.depart);
             for(const sh of[-30,-60,30,60,-15,15,-45,45]){
-              const nps=ps+sh,npe=nps+pd;
-              if(nps<arr+30||npe>dep-30||nps<pSMin||npe>pEMax)continue;
-              const oS=s.pauseS,oE=s.pauseE;s.pauseS=toT(nps);s.pauseE=toT(npe);
-              let w=0;team.forEach((_,i2)=>{const s2=plan[i2]?.[d];if(!s2?.arrive||s2.repos||s2.conge)return;const a2=toM(s2.arrive),d2=toM(s2.depart);if(t>=a2&&t<d2){if(!(s2.pauseS&&s2.pauseE&&t>=toM(s2.pauseS)&&t<toM(s2.pauseE)))w++;}});
+              const nps=Math.round((ps+sh)/5)*5,npe=nps+pd;
+              if(nps<arr+30||npe>dep-30)continue;
+              if(nps<pSMin||npe>pEMax)continue;
+              const oS=s.pauseS,oE=s.pauseE;
+              s.pauseS=toT(nps);s.pauseE=toT(npe);
+              let w=0;
+              team.forEach((_,i2)=>{
+                const s2=plan[i2]?.[d];if(!s2?.arrive||s2.repos||s2.conge)return;
+                const a2=toM(s2.arrive),d2=toM(s2.depart);
+                if(t>=a2&&t<d2){
+                  if(!(s2.pauseS&&s2.pauseE&&t>=toM(s2.pauseS)&&t<toM(s2.pauseE)))w++;
+                }
+              });
               if(w>=2){fixed=true;break;}
               s.pauseS=oS;s.pauseE=oE;
             }
@@ -744,8 +916,12 @@ function autoFill(){
       if(!fixed)break;
     }
   }
-  renderPlan();renderGantt();toast('⚡ Planning généré !');showTab('planning',document.querySelectorAll('.tab')[1]);
+
+  renderPlan();renderGantt();
+  toast('⚡ Planning généré !');
+  showTab('planning',document.querySelectorAll('.tab')[1]);
 }
+
 
 // ═══ RENDER PLANNING ═══
 function goPlanning(){updateWType();initPlan();renderPlan();renderGantt();showTab('planning',document.querySelectorAll('.tab')[1]);}
@@ -846,14 +1022,31 @@ function renderGantt(){
 }
 
 // ═══ MODAL ═══
+
+function buildTimeOptions(selected){
+  let opts='';
+  for(let h=7;h<=20;h++){
+    for(let m=0;m<60;m+=5){
+      if(h===20&&m>0)break;
+      const val=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+      opts+=`<option value="${val}" ${val===selected?'selected':''}>${val}</option>`;
+    }
+  }
+  return opts;
+}
+
 function openModal(i,d){
   if(d===6)return;mTarget={i,d};
   const s=plan[i]?.[d];const o=OPEN[d],cl=CLOSE[d];
   document.getElementById('mTitle').textContent=`${team[i].name} — ${DAYS[d]}`;
-  document.getElementById('mArrive').value=s?.arrive||o||'';
-  document.getElementById('mDepart').value=s?.depart||cl||'';
-  document.getElementById('mPauseS').value=s?.pauseS||'12:00';
-  document.getElementById('mPauseE').value=s?.pauseE||'13:00';
+  const arrVal=s?.arrive||o||'07:45';
+  const depVal=s?.depart||cl||'19:30';
+  const psVal=s?.pauseS||'12:00';
+  const peVal=s?.pauseE||'13:00';
+  document.getElementById('mArrive').innerHTML=buildTimeOptions(arrVal);
+  document.getElementById('mDepart').innerHTML=buildTimeOptions(depVal);
+  document.getElementById('mPauseS').innerHTML=buildTimeOptions(psVal);
+  document.getElementById('mPauseE').innerHTML=buildTimeOptions(peVal);
   document.getElementById('mRepos').checked=!!s?.repos;
   document.getElementById('mConge').checked=!!s?.conge;
   document.getElementById('mNoPause').checked=!!(s?.arrive&&(!s.pauseS||!s.pauseE));
