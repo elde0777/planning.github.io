@@ -140,10 +140,10 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 .g-grid{min-width:700px;}
 .g-row{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(–bor);margin-bottom:1px;}
 .g-name{background:var(–s2);padding:4px 8px;font-size:11px;font-weight:700;font-family:‘Syne’,sans-serif;display:flex;align-items:center;}
-.g-line{background:var(–bg);position:relative;height:24px;}
-.g-bar{position:absolute;top:2px;bottom:2px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:‘DM Mono’,monospace;font-weight:700;overflow:hidden;white-space:nowrap;padding:0 14px;user-select:none;-webkit-user-select:none;transition:filter .1s;}
+.g-line{background:var(–bg);position:relative;height:24px;overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0);}
+.g-bar{position:absolute;top:2px;bottom:2px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:‘DM Mono’,monospace;font-weight:700;overflow:hidden;white-space:nowrap;padding:0 14px;user-select:none;-webkit-user-select:none;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:left,width;}
 .g-bar:active{filter:brightness(1.2);}
-.g-interactive{cursor:grab;}
+.g-interactive{cursor:grab;touch-action:none;-webkit-touch-callout:none;}
 .g-interactive:active{cursor:grabbing;}
 .g-handle{position:absolute;top:0;bottom:0;width:12px;background:rgba(255,255,255,.25);cursor:ew-resize;display:flex;align-items:center;justify-content:center;}
 .g-handle::after{content:‘⋮’;font-size:10px;color:rgba(255,255,255,.7);}
@@ -825,46 +825,79 @@ function autoFill(){
   }
 
 
-  // ── BALANCE HOURS ──
+  // ── BALANCE HOURS — smart per-day reduction ──
   var pCapM=r5(pMaxH*60);
   for(var i=0;i<team.length;i++){
     var tot=totalH(i), target=team[i].hours;
-    if(tot<=target+0.1) continue;
-    // Extend pauses to reduce hours
-    var pDays=[];
+    if(tot<=target+0.5) continue;
+
+    // Build working days sorted: longest first
+    var wDays3=[];
     for(var d=0;d<6;d++){
       var s=plan[i]&&plan[i][d];
-      if(s&&!s.repos&&!s.conge&&s.pauseS&&s.pauseE) pDays.push({d:d,pM:toM(s.pauseE)-toM(s.pauseS),s:s});
+      if(s&&s.arrive&&!s.repos&&!s.conge) wDays3.push({d:d,s:s,h:slotH(s)});
     }
-    pDays.sort(function(a,b){return a.pM-b.pM;});
-    for(var di=0;di<pDays.length;di++){
-      if(tot<=target+0.1) break;
-      var pd=pDays[di];
-      var ovM=r5(Math.ceil((tot-target)*60));
-      var addM=Math.min(pCapM-pd.pM,ovM);
-      if(addM<5) continue;
-      var nps=toM(pd.s.pauseS), npe=toM(pd.s.pauseE)+addM;
-      var dep2=toM(pd.s.depart);
-      if(npe>dep2-90){var sh=npe-(dep2-90);npe-=sh;nps=Math.max(toM(pd.s.arrive)+90,nps-sh);}
-      pd.s.pauseS=toT(r5(nps)); pd.s.pauseE=toT(r5(npe));
-      tot=totalH(i);
-    }
-    if(tot>target+0.1){
-      for(var d=0;d<6;d++){
-        if(tot<=target+0.1) break;
-        var s=plan[i]&&plan[i][d];
-        if(!s||!s.arrive||s.repos||s.conge) continue;
-        var cM2=toM(CLOSE[d]);
-        // Don't shorten if this person is a closer (depart = closing time)
-        if(cM2&&toM(s.depart)>=cM2-5) continue;
-        var ovM2=r5(Math.ceil((tot-target)*60));
-        var nd=r5(toM(s.depart)-ovM2);
-        var minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+90;
-        if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}
+    wDays3.sort(function(a,b){return b.h-a.h;});
+
+    for(var wi=0;wi<wDays3.length&&totalH(i)>target+0.5;wi++){
+      var wd=wDays3[wi];
+      var s=wd.s;
+      var d=wd.d;
+      var oM3=toM(OPEN[d]),cM3=toM(CLOSE[d]);
+      var isC3=cM3&&toM(s.depart)>=cM3-5;
+      var isO3=oM3&&toM(s.arrive)<=oM3+5;
+      var tot2=totalH(i);
+      var ovM=r5((tot2-target)*60);
+      var curWork=r5(slotH(s)*60);
+      var minWork2=r5(4*60);
+      var canRed=Math.min(ovM,curWork-minWork2);
+      if(canRed<5) continue;
+
+      // A: Extend pause
+      if(s.pauseS&&s.pauseE){
+        var curPM=toM(s.pauseE)-toM(s.pauseS);
+        var addP=Math.min(pCapM-curPM,canRed);
+        if(addP>=5){
+          var nps2=toM(s.pauseS), npe2=toM(s.pauseE)+addP;
+          var dep3=toM(s.depart);
+          if(npe2>dep3-60){var sh3=npe2-(dep3-60);npe2-=sh3;nps2=Math.max(toM(s.arrive)+60,nps2-sh3);}
+          s.pauseS=toT(r5(nps2));s.pauseE=toT(r5(npe2));
+          canRed=Math.min(r5((totalH(i)-target)*60), r5(slotH(s)*60)-minWork2);
+        }
+      }
+      if(canRed<5) continue;
+
+      // B: Shorten shift
+      if(isC3){
+        // Closer: push arrive later (only if enough OTHER openers remain)
+        var newArr2=r5(toM(s.arrive)+canRed);
+        var maxArr2=toM(s.depart)-(s.pauseE?toM(s.pauseE)-toM(s.pauseS):0)-minWork2;
+        if(newArr2>maxArr2) newArr2=maxArr2;
+        if(!isO3 || newArr2>oM3+5){
+          // Not an opener anymore after push — check if opening still covered
+          var otherOpeners=0;
+          for(var ii2=0;ii2<team.length;ii2++){
+            if(ii2===i)continue;
+            var s2=plan[ii2]&&plan[ii2][d];
+            if(s2&&s2.arrive&&!s2.repos&&!s2.conge&&toM(s2.arrive)<=oM3+5)otherOpeners++;
+          }
+          var minO5=[0,2,4].includes(d)?mLMV:mMJS;
+          if(otherOpeners>=minO5 && newArr2<=maxArr2 && newArr2>=oM3){
+            s.arrive=toT(newArr2);
+            if(s.pauseS&&toM(s.pauseS)<newArr2+60) s.pauseS=toT(r5(newArr2+60));
+          }
+        }
+      }
+      if(!isC3){
+        // Non-closer: shorten depart
+        var nd5=r5(toM(s.depart)-canRed);
+        var minD5=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;
+        if(nd5>=minD5&&nd5>=toM(s.arrive)+minWork2) s.depart=toT(nd5);
       }
     }
-  }
 
+
+  }
 
   // ── POST-PROCESS: Fix remaining pause violations ──
   for(var d=0;d<6;d++){
@@ -1227,52 +1260,94 @@ function initGanttDrag(){
 }
 
 function updateGanttRow(empIdx,dayIdx){
-  // Fast DOM update: only redraw the one line, not the whole gantt
-  const GS=7*60,GE=20*60,GR=GE-GS;
-  const pct=function(m){return((m-GS)/GR*100).toFixed(3);};
-  const d=dayIdx,i=empIdx;
-  const s=plan[i]&&plan[i][d];
-  const emp=team[i];
-  const col=PCOL[emp.poste]||'#888';
-  const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
+  var GS=7*60,GE=20*60,GR=GE-GS;
+  var d=dayIdx,i=empIdx;
+  var s=plan[i]&&plan[i][d];
+  if(!s||!s.arrive||s.repos||s.conge) return;
 
-  // Find the line element
-  const lineEl=document.querySelector('.g-line[data-emp="'+i+'"][data-day="'+d+'"]');
-  if(!lineEl) return;
+  var a=toM(s.arrive), dep=toM(s.depart);
+  var pctL=function(m){return((m-GS)/GR*100).toFixed(3)+'%';};
+  var pctW=function(from,to){return((to-from)/GR*100).toFixed(3)+'%';};
 
-  let bars='';
-  let tot2=0;
-  if(s&&!s.repos&&!s.conge&&s.arrive){
-    const a=toM(s.arrive),dep=toM(s.depart);
-    tot2=slotH(s);
-    const cBar=getGanttColor(i,a);
-    const tBar=PCOL_TEXT[ganttColors[i]&&ganttColors[i].matin||emp.poste]||'#fff';
-    if(s.pauseS&&s.pauseE){
-      const ps=toM(s.pauseS),pe=toM(s.pauseE);
-      const cAft=getGanttColor(i,pe);
-      const tAft=PCOL_TEXT[ganttColors[i]&&ganttColors[i].apmidi||emp.poste]||'#fff';
-      bars+='<div class="g-bar g-interactive" data-emp="'+i+'" data-day="'+d+'" data-seg="matin" style="left:'+pct(a)+'%;width:'+((ps-a)/GR*100).toFixed(3)+'%;background:'+cBar+';color:'+tBar+';cursor:grab;">'
-        +'<div class="g-handle g-handle-l" data-emp="'+i+'" data-day="'+d+'" data-type="resizeL"></div>'
-        +s.arrive+'-'+s.pauseS+'</div>';
-      bars+='<div class="g-bar g-pause-bar" data-emp="'+i+'" data-day="'+d+'" data-seg="pause" style="left:'+pct(ps)+'%;width:'+((pe-ps)/GR*100).toFixed(3)+'%;background:rgba(245,168,0,.15);border:1px dashed #f5a800;color:#f5a800;font-size:7px;cursor:ew-resize;">pause</div>';
-      bars+='<div class="g-bar g-interactive" data-emp="'+i+'" data-day="'+d+'" data-seg="apmidi" style="left:'+pct(pe)+'%;width:'+((dep-pe)/GR*100).toFixed(3)+'%;background:'+cAft+';color:'+tAft+';cursor:grab;">'
-        +s.pauseE+'-'+s.depart
-        +'<div class="g-handle g-handle-r" data-emp="'+i+'" data-day="'+d+'" data-type="resizeR"></div></div>';
+  // Update bar positions directly via style — no innerHTML rebuild, no reflow
+  var lineEl=document.querySelector('.g-line[data-emp="'+i+'"][data-day="'+d+'"]');
+  if(!lineEl){return;}
+
+  if(s.pauseS&&s.pauseE){
+    var ps=toM(s.pauseS), pe=toM(s.pauseE);
+    var bMatin=lineEl.querySelector('[data-seg="matin"]');
+    var bPause=lineEl.querySelector('[data-seg="pause"]');
+    var bApm=lineEl.querySelector('[data-seg="apmidi"]');
+    if(bMatin&&bPause&&bApm){
+      // Just update left/width — no DOM rebuild
+      bMatin.style.left=pctL(a);
+      bMatin.style.width=pctW(a,ps);
+      bMatin.childNodes[1]&&(bMatin.childNodes[1].nodeType===3)&&(bMatin.childNodes[1].textContent=s.arrive+'-'+s.pauseS);
+      bPause.style.left=pctL(ps);
+      bPause.style.width=pctW(ps,pe);
+      bApm.style.left=pctL(pe);
+      bApm.style.width=pctW(pe,dep);
+      bApm.firstChild&&(bApm.firstChild.nodeType===3)&&(bApm.firstChild.textContent=s.pauseE+'-'+s.depart);
     } else {
-      bars+='<div class="g-bar g-interactive" data-emp="'+i+'" data-day="'+d+'" data-seg="full" style="left:'+pct(a)+'%;width:'+((dep-a)/GR*100).toFixed(3)+'%;background:'+cBar+';color:'+tBar+';cursor:grab;">'
-        +'<div class="g-handle g-handle-l" data-emp="'+i+'" data-day="'+d+'" data-type="resizeL"></div>'
-        +s.arrive+'-'+s.depart
-        +'<div class="g-handle g-handle-r" data-emp="'+i+'" data-day="'+d+'" data-type="resizeR"></div></div>';
+      // Bars don't match structure — rebuild just this row
+      lineEl.innerHTML=buildGanttBars(i,d);
+      reattachDragOnLine(lineEl,i,d);
     }
-    bars+='<div class="g-del" data-emp="'+i+'" data-day="'+d+'" title="Effacer">x</div>';
+  } else {
+    var bFull=lineEl.querySelector('[data-seg="full"]');
+    if(bFull){
+      bFull.style.left=pctL(a);
+      bFull.style.width=pctW(a,dep);
+      // Update text node (between handles)
+      var nodes=bFull.childNodes;
+      for(var n=0;n<nodes.length;n++){
+        if(nodes[n].nodeType===3&&nodes[n].textContent.trim().length>0){
+          nodes[n].textContent=s.arrive+'-'+s.depart;break;
+        }
+      }
+    } else {
+      lineEl.innerHTML=buildGanttBars(i,d);
+      reattachDragOnLine(lineEl,i,d);
+    }
   }
-  lineEl.innerHTML=bars;
 
   // Update total cell
-  const totEl=lineEl.nextElementSibling;
-  if(totEl&&totEl.classList.contains('g-tot')) totEl.textContent=tot2>0?fmtH(tot2):'---';
+  var totEl=lineEl.nextElementSibling;
+  if(totEl&&totEl.classList.contains('g-tot')) totEl.textContent=fmtH(slotH(s));
+}
 
-  // Re-attach drag events to new elements
+function buildGanttBars(i,d){
+  var GS=7*60,GE=20*60,GR=GE-GS;
+  var s=plan[i]&&plan[i][d];
+  var emp=team[i];
+  if(!s||!s.arrive||s.repos||s.conge) return '';
+  var a=toM(s.arrive),dep=toM(s.depart);
+  var pct=function(m){return((m-GS)/GR*100).toFixed(3);};
+  var cBar=getGanttColor(i,a);
+  var tBar=PCOL_TEXT[ganttColors[i]&&ganttColors[i].matin||emp.poste]||'#fff';
+  var bars='';
+  if(s.pauseS&&s.pauseE){
+    var ps=toM(s.pauseS),pe=toM(s.pauseE);
+    var cAft=getGanttColor(i,pe);
+    var tAft=PCOL_TEXT[ganttColors[i]&&ganttColors[i].apmidi||emp.poste]||'#fff';
+    bars+='<div class="g-bar g-interactive" data-emp="'+i+'" data-day="'+d+'" data-seg="matin" style="left:'+pct(a)+'%;width:'+((ps-a)/GR*100).toFixed(3)+'%;background:'+cBar+';color:'+tBar+';cursor:grab;will-change:left,width;">'
+      +'<div class="g-handle g-handle-l" data-emp="'+i+'" data-day="'+d+'" data-type="resizeL"></div>'
+      +s.arrive+'-'+s.pauseS+'</div>';
+    bars+='<div class="g-bar g-pause-bar" data-emp="'+i+'" data-day="'+d+'" data-seg="pause" style="left:'+pct(ps)+'%;width:'+((pe-ps)/GR*100).toFixed(3)+'%;background:rgba(245,168,0,.15);border:1px dashed #f5a800;color:#f5a800;font-size:7px;cursor:ew-resize;will-change:left,width;">pause</div>';
+    bars+='<div class="g-bar g-interactive" data-emp="'+i+'" data-day="'+d+'" data-seg="apmidi" style="left:'+pct(pe)+'%;width:'+((dep-pe)/GR*100).toFixed(3)+'%;background:'+cAft+';color:'+tAft+';cursor:grab;will-change:left,width;">'
+      +s.pauseE+'-'+s.depart
+      +'<div class="g-handle g-handle-r" data-emp="'+i+'" data-day="'+d+'" data-type="resizeR"></div></div>';
+  } else {
+    bars+='<div class="g-bar g-interactive" data-emp="'+i+'" data-day="'+d+'" data-seg="full" style="left:'+pct(a)+'%;width:'+((dep-a)/GR*100).toFixed(3)+'%;background:'+cBar+';color:'+tBar+';cursor:grab;will-change:left,width;">'
+      +'<div class="g-handle g-handle-l" data-emp="'+i+'" data-day="'+d+'" data-type="resizeL"></div>'
+      +s.arrive+'-'+s.depart
+      +'<div class="g-handle g-handle-r" data-emp="'+i+'" data-day="'+d+'" data-type="resizeR"></div></div>';
+  }
+  bars+='<div class="g-del" data-emp="'+i+'" data-day="'+d+'" title="Effacer">x</div>';
+  return bars;
+}
+
+function reattachDragOnLine(lineEl,i,d){
   lineEl.querySelectorAll('.g-interactive,.g-pause-bar,.g-handle').forEach(function(el){
     el.addEventListener('touchstart',window._gDragStart,{passive:false});
     el.addEventListener('mousedown',window._gDragStart);
@@ -1280,7 +1355,7 @@ function updateGanttRow(empIdx,dayIdx){
   lineEl.querySelectorAll('.g-del').forEach(function(btn){
     btn.addEventListener('click',function(e){
       e.stopPropagation();
-      const ii=parseInt(btn.dataset.emp),dd=parseInt(btn.dataset.day);
+      var ii=parseInt(btn.dataset.emp),dd=parseInt(btn.dataset.day);
       plan[ii][dd]={repos:true,conge:false,annotation:''};
       renderPlan();renderGantt();
     });
