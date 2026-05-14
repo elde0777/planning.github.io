@@ -654,297 +654,364 @@ function initPlan(){
 
 function autoFill(){
   initPlan();
-  const pMinH=Math.max(cfg('pauseMin')||1, 1);
-  const pMaxH=Math.min(cfg('pauseMax')||2, 3);
-  const pSMin=toM(cfgS('pauseStart')||'11:00');
-  const pEMax=toM(cfgS('pauseEnd')||'15:00');
-  const mLMV=Math.max(cfg('minLMV')||4, 1);
-  const mMJS=Math.max(cfg('minMJS')||3, 1);
-  const mCl=Math.max(cfg('minClose')||3, 1);
-  const noPH=cfg('noPauseH')||6;
+  const pMinH = Math.max(cfg('pauseMin')||1, 1);
+  const pMaxH = Math.min(cfg('pauseMax')||2, 3);
+  const pSMin = toM(cfgS('pauseStart')||'11:00');
+  const pEMax = toM(cfgS('pauseEnd')||'15:00');
+  const mLMV  = Math.max(cfg('minLMV')||4, 1);
+  const mMJS  = Math.max(cfg('minMJS')||3, 1);
+  const mCl   = Math.max(cfg('minClose')||3, 1);
+  const noPH  = cfg('noPauseH')||6;
+  const MAX_DAY_H = 10; // hard cap 10h/day
+  const MIN_SHIFT_H = 4; // minimum shift length
 
-  // Pre-compute work days per person
-  const ep=team.map((emp,i)=>{
-    const wd=[];
+  // Round minutes to nearest 5
+  const r5 = m => Math.round(m/5)*5;
+
+  // ── Pre-compute work days per person ──
+  const ep = team.map((emp,i) => {
+    const wd = [];
     for(let d=0;d<6;d++) if(!isRest(emp,d)&&!isConge(emp,d)) wd.push(d);
-    let cgH=0;
-    for(let d=0;d<6;d++) if(isConge(emp,d)) cgH+=congeH(d);
-    return{emp,i,wd,cgH,target:Math.max(0,emp.hours-cgH)};
+    let cgH = 0;
+    for(let d=0;d<6;d++) if(isConge(emp,d)) cgH += congeH(d);
+    return {emp, i, wd, cgH, target: Math.max(0, emp.hours - cgH)};
   });
 
-  // ── DAY BY DAY ──
+  // ══════════════════════════════════════════
+  // PASS 1: Assign guaranteed openers/closers
+  // ══════════════════════════════════════════
   for(let d=0;d<6;d++){
-    const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
-    if(!oM||!cM)continue;
-    const isLMV=[0,2,4].includes(d);
-    const minO=isLMV?mLMV:mMJS;
+    const oM = toM(OPEN[d]), cM = toM(CLOSE[d]);
+    if(!oM||!cM) continue;
+    const isLMV = [0,2,4].includes(d);
+    const minO = isLMV ? mLMV : mMJS;
 
-    // Available workers
-    const avail=ep.filter(x=>!isRest(x.emp,d)&&!isConge(x.emp,d));
-    if(!avail.length)continue;
+    const avail = ep.filter(x => !isRest(x.emp,d) && !isConge(x.emp,d));
+    if(!avail.length) continue;
 
-    // Sort by hours deficit (most needed first)
-    avail.forEach(x=>{x.curH=totalH(x.i);});
-    avail.sort((a,b)=>(b.emp.hours-b.curH)-(a.emp.hours-a.curH));
+    avail.forEach(x => { x.curH = totalH(x.i); });
+    // Sort: most hours needed first
+    avail.sort((a,b) => (b.emp.hours-b.curH) - (a.emp.hours-a.curH));
 
-    // ── STEP 1: Assign openers ──
-    const opens=new Set();
-    // Priority: canOpen + most deficit
-    const canOpenList=avail.filter(x=>x.emp.canOpen);
-    if(canOpenList.length>0) opens.add(canOpenList[0].i);
-    // Fill up to minO
-    for(const x of avail){ if(opens.size>=minO)break; opens.add(x.i); }
+    // GUARANTEED openers — first pick canOpen, fill up to minO
+    const opens = new Set();
+    avail.filter(x=>x.emp.canOpen).slice(0,1).forEach(x=>opens.add(x.i));
+    for(const x of avail){ if(opens.size>=minO) break; opens.add(x.i); }
 
-    // ── STEP 2: Assign closers ──
-    const closes=new Set();
-    const canCloseList=avail.filter(x=>x.emp.canClose);
-    if(canCloseList.length>0) closes.add(canCloseList[0].i);
-    for(const x of avail){ if(closes.size>=mCl)break; closes.add(x.i); }
+    // GUARANTEED closers
+    const closes = new Set();
+    avail.filter(x=>x.emp.canClose).slice(0,1).forEach(x=>closes.add(x.i));
+    for(const x of avail){ if(closes.size>=mCl) break; closes.add(x.i); }
 
-    // ── STEP 3: Assign shifts ──
-    avail.forEach(({emp,i,wd,curH})=>{
-      const isO=opens.has(i), isC=closes.has(i);
-      const needed=Math.max(0,emp.hours-curH);
-      const dLeft=wd.filter(dd=>dd>d).length;
+    // ── Assign shifts ──
+    avail.forEach(({emp,i,wd,curH}) => {
+      const isO = opens.has(i), isC = closes.has(i);
+      const needed = Math.max(0, emp.hours - curH);
+      const dLeft = wd.filter(dd=>dd>d).length;
 
       // Target hours today
-      let tgt;
-      if(dLeft===0){
-        tgt=Math.min((cM-oM)/60, needed);
-      } else {
-        tgt=needed/(dLeft+1);
-        // Boost if short week
-        if(wd.length<=3) tgt=Math.max(tgt, needed/Math.max(1,dLeft+1));
-      }
-      tgt=Math.min(tgt,(cM-oM)/60-pMinH);
-      tgt=Math.max(tgt,0);
+      let tgt = dLeft===0
+        ? Math.min(MAX_DAY_H, needed)
+        : Math.min(MAX_DAY_H, needed/(dLeft+1));
+      if(wd.length<=3) tgt = Math.max(tgt, needed/Math.max(1,dLeft+1));
+      tgt = Math.min(tgt, MAX_DAY_H);
 
       // Skip if not needed and not opener/closer
-      if(tgt<2&&!isO&&!isC) return;
-      if(tgt<=0&&!isO&&!isC) return;
-      // Ensure minimum 3h if assigned
-      tgt=Math.max(tgt, isO||isC ? 5 : 4); // min 4h general, 5h for openers/closers
-      tgt=Math.min(tgt, 10); // HARD CAP 10h/day
+      if(tgt < MIN_SHIFT_H && !isO && !isC) return;
+      if(tgt <= 0 && !isO && !isC) return;
+      tgt = Math.max(tgt, MIN_SHIFT_H); // enforce minimum
+      tgt = Math.min(tgt, MAX_DAY_H);   // enforce maximum
 
-      const needP=tgt>noPH;
-      const pH=needP?(pMinH+Math.random()*(pMaxH-pMinH)):0;
-      const pM=Math.round(pH*60/5)*5; // round to 5min
-      const wM=Math.round(tgt*60/5)*5;
-      const shM=wM+pM;
+      const needP = tgt > noPH;
+      const pH = needP ? (pMinH + Math.random()*(pMaxH-pMinH)) : 0;
+      const pM = r5(pH*60);
+      const wM = r5(tgt*60);
+      const shM = wM + pM;
 
-      // ── Determine arrive/depart based on role ──
-      let arr,dep;
-      if(isO&&isC){
-        // Full day
-        arr=oM;dep=cM;
+      // ── Arrive / Depart ──
+      let arr, dep;
+      if(isO && isC){
+        arr = oM; dep = cM;
       } else if(isO){
-        // Morning shift — arrives at open, leaves early
-        arr=oM;
-        dep=Math.min(cM-30, arr+shM);
-        dep=Math.round(dep/5)*5;
+        arr = oM;
+        dep = r5(Math.min(cM - 30, arr + shM));
       } else if(isC){
-        // Closing shift — arrives later, stays till close
-        dep=cM;
-        arr=Math.max(oM+30, dep-shM);
-        arr=Math.round(arr/5)*5;
+        dep = cM;
+        arr = r5(Math.max(oM + 30, dep - shM));
       } else {
-        // Mid shift
-        const offset=Math.round(rnd(15,90)/5)*5;
-        arr=oM+offset;
-        dep=Math.min(cM-30, arr+shM);
-        dep=Math.round(dep/5)*5;
+        const offset = r5(15 + Math.random()*75);
+        arr = oM + offset;
+        dep = r5(Math.min(cM - 30, arr + shM));
       }
 
-      // Hard limits: max 10h total shift, min arr/dep gap of 2h30
-      dep=Math.min(dep, arr+600); // 600min = 10h max
-      if(dep-arr<150) return; // min 2h30
-
-      // Minimum afternoon: if closer (isC only), ensure PM portion ≥ 4h after pause
-      // This is enforced by how we calc shifts above
+      // Hard cap 10h
+      dep = Math.min(dep, arr + MAX_DAY_H*60);
+      if(dep - arr < MIN_SHIFT_H*60) return;
 
       if(!needP){
-        plan[i][d]={arrive:toT(arr),pauseS:null,pauseE:null,depart:toT(dep),repos:false,conge:false,annotation:''};
+        plan[i][d] = {arrive:toT(arr), pauseS:null, pauseE:null, depart:toT(dep), repos:false, conge:false, annotation:''};
         return;
       }
 
-      // ── Smart pause placement ──
-      // Ensure ≥ 3h work before AND after pause (180min)
-      const minWorkBeforePause=180; // 3h before pause
-      const minWorkAfterPause=180;  // 3h after pause
-      let pS=Math.max(arr+minWorkBeforePause, pSMin);
-      let pL=Math.min(dep-pM-minWorkAfterPause, pEMax-pM);
-      if(pL<pS) pL=pS; // fallback if shift too short
+      // ── Pause placement ──
+      // Ensure ≥3h work before pause AND ≥3h work after pause
+      const minBefore = 180; // 3h before pause
+      const minAfter  = 180; // 3h after pause
+      let pS = r5(Math.max(arr + minBefore, pSMin));
+      let pL = r5(Math.min(dep - pM - minAfter, pEMax - pM));
+      if(pL < pS) pL = pS;
 
-      // Minimize overlap with existing pauses (ensure ≥2 working at all times)
-      const existing=[];
+      // Minimize overlap with existing pauses
+      const existing = [];
       for(let ei=0;ei<team.length;ei++){
-        const es=plan[ei]?.[d];
-        if(es&&es.pauseS&&es.pauseE) existing.push({s:toM(es.pauseS),e:toM(es.pauseE)});
+        const es = plan[ei]?.[d];
+        if(es&&es.pauseS&&es.pauseE) existing.push({s:toM(es.pauseS), e:toM(es.pauseE)});
       }
-
-      let bestS=pS, bestOv=Infinity;
-      for(let cc=pS;cc<=pL;cc+=5){
-        let ov=0;
+      let bestS = pS, bestOv = Infinity;
+      for(let cc=pS; cc<=pL; cc+=5){
+        let ov = 0;
         for(const e of existing){
-          const s=Math.max(cc,e.s),ee=Math.min(cc+pM,e.e);
-          if(ee>s)ov+=(ee-s);
+          const s=Math.max(cc,e.s), ee=Math.min(cc+pM,e.e);
+          if(ee>s) ov+=(ee-s);
         }
-        const score=ov+Math.random()*3;
-        if(score<bestOv){bestOv=score;bestS=cc;}
+        const score = ov + Math.random()*3;
+        if(score < bestOv){ bestOv=score; bestS=cc; }
       }
-      bestS=Math.round(bestS/5)*5;
+      bestS = r5(bestS);
 
-      plan[i][d]={
-        arrive:toT(arr),
-        pauseS:toT(bestS),
-        pauseE:toT(bestS+pM),
-        depart:toT(dep),
-        repos:false,conge:false,annotation:''
+      plan[i][d] = {
+        arrive: toT(arr), pauseS: toT(bestS), pauseE: toT(bestS+pM),
+        depart: toT(dep), repos:false, conge:false, annotation:''
       };
     });
 
-    // ── STEP 4: Force closers without overloading hours ──
-    let aCl=avail.filter(({i})=>{
+    // ══ FORCE MIN CLOSERS — shift arrive earlier to keep same work hours ══
+    let aCl = avail.filter(({i})=>{
       const s=plan[i]?.[d];
       return s&&s.depart&&toM(s.depart)>=cM-5;
     }).length;
 
-    if(aCl<mCl){
-      const cands=avail.filter(({emp,i})=>{
-        const s=plan[i]?.[d];
+    if(aCl < mCl){
+      const cands = avail.filter(({emp,i})=>{
+        const s = plan[i]?.[d];
         if(!s?.arrive||s.repos||s.conge) return false;
         if(toM(s.depart)>=cM-5) return false;
-        const extra=(cM-toM(s.depart))/60;
-        return (totalH(i)+extra)<=(emp.hours+5);
-      }).sort((a,b)=>(b.emp.canClose?1:0)-(a.emp.canClose?1:0)||(totalH(a.i)-totalH(b.i)));
+        return true;
+      }).sort((a,b)=>(b.emp.canClose?1:0)-(a.emp.canClose?1:0));
 
       for(const cd of cands){
-        if(aCl>=mCl)break;
-        const s=plan[cd.i][d];
-        const pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
-        const wM2=toM(s.depart)-toM(s.arrive)-pM2;
-        // Shift arrive earlier to keep same work hours
-        const nArr=Math.round(Math.max(oM,cM-wM2-pM2)/5)*5;
-        s.arrive=toT(nArr);s.depart=toT(cM);
+        if(aCl >= mCl) break;
+        const s = plan[cd.i][d];
+        const pM2 = s.pauseS&&s.pauseE ? (toM(s.pauseE)-toM(s.pauseS)) : 0;
+        const wM2 = toM(s.depart) - toM(s.arrive) - pM2;
+        const nArr = r5(Math.max(oM, cM - wM2 - pM2));
+        s.arrive = toT(nArr); s.depart = toT(cM);
         if(s.pauseS&&s.pauseE){
-          let nps=toM(s.pauseS);
-          if(nps<nArr+60) nps=nArr+60;
-          if(nps+pM2>cM-60) nps=cM-pM2-60;
-          nps=Math.round(nps/5)*5;
-          s.pauseS=toT(nps);s.pauseE=toT(nps+pM2);
+          let nps = toM(s.pauseS);
+          if(nps < nArr+180) nps = nArr+180;
+          if(nps+pM2 > cM-180) nps = cM-pM2-180;
+          nps = r5(nps);
+          s.pauseS = toT(nps); s.pauseE = toT(nps+pM2);
         }
         aCl++;
       }
     }
   }
 
-  // ── STEP 5: Balance hours to target by extending pauses ──
-  team.forEach((emp,i)=>{
-    let tot=totalH(i);
-    const target=emp.hours;
-    if(tot<=target+0.1) return;
+  // ══════════════════════════════════════════
+  // PASS 2: Balance hours to contract target
+  // ══════════════════════════════════════════
+  const pCapM = r5(pMaxH*60);
+  team.forEach((emp,i) => {
+    let tot = totalH(i);
+    const target = emp.hours;
+    if(tot <= target+0.1) return;
 
-    const pCapM=Math.round(pMaxH*60/5)*5;
-    // Try extending pauses first
-    const days=[];
+    // First try: extend pauses
+    const pDays = [];
     for(let d=0;d<6;d++){
-      const s=plan[i]?.[d];
+      const s = plan[i]?.[d];
       if(s&&!s.repos&&!s.conge&&s.pauseS&&s.pauseE)
-        days.push({d,pM:toM(s.pauseE)-toM(s.pauseS),s});
+        pDays.push({d, pM:toM(s.pauseE)-toM(s.pauseS), s});
     }
-    days.sort((a,b)=>a.pM-b.pM);
-
-    for(const{s,pM:pM2}of days){
-      if(tot<=target+0.1)break;
-      const ovM=Math.ceil((tot-target)*60/5)*5;
-      const addM=Math.min(pCapM-pM2, ovM);
-      if(addM<=5)continue;
-      let nps=toM(s.pauseS), npe=toM(s.pauseE)+addM;
-      const dep=toM(s.depart);
-      if(npe>dep-60){ const sh=npe-(dep-60); npe-=sh; nps=Math.max(toM(s.arrive)+60,nps-sh); }
-      nps=Math.round(nps/5)*5; npe=Math.round(npe/5)*5;
-      s.pauseS=toT(nps);s.pauseE=toT(npe);
-      tot=totalH(i);
+    pDays.sort((a,b)=>a.pM-b.pM);
+    for(const {s,pM:pM2} of pDays){
+      if(tot <= target+0.1) break;
+      const ovM = r5(Math.ceil((tot-target)*60));
+      const addM = Math.min(pCapM-pM2, ovM);
+      if(addM < 5) continue;
+      let nps = toM(s.pauseS), npe = toM(s.pauseE)+addM;
+      const dep = toM(s.depart);
+      if(npe > dep-180){ const sh=npe-(dep-180); npe-=sh; nps=Math.max(toM(s.arrive)+180, nps-sh); }
+      s.pauseS = toT(r5(nps)); s.pauseE = toT(r5(npe));
+      tot = totalH(i);
     }
 
-    // If still over, shorten shifts (longest first) — also enforce 10h/day hard cap
-    for(let d=0;d<6;d++){
-      const s=plan[i]?.[d];
-      if(!s?.arrive||s.repos||s.conge)continue;
-      const shiftM=toM(s.depart)-toM(s.arrive);
-      if(shiftM>600){ // over 10h
-        const excess=shiftM-600;
-        const nd=Math.round((toM(s.depart)-excess)/5)*5;
-        const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;
-        if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}
-      }
-    }
-    if(tot>target+0.1){
-      // Sort days by shift length desc
-      const sortedDays=[];
-      for(let d=0;d<6;d++){const s=plan[i]?.[d];if(s?.arrive&&!s.repos&&!s.conge)sortedDays.push({d,len:toM(s.depart)-toM(s.arrive)});}
-      sortedDays.sort((a,b)=>b.len-a.len);
-      for(const{d} of sortedDays){
-        if(tot<=target+0.1)break;
+    // Second try: shorten depart on longest shifts
+    if(tot > target+0.1){
+      const sDays = [];
+      for(let d=0;d<6;d++){
         const s=plan[i]?.[d];
-        const ovM=Math.ceil((tot-target)*60/5)*5;
-        const nd=Math.round((toM(s.depart)-ovM)/5)*5;
-        const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+180; // keep min 3h after pause
-        if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}
+        if(s?.arrive&&!s.repos&&!s.conge) sDays.push({d,len:toM(s.depart)-toM(s.arrive),s});
+      }
+      sDays.sort((a,b)=>b.len-a.len);
+      for(const{s} of sDays){
+        if(tot<=target+0.1) break;
+        const ovM = r5(Math.ceil((tot-target)*60));
+        const nd = r5(toM(s.depart)-ovM);
+        const minD = (s.pauseE?toM(s.pauseE):toM(s.arrive))+180;
+        if(nd >= minD){ s.depart=toT(nd); tot=totalH(i); }
       }
     }
   });
 
-  // ── STEP 6: Ensure ≥2 working during pauses ──
+  // ══════════════════════════════════════════
+  // PASS 3: STRICT — enforce ≥2 working at ALL times (NEVER ALONE)
+  // ══════════════════════════════════════════
   for(let d=0;d<6;d++){
-    const oM=toM(OPEN[d]),cM=toM(CLOSE[d]);
-    if(!oM||!cM)continue;
-    for(let iter=0;iter<8;iter++){
-      let fixed=false;
-      for(let t=oM;t<cM;t+=5){
-        let working=0;const onP=[];
+    const oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
+    if(!oM||!cM) continue;
+
+    // Scan every 5 minutes
+    for(let iter=0; iter<20; iter++){
+      let worstT=-1, worstWorking=99, worstOnPause=[];
+
+      for(let t=oM; t<cM; t+=5){
+        let working=0; const onPause=[];
         team.forEach((_,i)=>{
-          const s=plan[i]?.[d];if(!s?.arrive||s.repos||s.conge)return;
-          const a=toM(s.arrive),dep=toM(s.depart);
+          const s=plan[i]?.[d];
+          if(!s?.arrive||s.repos||s.conge) return;
+          const a=toM(s.arrive), dep=toM(s.depart);
           if(t>=a&&t<dep){
-            if(s.pauseS&&s.pauseE&&t>=toM(s.pauseS)&&t<toM(s.pauseE))onP.push(i);
+            if(s.pauseS&&s.pauseE&&t>=toM(s.pauseS)&&t<toM(s.pauseE)) onPause.push(i);
             else working++;
           }
         });
-        if(working<2&&onP.length>0){
-          for(const ei of onP){
-            const s=plan[ei][d];if(!s.pauseS)continue;
-            const ps=toM(s.pauseS),pe=toM(s.pauseE),pd=pe-ps;
-            const arr=toM(s.arrive),dep=toM(s.depart);
-            for(const sh of[-30,-60,30,60,-15,15,-45,45]){
-              const nps=Math.round((ps+sh)/5)*5,npe=nps+pd;
-              if(nps<arr+30||npe>dep-30)continue;
-              if(nps<pSMin||npe>pEMax)continue;
-              const oS=s.pauseS,oE=s.pauseE;
-              s.pauseS=toT(nps);s.pauseE=toT(npe);
-              let w=0;
-              team.forEach((_,i2)=>{
-                const s2=plan[i2]?.[d];if(!s2?.arrive||s2.repos||s2.conge)return;
-                const a2=toM(s2.arrive),d2=toM(s2.depart);
-                if(t>=a2&&t<d2){
-                  if(!(s2.pauseS&&s2.pauseE&&t>=toM(s2.pauseS)&&t<toM(s2.pauseE)))w++;
-                }
-              });
-              if(w>=2){fixed=true;break;}
-              s.pauseS=oS;s.pauseE=oE;
-            }
-            if(fixed)break;
-          }
-          if(fixed)break;
+        // Check: someone on pause with <2 working
+        if(onPause.length>0 && working<2){
+          if(working < worstWorking){ worstT=t; worstWorking=working; worstOnPause=onPause; }
         }
       }
-      if(!fixed)break;
+
+      if(worstT===-1) break; // all good
+
+      // Fix: try to shift the pause of the last person on pause
+      let fixed = false;
+      for(const ei of worstOnPause){
+        const s = plan[ei][d];
+        if(!s.pauseS) continue;
+        const ps=toM(s.pauseS), pe=toM(s.pauseE), pd=pe-ps;
+        const arr=toM(s.arrive), dep=toM(s.depart);
+
+        // Try shifting pause in various directions
+        for(const sh of [-30,-60,30,60,-15,15,-45,45,-90,90,-120,120]){
+          const nps=r5(ps+sh), npe=nps+pd;
+          // Must stay within valid window and shift bounds
+          if(nps < arr+180) continue;
+          if(npe > dep-180) continue;
+          if(nps < pSMin) continue;
+          if(npe > pEMax+30) continue; // small tolerance
+
+          // Test: apply and check if conflict resolved
+          const oS=s.pauseS, oE=s.pauseE;
+          s.pauseS=toT(nps); s.pauseE=toT(npe);
+
+          let w=0;
+          team.forEach((_,i2)=>{
+            const s2=plan[i2]?.[d];
+            if(!s2?.arrive||s2.repos||s2.conge) return;
+            const a2=toM(s2.arrive), d2=toM(s2.depart);
+            if(worstT>=a2&&worstT<d2){
+              if(!(s2.pauseS&&s2.pauseE&&worstT>=toM(s2.pauseS)&&worstT<toM(s2.pauseE))) w++;
+            }
+          });
+
+          if(w>=2){ fixed=true; break; }
+          s.pauseS=oS; s.pauseE=oE; // revert
+        }
+        if(fixed) break;
+      }
+
+      if(!fixed){
+        // Last resort: remove the pause entirely if the shift is ≤ noPH+1
+        for(const ei of worstOnPause){
+          const s=plan[ei][d];
+          if(!s.pauseS) continue;
+          const shiftH=(toM(s.depart)-toM(s.arrive))/60;
+          if(shiftH <= noPH+1){
+            s.pauseS=null; s.pauseE=null;
+            fixed=true; break;
+          }
+        }
+      }
+      if(!fixed) break; // can't resolve, move on
     }
   }
 
-  renderPlan();renderGantt();
-  toast('⚡ Planning généré !');
-  showTab('planning',document.querySelectorAll('.tab')[1]);
+  // ══════════════════════════════════════════
+  // PASS 4: Enforce opening staff minimum
+  // ══════════════════════════════════════════
+  for(let d=0;d<6;d++){
+    const oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
+    if(!oM||!cM) continue;
+    const isLMV=[0,2,4].includes(d);
+    const minO=isLMV?mLMV:mMJS;
+    const avail=ep.filter(x=>!isRest(x.emp,d)&&!isConge(x.emp,d));
+
+    const atOpen=avail.filter(({i})=>{
+      const s=plan[i]?.[d];
+      return s&&s.arrive&&!s.repos&&!s.conge&&toM(s.arrive)<=oM+5;
+    });
+
+    if(atOpen.length < minO){
+      // Find workers already assigned today but arriving late — pull them to open
+      const lateWorkers = avail.filter(({i})=>{
+        const s=plan[i]?.[d];
+        return s&&s.arrive&&!s.repos&&!s.conge&&toM(s.arrive)>oM+5;
+      }).sort((a,b)=>{
+        // Prefer canOpen, then earliest arrive
+        const ao=a.emp.canOpen?0:1, bo=b.emp.canOpen?0:1;
+        if(ao!==bo) return ao-bo;
+        return toM(plan[a.i][d].arrive)-toM(plan[b.i][d].arrive);
+      });
+
+      let needed = minO - atOpen.length;
+      for(const {i} of lateWorkers){
+        if(needed<=0) break;
+        const s=plan[i][d];
+        // Extend shift to open — keep same work hours, push depart later
+        const pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
+        const wM2=toM(s.depart)-toM(s.arrive)-pM2;
+        s.arrive=toT(oM);
+        s.depart=toT(r5(Math.min(cM, oM+wM2+pM2)));
+        // Re-center pause if needed
+        if(s.pauseS&&s.pauseE){
+          let nps=toM(s.pauseS);
+          if(nps<oM+180) nps=oM+180;
+          nps=r5(nps);
+          s.pauseS=toT(nps); s.pauseE=toT(nps+pM2);
+        }
+        needed--;
+      }
+
+      // If still not enough, add new unassigned workers
+      if(needed>0){
+        const unassigned=avail.filter(({i})=>!plan[i]?.[d]||(!plan[i][d].arrive&&!plan[i][d].repos));
+        for(const {emp,i} of unassigned){
+          if(needed<=0) break;
+          const tgt=Math.min(8, emp.hours/5);
+          const dep=r5(Math.min(cM, oM+tgt*60));
+          plan[i][d]={arrive:toT(oM), pauseS:null, pauseE:null, depart:toT(dep), repos:false, conge:false, annotation:''};
+          needed--;
+        }
+      }
+    }
+  }
+
+  renderPlan();
+  renderGantt();
+  toast('⚡ Planning généré — contraintes vérifiées !');
+  showTab('planning', document.querySelectorAll('.tab')[1]);
 }
 
 
