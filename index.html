@@ -26,7 +26,7 @@ html,body{background:#0e1a2b!important;color:var(--txt);font-family:'DM Sans',sa
 .hdr{background:#1e4fc2!important;border-bottom:2px solid rgba(245,168,0,.5);padding:8px 12px 6px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:6px;}
 .hdr-row1{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .hdr-row2{display:flex;align-items:center;gap:6px;}
-.bio-wordmark{font-family:‘Syne’,sans-serif;font-size:20px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;text-shadow:0 0 16px rgba(245,168,0,.5);}
+.bio-wordmark{font-family:‘Syne’,sans-serif;font-size:22px;font-weight:800;letter-spacing:5px;text-transform:uppercase;color:#fff;text-shadow:0 1px 12px rgba(245,168,0,.7),0 0 30px rgba(30,79,194,.8);border-bottom:2px solid rgba(245,168,0,.4);padding-bottom:2px;}
 .hdr-utils{display:flex;gap:5px;align-items:center;}
 .btn-autofill{flex:1;background:linear-gradient(135deg,#f5a800,#e8920a)!important;color:#000!important;font-family:‘Syne’,sans-serif;font-weight:800;font-size:12px;letter-spacing:.5px;border:none;border-radius:8px;padding:9px 0;cursor:pointer;text-align:center;touch-action:manipulation;}
 .btn-autofill:active{opacity:.85;}
@@ -112,7 +112,7 @@ select option{background:#1e3350;}
 table.ptbl{border-collapse:collapse;white-space:nowrap;}
 table.ptbl th,table.ptbl td{border:1px solid var(–bor);text-align:center;vertical-align:middle;}
 table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(–t2);padding:7px 5px;}
-.col-emp{min-width:120px;text-align:left!important;padding:0 9px!important;background:var(–s2)!important;position:sticky;left:0;z-index:5;}
+.col-emp{min-width:130px;text-align:left!important;padding:0 9px!important;background:#172840!important;position:sticky;left:0;z-index:5;border-right:2px solid var(–bio-orange)!important;box-shadow:3px 0 8px rgba(0,0,0,.5);}
 .day-hdr .dn{font-size:11px;color:var(–txt);font-weight:700;}
 .day-hdr .dh{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
 .cell{padding:6px 4px;min-width:125px;cursor:pointer;-webkit-tap-highlight-color:rgba(245,168,0,.2);}
@@ -120,6 +120,7 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 .ci-box{display:flex;flex-direction:column;align-items:center;gap:1px;}
 .st{font-family:‘DM Mono’,monospace;font-size:10px;font-weight:600;color:var(–txt);line-height:1.5;white-space:nowrap;}
 .sp{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
+.sp-pause{font-size:9px;color:#f5a800;font-family:‘DM Mono’,monospace;font-weight:600;letter-spacing:.3px;}
 .sa2{font-size:9px;color:var(–org);font-family:‘Syne’,sans-serif;font-weight:700;text-transform:uppercase;}
 .c-repos{background:var(–s2)!important;}.c-repos .st{color:var(–t3);}
 .c-conge{background:rgba(120,184,51,.1)!important;}.c-conge .st{color:var(–grn);}
@@ -200,6 +201,7 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
       <span class="chip chip-i" id="wkLabel" style="font-size:9px;padding:2px 6px;">—</span>
       <button class="btn btn-s btn-sm" onclick="openFavModal()" style="padding:6px 9px;font-size:12px;">★</button>
       <button class="btn btn-s btn-sm" onclick="exportPDF()" style="padding:6px 9px;font-size:10px;font-weight:700;">PDF</button>
+      <button class="btn btn-s btn-sm" onclick="exportExcel()" style="padding:6px 9px;font-size:10px;font-weight:700;color:#4ade80;border-color:#22c55e;">XLS</button>
     </div>
   </div>
   <div class="hdr-row2">
@@ -467,12 +469,14 @@ const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 const DS=['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
 const OPEN={0:'07:45',1:'08:00',2:'07:45',3:'08:00',4:'07:45',5:'08:00',6:null};
 const CLOSE={0:'19:30',1:'19:30',2:'19:30',3:'19:30',4:'19:30',5:'18:30',6:null};
-const POSTES=['SA','VRAC','BOISSON','GENERALE','FEL'];
-const POSTES_DISPLAY={'SA':'SA','VRAC':'VRAC','BOISSON':'BOISSON','GENERALE':'GÉNÉRALE','FEL':'FEL'};
-const PCOL={SA:'#1e5cbf',VRAC:'#78b833',BOISSON:'#f5a800',GENERALE:'#ff6b9d',FEL:'#a8e063'};
+const POSTES=['SA','VRAC','BOISSON','GENERALE','FEL','DIRECTION'];
+const POSTES_DISPLAY={'SA':'SA','VRAC':'VRAC','BOISSON':'BOISSON','GENERALE':'GÉNÉRALE','FEL':'FEL','DIRECTION':'DIRECTION'};
+const PCOL={SA:'#2563eb',VRAC:'#ec4899',BOISSON:'#f97316',GENERALE:'#eab308',FEL:'#22c55e',DIRECTION:'#92400e'};
+const PCOL_TEXT={SA:'#fff',VRAC:'#fff',BOISSON:'#fff',GENERALE:'#000',FEL:'#000',DIRECTION:'#fff'};
 
 // ═══ STATE ═══
 let team=[], plan={}, curWeek=null, wType='A', mTarget=null;
+let ganttColors={};
 
 // ═══ UTILS ═══
 const toM=t=>{if(!t||!t.includes(':'))return 0;const[h,m]=t.split(':').map(Number);return h*60+m;};
@@ -719,7 +723,8 @@ function autoFill(){
       if(tgt<2&&!isO&&!isC) return;
       if(tgt<=0&&!isO&&!isC) return;
       // Ensure minimum 3h if assigned
-      tgt=Math.max(tgt, isO||isC ? 4 : 3);
+      tgt=Math.max(tgt, isO||isC ? 5 : 4); // min 4h general, 5h for openers/closers
+      tgt=Math.min(tgt, 10); // HARD CAP 10h/day
 
       const needP=tgt>noPH;
       const pH=needP?(pMinH+Math.random()*(pMaxH-pMinH)):0;
@@ -750,8 +755,12 @@ function autoFill(){
         dep=Math.round(dep/5)*5;
       }
 
-      // Sanity check
+      // Hard limits: max 10h total shift, min arr/dep gap of 2h30
+      dep=Math.min(dep, arr+600); // 600min = 10h max
       if(dep-arr<150) return; // min 2h30
+
+      // Minimum afternoon: if closer (isC only), ensure PM portion ≥ 4h after pause
+      // This is enforced by how we calc shifts above
 
       if(!needP){
         plan[i][d]={arrive:toT(arr),pauseS:null,pauseE:null,depart:toT(dep),repos:false,conge:false,annotation:''};
@@ -759,10 +768,12 @@ function autoFill(){
       }
 
       // ── Smart pause placement ──
-      // Must be within [pSMin, pEMax] and within shift
-      let pS=Math.max(arr+Math.round(60/5)*5, pSMin);
-      let pL=Math.min(dep-pM-Math.round(60/5)*5, pEMax-pM);
-      if(pL<pS) pL=pS;
+      // Ensure ≥ 3h work before AND after pause (180min)
+      const minWorkBeforePause=180; // 3h before pause
+      const minWorkAfterPause=180;  // 3h after pause
+      let pS=Math.max(arr+minWorkBeforePause, pSMin);
+      let pL=Math.min(dep-pM-minWorkAfterPause, pEMax-pM);
+      if(pL<pS) pL=pS; // fallback if shift too short
 
       // Minimize overlap with existing pauses (ensure ≥2 working at all times)
       const existing=[];
@@ -856,15 +867,29 @@ function autoFill(){
       tot=totalH(i);
     }
 
-    // If still over, shorten last shift
+    // If still over, shorten shifts (longest first) — also enforce 10h/day hard cap
+    for(let d=0;d<6;d++){
+      const s=plan[i]?.[d];
+      if(!s?.arrive||s.repos||s.conge)continue;
+      const shiftM=toM(s.depart)-toM(s.arrive);
+      if(shiftM>600){ // over 10h
+        const excess=shiftM-600;
+        const nd=Math.round((toM(s.depart)-excess)/5)*5;
+        const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;
+        if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}
+      }
+    }
     if(tot>target+0.1){
-      for(let d=5;d>=0;d--){
+      // Sort days by shift length desc
+      const sortedDays=[];
+      for(let d=0;d<6;d++){const s=plan[i]?.[d];if(s?.arrive&&!s.repos&&!s.conge)sortedDays.push({d,len:toM(s.depart)-toM(s.arrive)});}
+      sortedDays.sort((a,b)=>b.len-a.len);
+      for(const{d} of sortedDays){
         if(tot<=target+0.1)break;
         const s=plan[i]?.[d];
-        if(!s?.arrive||s.repos||s.conge)continue;
         const ovM=Math.ceil((tot-target)*60/5)*5;
         const nd=Math.round((toM(s.depart)-ovM)/5)*5;
-        const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;
+        const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+180; // keep min 3h after pause
         if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}
       }
     }
@@ -948,8 +973,20 @@ function renderPlan(){
       else if(sl.conge){cls+='c-conge';inner=`<span class="st">🌿 CONGÉ</span><span class="sp">${fmtH(congeH(d))} comptées</span>`;}
       else if(sl.arrive){
         cls+='c-work';const wh=slotH(sl);const an=sl.annotation?`<span class="sa2">${sl.annotation}</span>`:'';
-        if(sl.pauseS&&sl.pauseE){inner=`<span class="st">${sl.arrive}/${sl.pauseS}</span><span class="sp">${sl.pauseS}–${sl.pauseE}</span><span class="st">${sl.pauseE}/${sl.depart}</span><span class="sp" style="color:var(--a2);">${fmtH(wh)}</span>${an}`;}
-        else{inner=`<span class="st">${sl.arrive} → ${sl.depart}</span><span class="sp" style="color:var(--a2);">${fmtH(wh)} s/pause</span>${an}`;}
+        const pcol=PCOL[team[i].poste]||'#2563eb';
+        if(sl.pauseS&&sl.pauseE){
+          inner=`<div style="border-left:3px solid ${pcol};padding-left:4px;text-align:left;">
+            <span class="st">${sl.arrive} → ${sl.pauseS}</span><br>
+            <span class="sp-pause">⏸ ${sl.pauseS}–${sl.pauseE}</span><br>
+            <span class="st">${sl.pauseE} → ${sl.depart}</span><br>
+            <span class="sp">${fmtH(wh)}</span>${an}
+          </div>`;
+        } else {
+          inner=`<div style="border-left:3px solid ${pcol};padding-left:4px;text-align:left;">
+            <span class="st">${sl.arrive} → ${sl.depart}</span><br>
+            <span class="sp">${fmtH(wh)} s/pause</span>${an}
+          </div>`;
+        }
       }else{cls+='c-work';inner=`<span class="st" style="color:var(--t3);">—</span>`;}
       h+=`<td class="${cls}" onclick="openModal(${i},${d})"><div class="ci-box">${inner}</div></td>`;
     }
@@ -996,14 +1033,31 @@ function renderGantt(){
     h+=`</div><div style="background:var(--s3);"></div></div>`;
     team.forEach((emp,i)=>{
       const s=plan[i]?.[d];const col=PCOL[emp.poste]||'#888';let bars='',tot2=0;
-      if(s?.conge){bars+=`<div class="g-bar" style="left:${pct(oM)}%;width:${((cM-oM)/GR*100).toFixed(2)}%;background:rgba(120,184,51,.35);border:1px dashed var(--grn);">${s.annotation||'CP'}</div>`;tot2=congeH(d);}
-      else if(s&&!s.repos&&s.arrive){
+      if(s?.conge){
+        bars+=`<div class="g-bar" style="left:${pct(oM)}%;width:${((cM-oM)/GR*100).toFixed(2)}%;background:rgba(34,197,94,.3);border:1px dashed #22c55e;color:#4ade80;">${s.annotation||'CP'}</div>`;
+        tot2=congeH(d);
+      } else if(s&&!s.repos&&s.arrive){
         const a=toM(s.arrive),dep=toM(s.depart);
-        if(s.pauseS&&s.pauseE){const ps=toM(s.pauseS),pe=toM(s.pauseE);bars+=`<div class="g-bar" style="left:${pct(a)}%;width:${((ps-a)/GR*100).toFixed(2)}%;background:${col};color:#fff;">${s.arrive}–${s.pauseS}</div>`;bars+=`<div class="g-bar" style="left:${pct(pe)}%;width:${((dep-pe)/GR*100).toFixed(2)}%;background:${col};color:#fff;">${s.pauseE}–${s.depart}</div>`;}
-        else{bars+=`<div class="g-bar" style="left:${pct(a)}%;width:${((dep-a)/GR*100).toFixed(2)}%;background:${col};color:#fff;">${s.arrive}–${s.depart}</div>`;}
+        if(s.pauseS&&s.pauseE){
+          const ps=toM(s.pauseS),pe=toM(s.pauseE);
+          const cM2=getGanttColor(i,a);const cA=getGanttColor(i,pe);
+          const tM=PCOL_TEXT[ganttColors[i]?.matin||emp.poste]||'#fff';
+          const tA=PCOL_TEXT[ganttColors[i]?.apmidi||emp.poste]||'#fff';
+          bars+=`<div class="g-bar" style="left:${pct(a)}%;width:${((ps-a)/GR*100).toFixed(2)}%;background:${cM2};color:${tM};">${s.arrive}–${s.pauseS}</div>`;
+          bars+=`<div class="g-bar" style="left:${pct(ps)}%;width:${((pe-ps)/GR*100).toFixed(2)}%;background:rgba(245,168,0,.15);border:1px dashed #f5a800;color:#f5a800;font-size:7px;">pause</div>`;
+          bars+=`<div class="g-bar" style="left:${pct(pe)}%;width:${((dep-pe)/GR*100).toFixed(2)}%;background:${cA};color:${tA};">${s.pauseE}–${s.depart}</div>`;
+        } else {
+          const cBar=getGanttColor(i,a);const tBar=PCOL_TEXT[ganttColors[i]?.matin||emp.poste]||'#fff';
+          bars+=`<div class="g-bar" style="left:${pct(a)}%;width:${((dep-a)/GR*100).toFixed(2)}%;background:${cBar};color:${tBar};">${s.arrive}–${s.depart}</div>`;
+        }
+        if(s.annotation)bars+=`<div style="position:absolute;top:1px;right:3px;font-size:7px;font-weight:700;color:#f5a800;">${s.annotation}</div>`;
         tot2=slotH(s);
       }
-      h+=`<div class="g-row"><div class="g-name" style="border-left:3px solid ${col};">${emp.name}</div><div class="g-line">${bars}</div><div class="g-tot">${tot2>0?fmtH(tot2):'—'}</div></div>`;
+      h+=`<div class="g-row">
+        <div class="g-name" style="border-left:3px solid ${col};cursor:pointer;" onclick="openGanttColorPicker(${i})">${emp.name} <span style="font-size:8px;opacity:.5;">🎨</span></div>
+        <div class="g-line">${bars}</div>
+        <div class="g-tot">${tot2>0?fmtH(tot2):'—'}</div>
+      </div>`;
     });
     const SLOTS=Math.floor(GR/15);
     h+=`<div class="g-crow"><div style="background:var(--s2);padding:0 5px;display:flex;align-items:center;"><span style="font-size:9px;color:var(--t3);">👥</span></div><div class="g-cline">`;
@@ -1123,7 +1177,80 @@ function loadFav(id){
 }
 function delFav(id){let favs=JSON.parse(localStorage.getItem('ppFavs')||'[]').filter(f=>f.id!==id);localStorage.setItem('ppFavs',JSON.stringify(favs));renderFavs();}
 
-// ═══ PDF — impression native (pas window.open) ═══
+// ═══ GANTT COLOR CONFIG ═══
+function getGanttColor(empIdx,timeMin){
+  const emp=team[empIdx];const gc=ganttColors[empIdx];
+  if(!gc)return PCOL[emp.poste]||'#888';
+  return timeMin<toM('14:00')?(PCOL[gc.matin||emp.poste]||PCOL[emp.poste]):(PCOL[gc.apmidi||emp.poste]||PCOL[emp.poste]);
+}
+function openGanttColorPicker(empIdx){
+  const emp=team[empIdx];const gc=ganttColors[empIdx]||{matin:emp.poste,apmidi:emp.poste};
+  const opts=POSTES.map(p=>`<option value="${p}" ${p===gc.matin?'selected':''}>${POSTES_DISPLAY[p]||p}</option>`).join('');
+  const opts2=POSTES.map(p=>`<option value="${p}" ${p===gc.apmidi?'selected':''}>${POSTES_DISPLAY[p]||p}</option>`).join('');
+  const div=document.createElement('div');
+  div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;';
+  div.innerHTML=`<div style="background:#122038;border:1px solid #2a4060;border-radius:12px;padding:20px;width:300px;max-width:90vw;">
+    <div style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:#f0f4f8;margin-bottom:14px;">${emp.name} — Couleur Gantt</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div><label style="font-size:11px;color:#8aaccc;display:block;margin-bottom:4px;">🌅 Matin (avant 14h)</label>
+      <select id="gcMatin" style="width:100%;background:#1e3350;border:1px solid #2a4060;border-radius:7px;padding:8px;color:#f0f4f8;font-size:13px;-webkit-appearance:none;">${opts}</select></div>
+      <div><label style="font-size:11px;color:#8aaccc;display:block;margin-bottom:4px;">🌆 Après-midi (après 14h)</label>
+      <select id="gcApmidi" style="width:100%;background:#1e3350;border:1px solid #2a4060;border-radius:7px;padding:8px;color:#f0f4f8;font-size:13px;-webkit-appearance:none;">${opts2}</select></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+      <button onclick="this.closest('[style*=fixed]').remove()" style="padding:8px 14px;background:#1e3350;color:#8aaccc;border:1px solid #2a4060;border-radius:7px;cursor:pointer;font-family:Syne,sans-serif;font-size:11px;font-weight:700;">Annuler</button>
+      <button onclick="saveGanttColor(${empIdx},this)" style="padding:8px 14px;background:#1e4fc2;color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:Syne,sans-serif;font-size:11px;font-weight:700;">✓ Valider</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+}
+function saveGanttColor(empIdx,btn){
+  ganttColors[empIdx]={matin:document.getElementById('gcMatin').value,apmidi:document.getElementById('gcApmidi').value};
+  btn.closest('[style*="fixed"]').remove();renderGantt();
+}
+
+// ═══ EXCEL EXPORT ═══
+function exportExcel(){
+  if(!Object.keys(plan).length){toast('⚠ Générez d\'abord un planning');return;}
+  const BOM='\uFEFF';
+  const hdrs=['Employé','Contrat','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Total','Écart'];
+  let rows=[hdrs.map(h=>`"${h}"`).join(';')];
+  team.forEach((emp,i)=>{
+    const tot=totalH(i),diff=Math.round((tot-emp.hours)*100)/100;
+    const sign=Math.abs(diff)<0.05?'OK':(diff>0?`+${fmtH(diff)}`:`-${fmtH(Math.abs(diff))}`);
+    const cells=[`"${emp.name}"`,`"${emp.hours}h"`];
+    for(let d=0;d<6;d++){
+      const sl=plan[i]?.[d];let cell='';
+      if(!sl||sl.repos)cell='REPOS';
+      else if(sl.conge)cell=`CONGE (${fmtH(congeH(d))})`;
+      else if(sl.arrive){
+        if(sl.pauseS&&sl.pauseE)cell=`${sl.arrive}/${sl.pauseS} - ${sl.pauseE}/${sl.depart} (${fmtH(slotH(sl))})`;
+        else cell=`${sl.arrive} > ${sl.depart} (${fmtH(slotH(sl))} s/pause)`;
+        if(sl.annotation)cell+=` [${sl.annotation}]`;
+      }
+      cells.push(`"${cell}"`);
+    }
+    cells.push(`"${fmtH(tot)}"`,`"${sign}"`);
+    rows.push(cells.join(';'));
+  });
+  rows.push('');
+  const ml=cfg('minLMV')||4,mm=cfg('minMJS')||3,mc=cfg('minClose')||3;
+  [['🔓 Ouv.',cntOpen,false],['👥 Présents',cntPresent,false],['🔒 Ferm.',cntClose,true]].forEach(([lbl,fn,isClose])=>{
+    const cells=[`"${lbl}"`,'"—"'];
+    for(let d=0;d<6;d++){const v=fn(d);const min=isClose?mc:([0,2,4].includes(d)?ml:mm);cells.push(`"${v}/${min} ${v>=min?'OK':'!'}"`);}
+    cells.push('""','""');rows.push(cells.join(';'));
+  });
+  const csv=BOM+rows.join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  a.download=`planning-s${curWeek?.split('W')[1]||''}-${wType}.csv`;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('✅ Fichier CSV (Excel) téléchargé !');
+}
+
+// ═══ PDF — impression native ═══
 function exportPDF(){
   const cur=document.querySelector('.pg.on');
   const isGantt=cur?.id==='pg-gantt';
