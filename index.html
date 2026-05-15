@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Planning">
@@ -12,29 +12,29 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0e1a2b;--sur:#122038;--s2:#172840;--s3:#1e3350;
-  --bor:#2a4060;--acc:#1e5cbf;--a2:#78b833;
-  --txt:#f0f4f8;--t2:#8aaccc;--t3:#4a6a8a;
-  --red:#e8345a;--grn:#78b833;--org:#f5a800;
-  --bio-blue:#1e4fc2;--bio-orange:#f5a800;--bio-green:#78b833;
-  --sa:#1e5cbf;--vrac:#78b833;--bois:#f5a800;--gen:#ff6b9d;--fel:#a8e063;
+  --bg:#f0f4f8;--sur:#ffffff;--s2:#f8fafc;--s3:#eef2f7;
+  --bor:#dde3ec;--acc:#1e40af;--a2:#059669;
+  --txt:#0f172a;--t2:#475569;--t3:#94a3b8;
+  --red:#dc2626;--grn:#059669;--org:#d97706;
+  --bio-blue:#1e40af;--bio-orange:#d97706;--bio-green:#059669;
+  --sa:#1e40af;--vrac:#db2777;--bois:#d97706;--gen:#7c3aed;--fel:#059669;--dir:#78350f;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{background:#0e1a2b!important;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;-webkit-text-size-adjust:100%;}
+html,body{background:#f0f4f8!important;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;-webkit-text-size-adjust:100%;}
 
 /* HEADER */
-.hdr{background:#1e4fc2!important;border-bottom:2px solid rgba(245,168,0,.5);padding:8px 12px 6px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:6px;}
-.hdr-row1{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.hdr-row2{display:flex;align-items:center;gap:6px;}
-.bio-wordmark{font-family:‘Syne’,sans-serif;font-size:22px;font-weight:800;letter-spacing:5px;text-transform:uppercase;color:#fff;text-shadow:0 1px 12px rgba(245,168,0,.7),0 0 30px rgba(30,79,194,.8);border-bottom:2px solid rgba(245,168,0,.4);padding-bottom:2px;}
+.hdr{background:#fff!important;border-bottom:1px solid var(–bor);position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06);}
+.hdr-row1{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;gap:8px;border-bottom:1px solid var(–bor);}
+.hdr-row2{display:flex;align-items:center;padding:0;}
+.bio-wordmark{font-family:‘Syne’,sans-serif;font-size:16px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(–txt);}
 .hdr-utils{display:flex;gap:5px;align-items:center;}
-.btn-autofill{flex:1;background:linear-gradient(135deg,#f5a800,#e8920a)!important;color:#000!important;font-family:‘Syne’,sans-serif;font-weight:800;font-size:12px;letter-spacing:.5px;border:none;border-radius:8px;padding:9px 0;cursor:pointer;text-align:center;touch-action:manipulation;}
+.btn-autofill{flex:1;background:#1e40af!important;color:#fff!important;font-family:‘Syne’,sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;border:none;padding:11px 0;cursor:pointer;text-align:center;touch-action:manipulation;text-transform:uppercase;}
 .btn-autofill:active{opacity:.85;}
 
 /* TABS */
-.tabs{display:flex;background:#0e1a2b!important;border-bottom:1px solid var(–bor);overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.tab{padding:10px 14px;font-family:‘Syne’,sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border:none;background:transparent;color:var(–t3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0;-webkit-appearance:none;}
-.tab.on{color:var(–bio-orange);border-bottom-color:var(–bio-orange);}
+.tabs{display:flex;background:#fff!important;border-bottom:1px solid var(–bor);overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tab{padding:11px 16px;font-family:‘DM Sans’,sans-serif;font-size:12px;font-weight:500;letter-spacing:.01em;text-transform:none;border:none;background:transparent;color:var(–t2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0;-webkit-appearance:none;transition:color .15s,border-color .15s;}
+.tab.on{color:var(–bio-blue);border-bottom-color:var(–bio-blue);font-weight:600;}
 
 /* PAGES */
 .pg{display:none;flex-direction:column;min-height:calc(100vh - 96px);}
@@ -49,70 +49,70 @@ html,body{background:#0e1a2b!important;color:var(--txt);font-family:'DM Sans',sa
 @media(max-width:700px){.split{flex-direction:column;}.split-l{width:100%;min-width:0;}}
 
 /* PANELS */
-.panel{background:#172840!important;border:1px solid #2a4060!important;border-radius:10px;overflow:hidden;}
-.ph{padding:9px 12px;font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(–bio-orange);background:#1e3350!important;border-bottom:1px solid #2a4060!important;display:flex;align-items:center;justify-content:space-between;}
+.panel{background:#fff!important;border:1px solid var(–bor)!important;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.ph{padding:9px 14px;font-family:‘DM Sans’,sans-serif;font-size:11px;font-weight:600;letter-spacing:.03em;color:var(–t2);background:#f8fafc!important;border-bottom:1px solid var(–bor)!important;display:flex;align-items:center;justify-content:space-between;}
 .pb{padding:12px;display:flex;flex-direction:column;gap:9px;}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .fld{display:flex;flex-direction:column;gap:3px;}
 
 /* INPUTS */
 label{font-size:11px;color:var(–t2);}
-input[type=text],input[type=date],input[type=week],select{background:#1e3350!important;border:1px solid #2a4060!important;border-radius:7px;padding:9px 10px;color:var(–txt);font-family:‘DM Sans’,sans-serif;font-size:13px;outline:none;-webkit-appearance:none;width:100%;transition:border-color .2s;}
+input[type=text],input[type=date],input[type=week],select{background:#fff!important;border:1px solid var(–bor)!important;border-radius:7px;padding:9px 10px;color:var(–txt);font-family:‘DM Sans’,sans-serif;font-size:13px;outline:none;-webkit-appearance:none;width:100%;transition:border-color .2s;}
 input:focus,select:focus{border-color:var(–bio-orange)!important;}
-select option{background:#1e3350;}
+select option{background:#fff;color:var(–txt);}
 
 /* STEPPER */
-.stepper{display:flex;align-items:stretch;border:1px solid #2a4060;border-radius:8px;overflow:hidden;}
-.step-btn{width:52px;min-width:52px;background:#1e3350;color:var(–txt);border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:10px 0;user-select:none;-webkit-user-select:none;touch-action:manipulation;flex-shrink:0;}
-.step-btn:active{background:#1e4fc2;color:#fff;}
-.step-val{flex:1;text-align:center;font-family:‘DM Mono’,monospace;font-size:22px;font-weight:700;color:var(–txt);background:#122038;border-left:1px solid #2a4060;border-right:1px solid #2a4060;display:flex;align-items:center;justify-content:center;padding:10px 0;}
+.stepper{display:flex;align-items:stretch;border:1px solid var(–bor);border-radius:8px;overflow:hidden;}
+.step-btn{width:52px;min-width:52px;background:#f8fafc;color:var(–txt);border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:10px 0;user-select:none;-webkit-user-select:none;touch-action:manipulation;flex-shrink:0;}
+.step-btn:active{background:#1e40af;color:#fff;}
+.step-val{flex:1;text-align:center;font-family:‘DM Mono’,monospace;font-size:22px;font-weight:700;color:var(–txt);background:#fff;border-left:1px solid var(–bor);border-right:1px solid var(–bor);display:flex;align-items:center;justify-content:center;padding:10px 0;}
 
 /* BUTTONS */
 .btn{padding:10px 16px;border-radius:8px;border:none;cursor:pointer;font-family:‘Syne’,sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;-webkit-appearance:none;}
-.btn-p{background:#1e4fc2!important;color:#fff!important;}
-.btn-s{background:#1e3350;color:var(–t2);border:1px solid #2a4060;}
+.btn-p{background:#1e40af!important;color:#fff!important;}
+.btn-s{background:#fff;color:var(–t2);border:1px solid var(–bor);}
 .btn-g{background:rgba(120,184,51,.2);color:var(–bio-green);border:1px solid rgba(120,184,51,.3);}
 .btn-r{background:var(–red);color:#fff;}
-.btn-grad{background:linear-gradient(135deg,#1e4fc2,#78b833)!important;color:#fff!important;}
+.btn-grad{background:#1e40af!important;color:#fff!important;}
 .btn-full{width:100%;justify-content:center;}
 .btn-sm{padding:6px 10px;font-size:10px;}
 
 /* CHIPS / BADGES */
 .chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-family:‘DM Mono’,monospace;}
-.chip-i{background:rgba(245,168,0,.15);color:var(–bio-orange);border:1px solid rgba(245,168,0,.35);}
+.chip-i{background:#fef3c7;color:#92400e;border:1px solid #fde68a;}
 .wbadge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:‘Syne’,sans-serif;}
-.wb-a{background:rgba(30,79,194,.25);color:#6fa8f5;border:1px solid rgba(30,79,194,.5);}
-.wb-b{background:rgba(120,184,51,.2);color:var(–bio-green);border:1px solid rgba(120,184,51,.4);}
-.pb-SA{background:rgba(30,92,191,.2);color:var(–sa);}
-.pb-VRAC{background:rgba(120,184,51,.2);color:var(–vrac);}
-.pb-BOISSON{background:rgba(245,168,0,.2);color:var(–bois);}
-.pb-GENERALE{background:rgba(255,107,157,.2);color:var(–gen);}
+.wb-a{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;}
+.wb-b{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;}
+.pb-SA{background:#dbeafe;color:#1e40af;}
+.pb-VRAC{background:#fce7f3;color:#9d174d;}
+.pb-BOISSON{background:#fef3c7;color:#92400e;}
+.pb-GENERALE{background:#ede9fe;color:#5b21b6;}
 .pb-FEL{background:rgba(168,224,99,.2);color:var(–fel);}
 .poste-b{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;font-family:‘Syne’,sans-serif;}
 
 /* EMP ROWS */
-.emp-row{background:#1e3350!important;border:1px solid #2a4060!important;border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.emp-row{background:#f8fafc!important;border:1px solid var(–bor)!important;border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:9px;}
 .emp-top{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
 .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .day-cb{display:flex;flex-direction:column;align-items:center;gap:3px;}
 .day-cb input[type=checkbox]{accent-color:var(–bio-orange);width:16px;height:16px;}
 .day-cb span{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
-.cap-row{display:flex;gap:8px;padding:7px 9px;background:rgba(30,79,194,.1);border:1px solid rgba(30,79,194,.25);border-radius:7px;flex-wrap:wrap;}
+.cap-row{display:flex;gap:8px;padding:7px 9px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;flex-wrap:wrap;}
 .cap-lbl{display:flex;align-items:center;gap:5px;font-size:12px;color:var(–txt);cursor:pointer;}
 .cap-lbl input{accent-color:var(–bio-orange);width:15px;height:15px;}
-.conge-block{background:rgba(120,184,51,.07);border:1px solid rgba(120,184,51,.2);border-radius:7px;padding:9px;display:flex;flex-direction:column;gap:7px;}
+.conge-block{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;padding:9px;display:flex;flex-direction:column;gap:7px;}
 .conge-row{display:flex;gap:5px;align-items:center;}
 .conge-row input[type=date]{flex:1;font-size:12px;padding:6px 8px;}
 
 /* WBAR */
-.wbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(–sur);border-bottom:1px solid var(–bor);flex-wrap:wrap;}
+.wbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-bottom:1px solid var(–bor);flex-wrap:wrap;}
 
 /* TABLE */
 .tbl-outer{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(–bor);border-radius:10px;}
 table.ptbl{border-collapse:collapse;white-space:nowrap;}
 table.ptbl th,table.ptbl td{border:1px solid var(–bor);text-align:center;vertical-align:middle;}
-table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(–t2);padding:7px 5px;}
-.col-emp{min-width:130px;text-align:left!important;padding:0 9px!important;background:#172840!important;position:sticky;left:0;z-index:5;border-right:2px solid var(–bio-orange)!important;box-shadow:3px 0 8px rgba(0,0,0,.5);}
+table.ptbl thead th{background:#f8fafc;font-family:‘DM Sans’,sans-serif;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(–t2);padding:7px 5px;}
+.col-emp{min-width:130px;text-align:left!important;padding:0 9px!important;background:#fff!important;position:sticky;left:0;z-index:5;border-right:2px solid #1e40af!important;box-shadow:2px 0 6px rgba(0,0,0,.07);}
 .day-hdr .dn{font-size:11px;color:var(–txt);font-weight:700;}
 .day-hdr .dh{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
 .cell{padding:6px 4px;min-width:125px;cursor:pointer;-webkit-tap-highlight-color:rgba(245,168,0,.2);}
@@ -122,38 +122,38 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 .sp{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
 .sp-pause{font-size:9px;color:#f5a800;font-family:‘DM Mono’,monospace;font-weight:600;letter-spacing:.3px;}
 .sa2{font-size:9px;color:var(–org);font-family:‘Syne’,sans-serif;font-weight:700;text-transform:uppercase;}
-.c-repos{background:var(–s2)!important;}.c-repos .st{color:var(–t3);}
+.c-repos{background:#f8fafc!important;}.c-repos .st{color:var(–t3);}
 .c-conge{background:rgba(120,184,51,.1)!important;}.c-conge .st{color:var(–grn);}
-.c-work{background:var(–s2);}
+.c-work{background:#fff;}
 .c-closed{background:var(–bg)!important;opacity:.3;pointer-events:none;}
-.hcell{font-family:‘DM Mono’,monospace;font-size:11px;padding:7px 5px;min-width:80px;}
-.hok{color:var(–grn);}.hov{color:var(–a2);}.hun{color:var(–red);}
+.hcell{font-family:‘DM Mono’,monospace;font-size:11px;padding:7px 5px;min-width:80px;background:#fff;}
+.hok{color:#059669;}.hov{color:#1e40af;}.hun{color:#dc2626;}
 .hval{font-size:14px;font-weight:700;}.hexp{font-size:9px;color:var(–t3);}
-.cnt td{background:var(–s2);font-family:‘DM Mono’,monospace;font-size:10px;padding:4px 3px;}
-.cok{color:var(–grn);font-weight:700;}.clow{color:var(–red);font-weight:700;}
+.cnt td{background:#f8fafc;font-family:‘DM Mono’,monospace;font-size:10px;padding:4px 3px;}
+.cok{color:#059669;font-weight:700;}.clow{color:#dc2626;font-weight:700;}
 
 /* GANTT */
 .g-day{margin-bottom:20px;}
 .g-day-hdr{display:flex;align-items:center;gap:10px;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(–bor);}
-.g-day-hdr h3{font-family:‘Syne’,sans-serif;font-size:13px;font-weight:800;background:var(–bio-orange);color:#000;padding:2px 10px;border-radius:4px;}
+.g-day-hdr h3{font-family:‘DM Sans’,sans-serif;font-size:13px;font-weight:600;background:#1e40af;color:#fff;padding:3px 12px;border-radius:5px;}
 .g-total{font-family:‘DM Mono’,monospace;font-size:12px;color:var(–t2);margin-left:auto;}
 .g-grid{min-width:700px;}
 .g-row{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(–bor);margin-bottom:1px;}
-.g-name{background:var(–s2);padding:4px 8px;font-size:11px;font-weight:700;font-family:‘Syne’,sans-serif;display:flex;align-items:center;}
-.g-line{background:var(–bg);position:relative;height:24px;}
+.g-name{background:#f8fafc;padding:4px 8px;font-size:11px;font-weight:600;font-family:‘DM Sans’,sans-serif;display:flex;align-items:center;border-right:1px solid var(–bor);}
+.g-line{background:#f0f4f8;position:relative;height:26px;overflow:hidden;}
 .g-bar{position:absolute;top:2px;bottom:2px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:‘DM Mono’,monospace;font-weight:700;overflow:hidden;white-space:nowrap;padding:0 3px;}
-.g-tot{background:var(–s2);padding:4px 6px;font-family:‘DM Mono’,monospace;font-size:11px;font-weight:700;color:var(–a2);text-align:center;display:flex;align-items:center;justify-content:center;}
+.g-tot{background:#f8fafc;padding:4px 6px;font-family:‘DM Mono’,monospace;font-size:11px;font-weight:600;color:#1e40af;text-align:center;display:flex;align-items:center;justify-content:center;border-left:1px solid var(–bor);}
 .g-hrow{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(–bor);margin-bottom:1px;}
-.g-hmarks{background:var(–s3);position:relative;height:16px;}
+.g-hmarks{background:#eef2f7;position:relative;height:16px;}
 .g-hm{position:absolute;top:0;height:100%;font-size:8px;color:var(–t3);display:flex;align-items:center;padding-left:2px;border-left:1px solid rgba(255,255,255,.1);}
 .g-crow{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(–bor);}
-.g-cline{background:var(–s2);display:flex;height:18px;}
+.g-cline{background:#eef2f7;display:flex;height:18px;}
 .g-cc{flex:1;display:flex;align-items:center;justify-content:center;font-family:‘DM Mono’,monospace;font-size:9px;font-weight:700;border-right:1px solid var(–bor);}
 
 /* MODAL */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:none;align-items:flex-end;justify-content:center;}
 .overlay.on{display:flex;}
-.modal{background:var(–sur);border-radius:16px 16px 0 0;border-top:1px solid var(–bor);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px 34px;}
+.modal{background:#fff;border-radius:16px 16px 0 0;border-top:1px solid var(–bor);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px 34px;}
 @media(min-width:600px){.overlay{align-items:center;padding:20px;}.modal{border-radius:14px;border:1px solid var(–bor);}}
 .modal-handle{width:40px;height:4px;background:var(–bor);border-radius:2px;margin:0 auto 16px;}
 .modal h3{font-family:‘Syne’,sans-serif;font-size:15px;font-weight:800;margin-bottom:14px;}
@@ -168,23 +168,23 @@ table.ptbl thead th{background:var(–s3);font-family:‘Syne’,sans-serif;font
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
 
 /* FAVS / RECAP */
-.fav-item{background:var(–s3);border:1px solid var(–bor);border-radius:9px;padding:12px;display:flex;align-items:center;gap:9px;}
+.fav-item{background:#fff;border:1px solid var(–bor);border-radius:9px;padding:12px;display:flex;align-items:center;gap:9px;}
 .fav-name{flex:1;font-size:13px;font-weight:600;}
 .fav-meta{font-size:10px;color:var(–t3);font-family:‘DM Mono’,monospace;margin-top:2px;}
 .rcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
-.rcard{background:var(–sur);border:1px solid var(–bor);border-radius:10px;padding:14px;}
-.stitle{font-family:‘Syne’,sans-serif;font-size:13px;font-weight:700;padding-bottom:6px;border-bottom:2px solid var(–bio-orange);margin-bottom:10px;color:var(–bio-orange);}
+.rcard{background:#fff;border:1px solid var(–bor);border-radius:10px;padding:14px;}
+.stitle{font-family:‘DM Sans’,sans-serif;font-size:14px;font-weight:600;padding-bottom:6px;border-bottom:1.5px solid #1e40af;margin-bottom:10px;color:var(–txt);}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(–sur);border:1px solid var(–bor);border-radius:10px;padding:11px 20px;color:var(–txt);font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;border:none;border-radius:10px;padding:11px 20px;color:#f1f5f9;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-thumb{background:var(–bor);border-radius:2px;}
 
 /* AIDE */
-.aide-section{background:var(–s2);border:1px solid var(–bor);border-radius:10px;margin-bottom:12px;overflow:hidden;}
-.aide-title{padding:10px 14px;font-family:‘Syne’,sans-serif;font-size:12px;font-weight:700;color:var(–bio-orange);background:var(–s3);border-bottom:1px solid var(–bor);}
+.aide-section{background:#fff;border:1px solid var(–bor);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.aide-title{padding:10px 14px;font-family:‘DM Sans’,sans-serif;font-size:12px;font-weight:600;color:var(–txt);background:#f8fafc;border-bottom:1px solid var(–bor);}
 .aide-body{padding:10px 14px;display:flex;flex-direction:column;gap:8px;}
 .aide-item{font-size:12px;color:var(–t2);line-height:1.6;}
 .aide-item strong{color:var(–txt);}
@@ -470,7 +470,7 @@ const DS=['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
 const OPEN={0:'07:45',1:'08:00',2:'07:45',3:'08:00',4:'07:45',5:'08:00',6:null};
 const CLOSE={0:'19:30',1:'19:30',2:'19:30',3:'19:30',4:'19:30',5:'18:30',6:null};
 const POSTES=['SA','VRAC','BOISSON','GENERALE','FEL','DIRECTION'];
-const POSTES_DISPLAY={'SA':'SA','VRAC':'VRAC','BOISSON':'BOISSON','GENERALE':'GÉNÉRALE','FEL':'FEL','DIRECTION':'DIRECTION'};
+const POSTES_DISPLAY={'SA':'SA','VRAC':'VRAC','BOISSON':'BOISSON','GENERALE':'GENERALE','FEL':'FEL','DIRECTION':'DIRECTION'};
 const PCOL={SA:'#2563eb',VRAC:'#ec4899',BOISSON:'#f97316',GENERALE:'#eab308',FEL:'#22c55e',DIRECTION:'#92400e'};
 const PCOL_TEXT={SA:'#fff',VRAC:'#fff',BOISSON:'#fff',GENERALE:'#000',FEL:'#000',DIRECTION:'#fff'};
 
@@ -546,8 +546,8 @@ function stepTeam(d){
 function buildTeam(){
   const n=parseInt(document.getElementById('teamSize').value)||6;
   const old=team.slice();
-  team=Array.from({length:n},(_,i)=>old[i]||{name:`Employé ${i+1}`,hours:35,poste:'SA',restDays:[6],samWeek:'none',conges:[],canOpen:false,canClose:false});
-  updBadges();renderTeam();plan={};toast(`✓ Équipe de ${n} membres`);
+  team=Array.from({length:n},(_,i)=>old[i]||{name:`Employe ${i+1}`,hours:35,poste:'SA',restDays:[6],samWeek:'none',conges:[],canOpen:false,canClose:false});
+  updBadges();renderTeam();plan={};toast(`✓ Equipe de ${n} membres`);
 }
 function updBadges(){['tcBadge','tcBadge2'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=team.length;});}
 
@@ -594,7 +594,7 @@ function renderTeam(){
       </div>
       <div class="conge-block">
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:12px;color:var(--grn);font-weight:600;">🌿 Congés payés</span>
+          <span style="font-size:12px;color:var(--grn);font-weight:600;">🌿 Conges payes</span>
           <button class="btn btn-g btn-sm" type="button" onclick="addConge(${i})">+ Ajouter</button>
         </div>
         <div id="cg-${i}">${renderCG(i)}</div>
@@ -605,7 +605,7 @@ function renderTeam(){
 
 function renderCG(i){
   const cg=team[i].conges||[];
-  if(!cg.length)return`<span style="font-size:11px;color:var(--t3);">Aucun congé</span>`;
+  if(!cg.length)return`<span style="font-size:11px;color:var(--t3);">Aucun conge</span>`;
   return cg.map((c,ci)=>`<div class="conge-row">
     <input type="date" value="${c.from}" onchange="team[${i}].conges[${ci}].from=this.value">
     <span style="color:var(--t3);">→</span>
@@ -655,319 +655,357 @@ function initPlan(){
 function autoFill(){
   initPlan();
 
-  const pMinH   = Math.max(cfg('pauseMin')||1, 1);
-  const pMaxH   = Math.min(cfg('pauseMax')||2, 3);
-  const pSMin   = toM(cfgS('pauseStart')||'11:00');
-  const pEMax   = toM(cfgS('pauseEnd')||'15:00');
-  const mLMV    = Math.max(cfg('minLMV')||4, 1);
-  const mMJS    = Math.max(cfg('minMJS')||3, 1);
-  const mCl     = Math.max(cfg('minClose')||3, 1);
-  const noPH    = cfg('noPauseH')||6;
-  const MAX_H   = 10 * 60;   // 10h max en minutes
-  const MIN_H   = 4  * 60;   // 4h min en minutes
-  const r5      = m => Math.round(m/5)*5;
+  var pMinH = Math.max(cfg('pauseMin')||1, 1);
+  var pMaxH = Math.min(cfg('pauseMax')||2, 3);
+  var pSMinV = toM(cfgS('pauseStart')||'11:00');
+  var pEMaxV = toM(cfgS('pauseEnd')||'15:00');
+  var mLMV = Math.max(cfg('minLMV')||4, 1);
+  var mMJS = Math.max(cfg('minMJS')||3, 1);
+  var mClV = Math.max(cfg('minClose')||3, 1);
+  var noPH = cfg('noPauseH')||6;
+  var MAX_H = 10*60;
+  var MIN_H = 4*60;
 
-  // ── Jours de travail et cibles par personne ──
-  const ep = team.map((emp,i)=>{
-    const wd=[];
-    for(let d=0;d<6;d++) if(!isRest(emp,d)&&!isConge(emp,d)) wd.push(d);
-    let cgH=0;
-    for(let d=0;d<6;d++) if(isConge(emp,d)) cgH+=congeH(d);
-    return{emp,i,wd,target:Math.max(0,emp.hours-cgH)};
-  });
+  function r5(m){ return Math.round(m/5)*5; }
 
-  // ════════════════════════════════════════════════════════
-  // ÉTAPE 1 — Construire les shifts SANS pauses
-  //           On place d'abord arrivée/départ en respectant
-  //           ouverture min et fermeture min
-  // ════════════════════════════════════════════════════════
-  for(let d=0;d<6;d++){
-    const oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
+  // Pre-compute work days per person
+  var ep = [];
+  for(var ei=0; ei<team.length; ei++){
+    var wd=[];
+    for(var dd=0; dd<6; dd++) if(!isRest(team[ei],dd)&&!isConge(team[ei],dd)) wd.push(dd);
+    var cgH=0;
+    for(var dd=0; dd<6; dd++) if(isConge(team[ei],dd)) cgH+=congeH(dd);
+    ep.push({wd:wd, target:Math.max(0,team[ei].hours-cgH)});
+  }
+
+  // STEP 1: Assign shifts
+  for(var d=0; d<6; d++){
+    var oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
     if(!oM||!cM) continue;
-    const isLMV=[0,2,4].includes(d);
-    const minO=isLMV?mLMV:mMJS;
+    var isLMV=(d===0||d===2||d===4);
+    var minO=isLMV?mLMV:mMJS;
 
-    const avail=ep.filter(x=>!isRest(x.emp,d)&&!isConge(x.emp,d));
+    var avail=[];
+    for(var ai=0; ai<ep.length; ai++){
+      if(!isRest(team[ai],d)&&!isConge(team[ai],d)){
+        var weekDone=totalH(ai);
+        var remaining=Math.max(0, ep[ai].target-weekDone);
+        var dLeft=0;
+        for(var k=0; k<ep[ai].wd.length; k++) if(ep[ai].wd[k]>d) dLeft++;
+        var tgtH = dLeft===0
+          ? Math.min(MAX_H/60, Math.max(MIN_H/60, remaining))
+          : Math.min(MAX_H/60, Math.max(MIN_H/60, remaining/(dLeft+1)));
+        avail.push({i:ai, emp:team[ai], curH:weekDone, tgt:tgtH});
+      }
+    }
     if(!avail.length) continue;
-    avail.forEach(x=>{x.curH=totalH(x.i);});
-    avail.sort((a,b)=>(b.emp.hours-b.curH)-(a.emp.hours-a.curH));
 
-    // Sélection ouvreurs (canOpen prioritaire, complété jusqu'à minO)
-    const opens=new Set();
-    avail.filter(x=>x.emp.canOpen).forEach(x=>{ if(opens.size<1) opens.add(x.i); });
-    for(const x of avail){ if(opens.size>=minO) break; opens.add(x.i); }
+    // Sort by deficit
+    avail.sort(function(a,b){ return (b.emp.hours-b.curH)-(a.emp.hours-a.curH); });
 
-    // Sélection fermeurs (canClose prioritaire, complété jusqu'à mCl)
-    const closes=new Set();
-    avail.filter(x=>x.emp.canClose).forEach(x=>{ if(closes.size<1) closes.add(x.i); });
-    for(const x of avail){ if(closes.size>=mCl) break; closes.add(x.i); }
+    // Select openers
+    var opens={}, openCount=0;
+    for(var ai=0; ai<avail.length; ai++){
+      if(avail[ai].emp.canOpen && openCount<1){ opens[avail[ai].i]=true; openCount++; }
+    }
+    for(var ai=0; ai<avail.length && openCount<minO; ai++){
+      if(!opens[avail[ai].i]){ opens[avail[ai].i]=true; openCount++; }
+    }
 
-    avail.forEach(({emp,i,wd,curH,target})=>{
-      const isO=opens.has(i), isC=closes.has(i);
-      const needed=Math.max(0,emp.hours-curH);
-      const dLeft=wd.filter(dd=>dd>d).length;
+    // Select closers
+    var closes={}, closeCount=0;
+    for(var ai=0; ai<avail.length; ai++){
+      if(avail[ai].emp.canClose && closeCount<1){ closes[avail[ai].i]=true; closeCount++; }
+    }
+    for(var ai=0; ai<avail.length && closeCount<mClV; ai++){
+      if(!closes[avail[ai].i]){ closes[avail[ai].i]=true; closeCount++; }
+    }
 
-      // Calcul heures cibles aujourd'hui
-      let tgtH=dLeft===0
-        ? Math.min(MAX_H/60, needed)
-        : Math.min(MAX_H/60, needed/(dLeft+1));
-      if(wd.length<=3) tgtH=Math.max(tgtH, needed/Math.max(1,dLeft+1));
-      tgtH=Math.min(tgtH, MAX_H/60);
-      tgtH=Math.max(tgtH, MIN_H/60);
-      const tgtM=r5(tgtH*60);
+    // Assign shifts
+    for(var ai=0; ai<avail.length; ai++){
+      var x=avail[ai];
+      var isO=!!opens[x.i], isC=!!closes[x.i];
+      var tgtM=r5(x.tgt*60);
+      var weekRem=Math.max(0, x.emp.hours-totalH(x.i));
+      var arr, dep;
 
-      // Arrive / Départ selon rôle
-      let arr,dep;
-      if(isO&&isC){ arr=oM; dep=cM; }
-      else if(isO){ arr=oM; dep=r5(Math.min(cM-30, oM+tgtM)); }
-      else if(isC){ dep=cM; arr=r5(Math.max(oM+30, cM-tgtM)); }
-      else {
-        const offset=r5(15+Math.random()*75);
-        arr=oM+offset;
-        dep=r5(Math.min(cM-30, arr+tgtM));
+      if(isO&&isC){
+        // Only full day if needed for both
+        var otherO=0, otherC=0;
+        for(var oi=0; oi<avail.length; oi++){
+          if(avail[oi].i===x.i) continue;
+          var s2=plan[avail[oi].i]&&plan[avail[oi].i][d];
+          if(opens[avail[oi].i]&&s2&&s2.arrive&&toM(s2.arrive)<=oM+5) otherO++;
+          if(closes[avail[oi].i]&&s2&&s2.depart&&toM(s2.depart)>=cM-5) otherC++;
+        }
+        var needO=(otherO<minO-1), needC=(otherC<mClV-1);
+        if(needO&&needC){ arr=oM; dep=cM; }
+        else if(needO){ arr=oM; dep=r5(Math.min(cM-30,oM+tgtM)); }
+        else if(needC){ dep=cM; arr=r5(Math.max(oM+30,cM-tgtM)); }
+        else{ var off=r5(15+Math.random()*60); arr=oM+off; dep=r5(Math.min(cM-30,arr+tgtM)); }
+      } else if(isO){
+        arr=oM; dep=r5(Math.min(cM-30,oM+tgtM));
+      } else if(isC){
+        dep=cM; arr=r5(Math.max(oM+30,cM-tgtM));
+      } else {
+        var offset=r5(15+Math.random()*75);
+        arr=oM+offset; dep=r5(Math.min(cM-30,arr+tgtM));
       }
-      dep=Math.min(dep, arr+MAX_H); // hard cap 10h
-      if(dep-arr<MIN_H) return;
 
-      // On stocke sans pause pour l'instant
-      plan[i][d]={arrive:toT(arr),pauseS:null,pauseE:null,depart:toT(dep),repos:false,conge:false,annotation:''};
-    });
+      arr=Math.max(oM,arr);
+      dep=Math.min(cM,dep);
+      if(!isO||!isC) dep=Math.min(dep,arr+MAX_H);
+      // Cap mid-shift by weekly remaining
+      if(!isO&&!isC&&weekRem>0&&weekRem*60<dep-arr){
+        dep=Math.min(dep,arr+r5(Math.max(MIN_H,weekRem*60)));
+      }
+      if(dep-arr<MIN_H) continue;
+
+      plan[x.i][d]={arrive:toT(arr),pauseS:null,pauseE:null,depart:toT(dep),repos:false,conge:false,annotation:''};
+    }
   }
 
-  // ════════════════════════════════════════════════════════
-  // ÉTAPE 2 — Placer les pauses EN GARANTISSANT ≥2 au poste
-  //           Pour chaque jour, on trie les pauses pour ne
-  //           jamais avoir <2 personnes en même temps
-  // ════════════════════════════════════════════════════════
-  for(let d=0;d<6;d++){
-    const oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
+  // STEP 2: Assign pauses
+  for(var d=0; d<6; d++){
+    var oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
     if(!oM||!cM) continue;
 
-    // Personnes qui ont besoin d'une pause (shift > noPH)
-    const needPause=[];
-    team.forEach((emp,i)=>{
-      const s=plan[i]?.[d];
-      if(!s||s.repos||s.conge||!s.arrive) return;
-      const shiftH=(toM(s.depart)-toM(s.arrive))/60;
-      if(shiftH>noPH) needPause.push(i);
-    });
-    if(!needPause.length) continue;
+    var needPause=[];
+    for(var i=0; i<team.length; i++){
+      var s=plan[i]&&plan[i][d];
+      if(!s||s.repos||s.conge||!s.arrive) continue;
+      if((toM(s.depart)-toM(s.arrive))/60>noPH) needPause.push(i);
+    }
 
-    // Nombre total de personnes présentes à chaque instant
-    const countAtTime=(t)=>{
-      let n=0;
-      team.forEach((_,i)=>{
-        const s=plan[i]?.[d];
-        if(!s||s.repos||s.conge||!s.arrive) return;
-        if(t>=toM(s.arrive)&&t<toM(s.depart)) n++;
-      });
-      return n;
-    };
+    needPause.sort(function(a,b){ return toM(plan[a][d].arrive)-toM(plan[b][d].arrive); });
 
-    // Placer les pauses une par une en cherchant le créneau
-    // qui laisse ≥2 personnes en poste
-    needPause.forEach(i=>{
-      const s=plan[i][d];
-      const arr=toM(s.arrive), dep=toM(s.depart);
-      const shiftH=(dep-arr)/60;
-      const pH=pMinH+Math.random()*(Math.min(pMaxH, shiftH-3)-pMinH);
-      const pM=r5(Math.max(pMinH*60, pH*60));
+    for(var ni=0; ni<needPause.length; ni++){
+      var pi=needPause[ni];
+      var s=plan[pi][d];
+      var arr=toM(s.arrive), dep=toM(s.depart);
+      var shiftH=(dep-arr)/60;
+      var pH=Math.min(pMaxH,Math.max(pMinH,pMinH+(shiftH-noPH)*0.2));
+      var pM=r5(pH*60);
+      var minPS=r5(Math.max(arr+90,pSMinV));
+      var maxPS=r5(Math.min(dep-pM-90,pEMaxV-pM));
+      if(maxPS<minPS){ minPS=r5(Math.max(arr+60,pSMinV)); maxPS=r5(dep-pM-60); }
+      if(maxPS<minPS) continue;
 
-      // Fenêtre valide pour la pause
-      const winStart=r5(Math.max(arr+180, pSMin));
-      const winEnd  =r5(Math.min(dep-pM-180, pEMax-pM));
-      if(winEnd<winStart){
-        // Shift trop court pour une pause correcte → pas de pause
-        return;
-      }
-
-      // Chercher le créneau optimal : ≥2 autres au poste pendant toute la pause
-      let bestStart=winStart, bestScore=-1;
-      for(let ps=winStart; ps<=winEnd; ps+=5){
-        const pe=ps+pM;
-        // Vérifier que sur TOUTE la plage [ps, pe] il y a ≥2 autres au poste
-        let minOthers=999;
-        for(let t=ps; t<pe; t+=5){
-          // Compter sans compter la personne i elle-même pendant sa pause
-          let others=0;
-          team.forEach((_,i2)=>{
-            if(i2===i) return;
-            const s2=plan[i2]?.[d];
-            if(!s2||s2.repos||s2.conge||!s2.arrive) return;
-            // i2 n'est pas en pause à t (pause pas encore assignée pour les autres)
+      var bestPS=minPS, bestScore=-9999;
+      for(var ps=minPS; ps<=maxPS; ps+=5){
+        var pe=ps+pM;
+        var minW=999, valid=true;
+        for(var t=ps; t<pe; t+=5){
+          var w=0;
+          for(var i2=0; i2<team.length; i2++){
+            if(i2===pi) continue;
+            var s2=plan[i2]&&plan[i2][d];
+            if(!s2||s2.repos||s2.conge||!s2.arrive) continue;
             if(t>=toM(s2.arrive)&&t<toM(s2.depart)){
-              if(!(s2.pauseS&&s2.pauseE&&t>=toM(s2.pauseS)&&t<toM(s2.pauseE))) others++;
+              if(!(s2.pauseS&&s2.pauseE&&t>=toM(s2.pauseS)&&t<toM(s2.pauseE))) w++;
             }
-          });
-          minOthers=Math.min(minOthers,others);
+          }
+          if(w<2){valid=false;break;}
+          if(w<minW) minW=w;
         }
-        // Score: préférer ≥2 autres, puis midi
-        const score = minOthers>=2 ? (minOthers*100 - Math.abs(ps-toM('12:00'))) : minOthers;
-        if(score>bestScore){ bestScore=score; bestStart=ps; }
+        if(!valid) continue;
+        // Penalize overlap with already-assigned pauses
+        var overlap=0;
+        for(var k=0; k<ni; k++){
+          var sk=plan[needPause[k]][d];
+          if(sk&&sk.pauseS&&sk.pauseE){
+            if(ps<toM(sk.pauseE)&&pe>toM(sk.pauseS)) overlap++;
+          }
+        }
+        var score=minW*200-overlap*500-Math.abs(ps-toM('12:00'))/5;
+        if(score>bestScore){ bestScore=score; bestPS=ps; }
       }
-
-      s.pauseS=toT(bestStart);
-      s.pauseE=toT(bestStart+pM);
-    });
+      if(bestScore>-9999){
+        s.pauseS=toT(bestPS); s.pauseE=toT(bestPS+pM);
+      }
+    }
   }
 
-  // ════════════════════════════════════════════════════════
-  // ÉTAPE 3 — Équilibrer les heures au contrat
-  // ════════════════════════════════════════════════════════
-  const pCapM=r5(pMaxH*60);
-  team.forEach((emp,i)=>{
-    let tot=totalH(i);
-    const target=emp.hours;
-    if(tot<=target+0.1) return;
-
-    // Allonger les pauses d'abord
-    const pDays=[];
-    for(let d=0;d<6;d++){
-      const s=plan[i]?.[d];
-      if(s&&!s.repos&&!s.conge&&s.pauseS&&s.pauseE)
-        pDays.push({d,pM:toM(s.pauseE)-toM(s.pauseS),s});
+  // STEP 3: Balance hours
+  var pCapM=r5(pMaxH*60);
+  for(var i=0; i<team.length; i++){
+    var tot=totalH(i), target=team[i].hours;
+    if(tot<=target+0.5) continue;
+    var wDays=[];
+    for(var d=0; d<6; d++){
+      var s=plan[i]&&plan[i][d];
+      if(s&&s.arrive&&!s.repos&&!s.conge) wDays.push({d:d,s:s,h:slotH(s)});
     }
-    pDays.sort((a,b)=>a.pM-b.pM);
-    for(const{s,pM:pM2}of pDays){
-      if(tot<=target+0.1) break;
-      const ovM=r5(Math.ceil((tot-target)*60));
-      const addM=Math.min(pCapM-pM2,ovM);
-      if(addM<5) continue;
-      let nps=toM(s.pauseS), npe=toM(s.pauseE)+addM;
-      const dep=toM(s.depart);
-      if(npe>dep-180){const sh=npe-(dep-180);npe-=sh;nps=Math.max(toM(s.arrive)+180,nps-sh);}
-      // Vérifier que ≥2 toujours en poste pendant la nouvelle pause
-      let ok=true;
-      for(let t=nps;t<npe;t+=5){
-        let others=0;
-        team.forEach((_,i2)=>{
-          if(i2===i) return;
-          const s2=plan[i2]?.[d];
-          if(!s2||s2.repos||s2.conge||!s2.arrive) return;
-          if(t>=toM(s2.arrive)&&t<toM(s2.depart)){
-            if(!(s2.pauseS&&s2.pauseE&&t>=toM(s2.pauseS)&&t<toM(s2.pauseE))) others++;
+    wDays.sort(function(a,b){ return b.h-a.h; });
+    for(var wi=0; wi<wDays.length; wi++){
+      if(totalH(i)<=target+0.5) break;
+      var wd=wDays[wi], s=wd.s, d=wd.d;
+      var ovM=r5((totalH(i)-target)*60);
+      var curW=r5(slotH(s)*60), minW2=r5(4*60);
+      var canRed=Math.min(ovM,curW-minW2);
+      if(canRed<5) continue;
+      // Extend pause first
+      if(s.pauseS&&s.pauseE){
+        var curPM=toM(s.pauseE)-toM(s.pauseS);
+        var addP=Math.min(pCapM-curPM,canRed);
+        if(addP>=5){
+          var nps=toM(s.pauseS), npe=toM(s.pauseE)+addP, dep2=toM(s.depart);
+          if(npe>dep2-60){var sh=npe-(dep2-60);npe-=sh;nps=Math.max(toM(s.arrive)+60,nps-sh);}
+          s.pauseS=toT(r5(nps)); s.pauseE=toT(r5(npe));
+        }
+      }
+      if(totalH(i)<=target+0.5) continue;
+      // Shorten shift
+      var cM2=toM(CLOSE[d]), oM2=toM(OPEN[d]);
+      var isC2=cM2&&toM(s.depart)>=cM2-5;
+      var isO2=oM2&&toM(s.arrive)<=oM2+5;
+      if(isC2){
+        var newArr=r5(toM(s.arrive)+canRed);
+        var maxArr=toM(s.depart)-(s.pauseE?toM(s.pauseE)-toM(s.pauseS):0)-minW2;
+        if(!isO2||newArr>oM2+5){
+          // Check other openers
+          var otherOp=0;
+          for(var ii=0; ii<team.length; ii++){
+            if(ii===i) continue;
+            var s3=plan[ii]&&plan[ii][d];
+            if(s3&&s3.arrive&&!s3.repos&&!s3.conge&&toM(s3.arrive)<=oM2+5) otherOp++;
           }
-        });
-        if(others<2){ok=false;break;}
-      }
-      if(ok){s.pauseS=toT(r5(nps));s.pauseE=toT(r5(npe));tot=totalH(i);}
-    }
-
-    // Raccourcir les départs si encore trop d'heures
-    if(tot>target+0.1){
-      const sDays=[];
-      for(let d=0;d<6;d++){
-        const s=plan[i]?.[d];
-        if(s?.arrive&&!s.repos&&!s.conge) sDays.push({d,len:toM(s.depart)-toM(s.arrive),s});
-      }
-      sDays.sort((a,b)=>b.len-a.len);
-      for(const{s}of sDays){
-        if(tot<=target+0.1) break;
-        const ovM=r5(Math.ceil((tot-target)*60));
-        const nd=r5(toM(s.depart)-ovM);
-        const minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+180;
-        if(nd>=minD){s.depart=toT(nd);tot=totalH(i);}
+          var minO2b=(d===0||d===2||d===4)?mLMV:mMJS;
+          if(otherOp>=minO2b&&newArr<=maxArr){
+            s.arrive=toT(newArr);
+            if(s.pauseS&&toM(s.pauseS)<newArr+60) s.pauseS=toT(r5(newArr+60));
+          }
+        }
+      } else {
+        var nd=r5(toM(s.depart)-canRed);
+        var minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;
+        if(nd>=minD) s.depart=toT(nd);
       }
     }
-  });
+  }
 
-  // ════════════════════════════════════════════════════════
-  // ÉTAPE 4 — Vérification finale STRICTE
-  //           Toute violation restante est corrigée de force
-  // ════════════════════════════════════════════════════════
-  for(let d=0;d<6;d++){
-    const oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
+  // STEP 4: Enforce open/close minimums
+  for(var d=0; d<6; d++){
+    var oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
     if(!oM||!cM) continue;
-    const isLMV=[0,2,4].includes(d);
-    const minO=isLMV?mLMV:mMJS;
-
-    // 4a — Vérifier fermeture
-    const closers=team.filter((_,i)=>{
-      const s=plan[i]?.[d];
-      return s&&s.depart&&!s.repos&&!s.conge&&toM(s.depart)>=cM-5;
-    });
-    if(closers.length<mCl){
-      // Étendre les départs les plus proches de la fermeture
-      const candidates=[];
-      team.forEach((emp,i)=>{
-        const s=plan[i]?.[d];
-        if(!s||!s.arrive||s.repos||s.conge) return;
-        if(toM(s.depart)>=cM-5) return;
-        candidates.push({emp,i,s,gap:cM-toM(s.depart)});
-      });
-      candidates.sort((a,b)=>a.gap-b.gap); // les plus proches d'abord
-      let needed=mCl-closers.length;
-      for(const{i,s}of candidates){
-        if(needed<=0) break;
-        // Étendre jusqu'à fermeture ET reculer l'arrivée pour garder les mêmes heures
-        const pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
-        const wM2=toM(s.depart)-toM(s.arrive)-pM2;
-        const nArr=r5(Math.max(oM, cM-wM2-pM2));
-        s.arrive=toT(nArr); s.depart=toT(cM);
+    var isLMV=(d===0||d===2||d===4);
+    var minO=isLMV?mLMV:mMJS;
+    // Fix closers
+    var clCount=0;
+    for(var i=0; i<team.length; i++){
+      var s=plan[i]&&plan[i][d];
+      if(s&&s.depart&&!s.repos&&!s.conge&&toM(s.depart)>=cM-5) clCount++;
+    }
+    if(clCount<mClV){
+      var cands=[];
+      for(var i=0; i<team.length; i++){
+        var s=plan[i]&&plan[i][d];
+        if(!s||!s.arrive||s.repos||s.conge||toM(s.depart)>=cM-5) continue;
+        cands.push({i:i,s:s,canClose:team[i].canClose,gap:cM-toM(s.depart)});
+      }
+      cands.sort(function(a,b){ return (b.canClose?1:0)-(a.canClose?1:0)||a.gap-b.gap; });
+      for(var ci=0; ci<cands.length&&clCount<mClV; ci++){
+        var cd=cands[ci], s=cd.s;
+        var pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
+        var wM2=toM(s.depart)-toM(s.arrive)-pM2;
+        var nA=r5(Math.max(oM,cM-wM2-pM2));
+        s.arrive=toT(nA); s.depart=toT(cM);
         if(s.pauseS&&s.pauseE){
-          let nps=toM(s.pauseS);
-          if(nps<nArr+180) nps=nArr+180;
-          if(nps+pM2>cM-180) nps=cM-pM2-180;
+          var nps=toM(s.pauseS);
+          if(nps<nA+90) nps=nA+90;
+          if(nps+pM2>cM-90) nps=cM-pM2-90;
           s.pauseS=toT(r5(nps)); s.pauseE=toT(r5(nps+pM2));
         }
-        needed--;
+        clCount++;
       }
     }
-
-    // 4b — Vérifier ouverture
-    const openers=team.filter((_,i)=>{
-      const s=plan[i]?.[d];
-      return s&&s.arrive&&!s.repos&&!s.conge&&toM(s.arrive)<=oM+5;
-    });
-    if(openers.length<minO){
-      const candidates=[];
-      team.forEach((emp,i)=>{
-        const s=plan[i]?.[d];
-        if(!s||!s.arrive||s.repos||s.conge) return;
-        if(toM(s.arrive)<=oM+5) return;
-        candidates.push({emp,i,s});
-      });
-      candidates.sort((a,b)=>toM(a.s.arrive)-toM(b.s.arrive));
-      let needed=minO-openers.length;
-      for(const{i,s}of candidates){
-        if(needed<=0) break;
-        const pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
-        const wM2=toM(s.depart)-toM(s.arrive)-pM2;
+    // Fix openers
+    var opCount=0;
+    for(var i=0; i<team.length; i++){
+      var s=plan[i]&&plan[i][d];
+      if(s&&s.arrive&&!s.repos&&!s.conge&&toM(s.arrive)<=oM+5) opCount++;
+    }
+    if(opCount<minO){
+      var cands2=[];
+      for(var i=0; i<team.length; i++){
+        var s=plan[i]&&plan[i][d];
+        if(!s||!s.arrive||s.repos||s.conge||toM(s.arrive)<=oM+5) continue;
+        cands2.push({i:i,s:s,canOpen:team[i].canOpen,arr:toM(s.arrive)});
+      }
+      cands2.sort(function(a,b){ return (b.canOpen?1:0)-(a.canOpen?1:0)||a.arr-b.arr; });
+      for(var ci=0; ci<cands2.length&&opCount<minO; ci++){
+        var cd=cands2[ci], s=cd.s;
+        var pM3=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
+        var wM3=toM(s.depart)-toM(s.arrive)-pM3;
         s.arrive=toT(oM);
-        s.depart=toT(r5(Math.min(cM, oM+wM2+pM2)));
+        s.depart=toT(r5(Math.min(cM,oM+wM3+pM3)));
         if(s.pauseS&&s.pauseE){
-          let nps=toM(s.pauseS);
-          if(nps<oM+180) nps=oM+180;
-          s.pauseS=toT(r5(nps)); s.pauseE=toT(r5(nps+pM2));
+          var nps2=toM(s.pauseS);
+          if(nps2<oM+90) nps2=oM+90;
+          s.pauseS=toT(r5(nps2)); s.pauseE=toT(r5(nps2+pM3));
         }
-        needed--;
+        opCount++;
       }
     }
+  }
 
-    // 4c — Vérification finale pause : JAMAIS SEUL
-    for(let t=oM;t<cM;t+=5){
-      let working=0; const onPause=[];
-      team.forEach((_,i)=>{
-        const s=plan[i]?.[d];
-        if(!s||s.repos||s.conge||!s.arrive) return;
-        if(t>=toM(s.arrive)&&t<toM(s.depart)){
-          if(s.pauseS&&s.pauseE&&t>=toM(s.pauseS)&&t<toM(s.pauseE)) onPause.push(i);
-          else working++;
+  // STEP 5: Fix pause violations (JAMAIS SEUL)
+  for(var d=0; d<6; d++){
+    var oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
+    if(!oM||!cM) continue;
+    for(var pass=0; pass<15; pass++){
+      var vioT=-1, vioP=[];
+      for(var t=oM; t<cM; t+=5){
+        var w=0, op=[];
+        for(var i=0; i<team.length; i++){
+          var s=plan[i]&&plan[i][d];
+          if(!s||s.repos||s.conge||!s.arrive) continue;
+          if(t>=toM(s.arrive)&&t<toM(s.depart)){
+            if(s.pauseS&&s.pauseE&&t>=toM(s.pauseS)&&t<toM(s.pauseE)) op.push(i);
+            else w++;
+          }
         }
-      });
-      if(working<2&&onPause.length>0){
-        // Forcer la suppression des pauses en conflit
-        for(const ei of onPause){
-          plan[ei][d].pauseS=null;
-          plan[ei][d].pauseE=null;
-        }
+        if(op.length>0&&w<2){vioT=t;vioP=op;break;}
       }
+      if(vioT<0) break;
+      var fixed=false;
+      for(var oi=vioP.length-1; oi>=0; oi--){
+        var pi=vioP[oi], sp=plan[pi][d];
+        if(!sp||!sp.pauseS) continue;
+        var pDur=toM(sp.pauseE)-toM(sp.pauseS);
+        var best=-1, bSc=-9999;
+        for(var nps=r5(toM(sp.arrive)+60); nps<=r5(toM(sp.depart)-pDur-60); nps+=5){
+          var npe=nps+pDur;
+          if(npe>toM(sp.depart)-60) continue;
+          var minW2=999, ok=true;
+          for(var t2=nps; t2<npe; t2+=5){
+            var w2=0;
+            for(var i2=0; i2<team.length; i2++){
+              if(i2===pi) continue;
+              var s2=plan[i2]&&plan[i2][d];
+              if(!s2||s2.repos||s2.conge||!s2.arrive) continue;
+              if(t2>=toM(s2.arrive)&&t2<toM(s2.depart)){
+                if(!(s2.pauseS&&s2.pauseE&&t2>=toM(s2.pauseS)&&t2<toM(s2.pauseE))) w2++;
+              }
+            }
+            if(w2<2){ok=false;break;}
+            if(w2<minW2) minW2=w2;
+          }
+          if(!ok) continue;
+          var sc=minW2*100-Math.abs(nps-toM('12:30'))/10;
+          if(sc>bSc){bSc=sc;best=nps;}
+        }
+        if(best>=0){sp.pauseS=toT(best);sp.pauseE=toT(best+pDur);}
+        else{sp.pauseS=null;sp.pauseE=null;}
+        fixed=true;break;
+      }
+      if(!fixed) break;
     }
   }
 
   renderPlan();
   renderGantt();
-  toast('⚡ Planning généré — contraintes garanties !');
+  toast("Planning genere !");
   showTab('planning', document.querySelectorAll('.tab')[1]);
 }
 
@@ -977,8 +1015,8 @@ function goPlanning(){updateWType();initPlan();renderPlan();renderGantt();showTa
 
 function renderPlan(){
   const wrap=document.getElementById('tblWrap');if(!wrap)return;
-  let h=`<table class="ptbl"><thead><tr><th class="col-emp">Employé</th>`;
-  for(let d=0;d<7;d++){const o=OPEN[d],cl=CLOSE[d];h+=`<th class="day-hdr" style="min-width:130px;"><div class="dn">${DAYS[d].slice(0,3).toUpperCase()}</div><div class="dh">${o?`${o}–${cl}`:'Fermé'}</div></th>`;}
+  let h=`<table class="ptbl"><thead><tr><th class="col-emp">Employe</th>`;
+  for(let d=0;d<7;d++){const o=OPEN[d],cl=CLOSE[d];h+=`<th class="day-hdr" style="min-width:130px;"><div class="dn">${DAYS[d].slice(0,3).toUpperCase()}</div><div class="dh">${o?`${o}–${cl}`:'Ferme'}</div></th>`;}
   h+=`<th style="min-width:80px;font-size:10px;">Total</th></tr></thead><tbody>`;
   team.forEach((emp,i)=>{
     const tot=totalH(i),diff=Math.round((tot-emp.hours)*100)/100;
@@ -991,10 +1029,10 @@ function renderPlan(){
       <span style="font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;">${emp.hours}:00/sem</span>
     </div></td>`;
     for(let d=0;d<7;d++){
-      if(d===6){h+=`<td class="cell c-closed"><div class="ci-box"><span style="font-size:9px;color:var(--t3);">Fermé</span></div></td>`;continue;}
+      if(d===6){h+=`<td class="cell c-closed"><div class="ci-box"><span style="font-size:9px;color:var(--t3);">Ferme</span></div></td>`;continue;}
       const sl=plan[i]?.[d];let cls='cell ',inner='';
       if(!sl||sl.repos){cls+='c-repos';inner=`<span class="st">REPOS</span>`;}
-      else if(sl.conge){cls+='c-conge';inner=`<span class="st">🌿 CONGÉ</span><span class="sp">${fmtH(congeH(d))} comptées</span>`;}
+      else if(sl.conge){cls+='c-conge';inner=`<span class="st">🌿 CONGE</span><span class="sp">${fmtH(congeH(d))} comptees</span>`;}
       else if(sl.arrive){
         cls+='c-work';const wh=slotH(sl);const an=sl.annotation?`<span class="sa2">${sl.annotation}</span>`:'';
         const pcol=PCOL[team[i].poste]||'#2563eb';
@@ -1022,7 +1060,7 @@ function renderPlan(){
 function buildCnt(){
   const ml=cfg('minLMV')||4,mm=cfg('minMJS')||3,mc=cfg('minClose')||3;
   let r0=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">🔓 Ouv.</td>`;
-  let r1=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">👥 Présents</td>`;
+  let r1=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">👥 Presents</td>`;
   let r2=`<tr class="cnt"><td class="col-emp" style="text-align:left;padding-left:8px;font-size:10px;">🔒 Ferm.</td>`;
   for(let d=0;d<7;d++){
     if(d===6){r0+=`<td>—</td>`;r1+=`<td>—</td>`;r2+=`<td>—</td>`;continue;}
@@ -1041,7 +1079,7 @@ const cntClose=d=>{const c=CLOSE[d];if(!c)return 0;const cM=toM(c);return team.f
 // ═══ GANTT ═══
 function renderGantt(){
   const wrap=document.getElementById('ganttWrap');if(!wrap)return;
-  if(!Object.keys(plan).length){wrap.innerHTML=`<p style="color:var(--t3);padding:20px;">Générez d'abord un planning.</p>`;return;}
+  if(!Object.keys(plan).length){wrap.innerHTML=`<p style="color:var(--t3);padding:20px;">Generez d'abord un planning.</p>`;return;}
   const GS=7*60,GE=20*60,GR=GE-GS,pct=m=>((m-GS)/GR*100).toFixed(2);
   let h='';
   for(let d=0;d<6;d++){
@@ -1144,7 +1182,7 @@ function calcModal(){
   const ps=document.getElementById('mPauseS').value,pe=document.getElementById('mPauseE').value;
   if(!ps||!pe){info.textContent='';return;}
   const w=Math.max(0,(toM(dep)-toM(a)-(toM(pe)-toM(ps))))/60,p=(toM(pe)-toM(ps))/60;
-  info.textContent=`⏱ ${fmtH(w)} travaillées · pause ${fmtH(p)}`;
+  info.textContent=`⏱ ${fmtH(w)} travaillees · pause ${fmtH(p)}`;
 }
 function saveModal(){
   if(!mTarget)return;const{i,d}=mTarget;const anno=document.getElementById('mAnno').value.trim();
@@ -1157,7 +1195,7 @@ function saveModal(){
 // ═══ RECAP ═══
 function renderRecap(){
   const el=document.getElementById('recapWrap');if(!el)return;
-  if(!Object.keys(plan).length){el.innerHTML=`<p style="color:var(--t3)">Générez d'abord un planning.</p>`;return;}
+  if(!Object.keys(plan).length){el.innerHTML=`<p style="color:var(--t3)">Generez d'abord un planning.</p>`;return;}
   let h=`<div class="rcards">`;
   team.forEach((emp,i)=>{
     const tot=totalH(i),diff=Math.round((tot-emp.hours)*100)/100;
@@ -1174,13 +1212,13 @@ function renderRecap(){
 }
 
 // ═══ FAVORITES ═══
-function openFavModal(){if(!Object.keys(plan).length){toast("⚠ Générez dabord un planning");return;}document.getElementById('favName').value=`Sem.${curWeek?.split('W')[1]||''} — ${wType}`;document.getElementById('overlayFav').classList.add('on');}
+function openFavModal(){if(!Object.keys(plan).length){toast("⚠ Generez dabord un planning");return;}document.getElementById('favName').value=`Sem.${curWeek?.split('W')[1]||''} — ${wType}`;document.getElementById('overlayFav').classList.add('on');}
 function closeFavModal(){document.getElementById('overlayFav').classList.remove('on');}
 function confirmFav(){
   const name=document.getElementById('favName').value.trim()||`Favori ${Date.now()}`;
   const favs=JSON.parse(localStorage.getItem('ppFavs')||'[]');
   favs.unshift({id:Date.now(),name,week:curWeek,wType,date:new Date().toLocaleDateString('fr-FR'),team:JSON.parse(JSON.stringify(team)),plan:JSON.parse(JSON.stringify(plan))});
-  localStorage.setItem('ppFavs',JSON.stringify(favs));closeFavModal();renderFavs();toast(`★ "${name}" sauvegardé !`);
+  localStorage.setItem('ppFavs',JSON.stringify(favs));closeFavModal();renderFavs();toast(`★ "${name}" sauvegarde !`);
 }
 function renderFavs(){
   const el=document.getElementById('favsList'),em=document.getElementById('favsEmpty');if(!el)return;
@@ -1197,7 +1235,7 @@ function loadFav(id){
   team=fav.team;plan=fav.plan;curWeek=fav.week;wType=fav.wType;
   setWPickers(curWeek);updateWType();
   document.getElementById('teamSize').value=team.length;document.getElementById('stepDisplay').textContent=team.length;
-  updBadges();renderTeam();renderPlan();renderGantt();showTab('planning',document.querySelectorAll('.tab')[1]);toast(`✓ "${fav.name}" chargé !`);
+  updBadges();renderTeam();renderPlan();renderGantt();showTab('planning',document.querySelectorAll('.tab')[1]);toast(`✓ "${fav.name}" charge !`);
 }
 function delFav(id){let favs=JSON.parse(localStorage.getItem('ppFavs')||'[]').filter(f=>f.id!==id);localStorage.setItem('ppFavs',JSON.stringify(favs));renderFavs();}
 
@@ -1218,12 +1256,12 @@ function openGanttColorPicker(empIdx){
     <div style="display:flex;flex-direction:column;gap:10px;">
       <div><label style="font-size:11px;color:#8aaccc;display:block;margin-bottom:4px;">🌅 Matin (avant 14h)</label>
       <select id="gcMatin" style="width:100%;background:#1e3350;border:1px solid #2a4060;border-radius:7px;padding:8px;color:#f0f4f8;font-size:13px;-webkit-appearance:none;">${opts}</select></div>
-      <div><label style="font-size:11px;color:#8aaccc;display:block;margin-bottom:4px;">🌆 Après-midi (après 14h)</label>
+      <div><label style="font-size:11px;color:#8aaccc;display:block;margin-bottom:4px;">🌆 Apres-midi (apres 14h)</label>
       <select id="gcApmidi" style="width:100%;background:#1e3350;border:1px solid #2a4060;border-radius:7px;padding:8px;color:#f0f4f8;font-size:13px;-webkit-appearance:none;">${opts2}</select></div>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
       <button onclick="this.closest('[style*=fixed]').remove()" style="padding:8px 14px;background:#1e3350;color:#8aaccc;border:1px solid #2a4060;border-radius:7px;cursor:pointer;font-family:Syne,sans-serif;font-size:11px;font-weight:700;">Annuler</button>
-      <button onclick="saveGanttColor(${empIdx},this)" style="padding:8px 14px;background:#1e4fc2;color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:Syne,sans-serif;font-size:11px;font-weight:700;">✓ Valider</button>
+      <button onclick="saveGanttColor(${empIdx},this)" style="padding:8px 14px;background:#1e40af;color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:Syne,sans-serif;font-size:11px;font-weight:700;">✓ Valider</button>
     </div>
   </div>`;
   document.body.appendChild(div);
@@ -1289,8 +1327,8 @@ function exportExcel(){
 function exportPDF(){
   const cur=document.querySelector('.pg.on');
   const isGantt=cur?.id==='pg-gantt';
-  if(isGantt&&!document.getElementById('ganttWrap')?.innerHTML?.trim()){toast("⚠ Générez dabord un planning");return;}
-  if(!isGantt&&!document.getElementById('tblWrap')?.innerHTML?.trim()){toast("⚠ Générez dabord un planning");return;}
+  if(isGantt&&!document.getElementById('ganttWrap')?.innerHTML?.trim()){toast("⚠ Generez dabord un planning");return;}
+  if(!isGantt&&!document.getElementById('tblWrap')?.innerHTML?.trim()){toast("⚠ Generez dabord un planning");return;}
   window.print();
 }
 
