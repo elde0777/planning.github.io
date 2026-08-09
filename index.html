@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -23,18 +22,18 @@
 html,body{background:#f0f4f8!important;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;-webkit-text-size-adjust:100%;}
 
 /* HEADER */
-.hdr{background:#fff!important;border-bottom:1px solid var(–bor);position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06);}
-.hdr-row1{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;gap:8px;border-bottom:1px solid var(–bor);}
+.hdr{background:#fff!important;border-bottom:1px solid var(--bor);position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06);}
+.hdr-row1{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;gap:8px;border-bottom:1px solid var(--bor);}
 .hdr-row2{display:flex;align-items:center;padding:0;}
-.bio-wordmark{font-family:‘Syne’,sans-serif;font-size:16px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(–txt);}
+.bio-wordmark{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--txt);}
 .hdr-utils{display:flex;gap:5px;align-items:center;}
-.btn-autofill{flex:1;background:#1e40af!important;color:#fff!important;font-family:‘Syne’,sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;border:none;padding:11px 0;cursor:pointer;text-align:center;touch-action:manipulation;text-transform:uppercase;}
+.btn-autofill{flex:1;background:#1e40af!important;color:#fff!important;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;border:none;padding:11px 0;cursor:pointer;text-align:center;touch-action:manipulation;text-transform:uppercase;}
 .btn-autofill:active{opacity:.85;}
 
 /* TABS */
-.tabs{display:flex;background:#fff!important;border-bottom:1px solid var(–bor);overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.tab{padding:11px 16px;font-family:‘DM Sans’,sans-serif;font-size:12px;font-weight:500;letter-spacing:.01em;text-transform:none;border:none;background:transparent;color:var(–t2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0;-webkit-appearance:none;transition:color .15s,border-color .15s;}
-.tab.on{color:var(–bio-blue);border-bottom-color:var(–bio-blue);font-weight:600;}
+.tabs{display:flex;background:#fff!important;border-bottom:1px solid var(--bor);overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tab{padding:11px 16px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.01em;text-transform:none;border:none;background:transparent;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0;-webkit-appearance:none;transition:color .15s,border-color .15s;}
+.tab.on{color:var(--bio-blue);border-bottom-color:var(--bio-blue);font-weight:600;}
 
 /* PAGES */
 .pg{display:none;flex-direction:column;min-height:calc(100vh - 96px);}
@@ -49,159 +48,158 @@ html,body{background:#f0f4f8!important;color:var(--txt);font-family:'DM Sans',sa
 @media(max-width:700px){.split{flex-direction:column;}.split-l{width:100%;min-width:0;}}
 
 /* PANELS */
-.panel{background:#fff!important;border:1px solid var(–bor)!important;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);}
-.ph{padding:9px 14px;font-family:‘DM Sans’,sans-serif;font-size:11px;font-weight:600;letter-spacing:.03em;color:var(–t2);background:#f8fafc!important;border-bottom:1px solid var(–bor)!important;display:flex;align-items:center;justify-content:space-between;}
+.panel{background:#fff!important;border:1px solid var(--bor)!important;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.ph{padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--t2);background:#f8fafc!important;border-bottom:1px solid var(--bor)!important;display:flex;align-items:center;justify-content:space-between;}
 .pb{padding:12px;display:flex;flex-direction:column;gap:9px;}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .fld{display:flex;flex-direction:column;gap:3px;}
 
 /* INPUTS */
-label{font-size:11px;color:var(–t2);}
-input[type=text],input[type=date],input[type=week],select{background:#fff!important;border:1px solid var(–bor)!important;border-radius:7px;padding:9px 10px;color:var(–txt);font-family:‘DM Sans’,sans-serif;font-size:13px;outline:none;-webkit-appearance:none;width:100%;transition:border-color .2s;}
-input:focus,select:focus{border-color:var(–bio-orange)!important;}
-select option{background:#fff;color:var(–txt);}
+label{font-size:11px;color:var(--t2);}
+input[type=text],input[type=date],input[type=week],select{background:#fff!important;border:1px solid var(--bor)!important;border-radius:7px;padding:9px 10px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;-webkit-appearance:none;width:100%;transition:border-color .2s;}
+input:focus,select:focus{border-color:var(--bio-orange)!important;}
+select option{background:#fff;color:var(--txt);}
 
 /* STEPPER */
-.stepper{display:flex;align-items:stretch;border:1px solid var(–bor);border-radius:8px;overflow:hidden;}
-.step-btn{width:52px;min-width:52px;background:#f8fafc;color:var(–txt);border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:10px 0;user-select:none;-webkit-user-select:none;touch-action:manipulation;flex-shrink:0;}
+.stepper{display:flex;align-items:stretch;border:1px solid var(--bor);border-radius:8px;overflow:hidden;}
+.step-btn{width:52px;min-width:52px;background:#f8fafc;color:var(--txt);border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:10px 0;user-select:none;-webkit-user-select:none;touch-action:manipulation;flex-shrink:0;}
 .step-btn:active{background:#1e40af;color:#fff;}
-.step-val{flex:1;text-align:center;font-family:‘DM Mono’,monospace;font-size:22px;font-weight:700;color:var(–txt);background:#fff;border-left:1px solid var(–bor);border-right:1px solid var(–bor);display:flex;align-items:center;justify-content:center;padding:10px 0;}
+.step-val{flex:1;text-align:center;font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--txt);background:#fff;border-left:1px solid var(--bor);border-right:1px solid var(--bor);display:flex;align-items:center;justify-content:center;padding:10px 0;}
 
 /* BUTTONS */
-.btn{padding:10px 16px;border-radius:8px;border:none;cursor:pointer;font-family:‘Syne’,sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;-webkit-appearance:none;}
+.btn{padding:10px 16px;border-radius:8px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;-webkit-appearance:none;}
 .btn-p{background:#1e40af!important;color:#fff!important;}
-.btn-s{background:#fff;color:var(–t2);border:1px solid var(–bor);}
-.btn-g{background:rgba(120,184,51,.2);color:var(–bio-green);border:1px solid rgba(120,184,51,.3);}
-.btn-r{background:var(–red);color:#fff;}
+.btn-s{background:#fff;color:var(--t2);border:1px solid var(--bor);}
+.btn-g{background:rgba(120,184,51,.2);color:var(--bio-green);border:1px solid rgba(120,184,51,.3);}
+.btn-r{background:var(--red);color:#fff;}
 .btn-grad{background:#1e40af!important;color:#fff!important;}
 .btn-full{width:100%;justify-content:center;}
 .btn-sm{padding:6px 10px;font-size:10px;}
 
 /* CHIPS / BADGES */
-.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-family:‘DM Mono’,monospace;}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;}
 .chip-i{background:#fef3c7;color:#92400e;border:1px solid #fde68a;}
-.wbadge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:‘Syne’,sans-serif;}
+.wbadge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;}
 .wb-a{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;}
 .wb-b{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;}
 .pb-SA{background:#dbeafe;color:#1e40af;}
 .pb-VRAC{background:#fce7f3;color:#9d174d;}
 .pb-BOISSON{background:#fef3c7;color:#92400e;}
 .pb-GENERALE{background:#ede9fe;color:#5b21b6;}
-.pb-FEL{background:rgba(168,224,99,.2);color:var(–fel);}
-.poste-b{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;font-family:‘Syne’,sans-serif;}
+.pb-FEL{background:rgba(168,224,99,.2);color:var(--fel);}
+.poste-b{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;font-family:'Syne',sans-serif;}
 
 /* EMP ROWS */
-.emp-row{background:#f8fafc!important;border:1px solid var(–bor)!important;border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.emp-row{background:#f8fafc!important;border:1px solid var(--bor)!important;border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:9px;}
 .emp-top{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
 .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .day-cb{display:flex;flex-direction:column;align-items:center;gap:3px;}
-.day-cb input[type=checkbox]{accent-color:var(–bio-orange);width:16px;height:16px;}
-.day-cb span{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
+.day-cb input[type=checkbox]{accent-color:var(--bio-orange);width:16px;height:16px;}
+.day-cb span{font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;}
 .cap-row{display:flex;gap:8px;padding:7px 9px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;flex-wrap:wrap;}
-.cap-lbl{display:flex;align-items:center;gap:5px;font-size:12px;color:var(–txt);cursor:pointer;}
-.cap-lbl input{accent-color:var(–bio-orange);width:15px;height:15px;}
+.cap-lbl{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--txt);cursor:pointer;}
+.cap-lbl input{accent-color:var(--bio-orange);width:15px;height:15px;}
 .conge-block{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;padding:9px;display:flex;flex-direction:column;gap:7px;}
 .conge-row{display:flex;gap:5px;align-items:center;}
 .conge-row input[type=date]{flex:1;font-size:12px;padding:6px 8px;}
 
 /* WBAR */
-.wbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-bottom:1px solid var(–bor);flex-wrap:wrap;}
+.wbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-bottom:1px solid var(--bor);flex-wrap:wrap;}
 
 /* TABLE */
-.tbl-outer{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(–bor);border-radius:10px;}
+.tbl-outer{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--bor);border-radius:10px;}
 table.ptbl{border-collapse:collapse;white-space:nowrap;}
-table.ptbl th,table.ptbl td{border:1px solid var(–bor);text-align:center;vertical-align:middle;}
-table.ptbl thead th{background:#f8fafc;font-family:‘DM Sans’,sans-serif;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(–t2);padding:7px 5px;}
+table.ptbl th,table.ptbl td{border:1px solid var(--bor);text-align:center;vertical-align:middle;}
+table.ptbl thead th{background:#f8fafc;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--t2);padding:7px 5px;}
 .col-emp{min-width:130px;text-align:left!important;padding:0 9px!important;background:#fff!important;position:sticky;left:0;z-index:5;border-right:2px solid #1e40af!important;box-shadow:2px 0 6px rgba(0,0,0,.07);}
-.day-hdr .dn{font-size:11px;color:var(–txt);font-weight:700;}
-.day-hdr .dh{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
+.day-hdr .dn{font-size:11px;color:var(--txt);font-weight:700;}
+.day-hdr .dh{font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;}
 .cell{padding:6px 4px;min-width:125px;cursor:pointer;-webkit-tap-highlight-color:rgba(245,168,0,.2);}
 .cell:active{opacity:.7;}
 .ci-box{display:flex;flex-direction:column;align-items:center;gap:1px;}
-.st{font-family:‘DM Mono’,monospace;font-size:10px;font-weight:600;color:var(–txt);line-height:1.5;white-space:nowrap;}
-.sp{font-size:9px;color:var(–t3);font-family:‘DM Mono’,monospace;}
-.sp-pause{font-size:9px;color:#f5a800;font-family:‘DM Mono’,monospace;font-weight:600;letter-spacing:.3px;}
-.sa2{font-size:9px;color:var(–org);font-family:‘Syne’,sans-serif;font-weight:700;text-transform:uppercase;}
-.c-repos{background:#f8fafc!important;}.c-repos .st{color:var(–t3);}
-.c-conge{background:rgba(120,184,51,.1)!important;}.c-conge .st{color:var(–grn);}
+.st{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--txt);line-height:1.5;white-space:nowrap;}
+.sp{font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;}
+.sp-pause{font-size:9px;color:#f5a800;font-family:'DM Mono',monospace;font-weight:600;letter-spacing:.3px;}
+.sa2{font-size:9px;color:var(--org);font-family:'Syne',sans-serif;font-weight:700;text-transform:uppercase;}
+.c-repos{background:#f8fafc!important;}.c-repos .st{color:var(--t3);}
+.c-conge{background:rgba(120,184,51,.1)!important;}.c-conge .st{color:var(--grn);}
 .c-work{background:#fff;}
-.c-closed{background:var(–bg)!important;opacity:.3;pointer-events:none;}
-.hcell{font-family:‘DM Mono’,monospace;font-size:11px;padding:7px 5px;min-width:80px;background:#fff;}
+.c-closed{background:var(--bg)!important;opacity:.3;pointer-events:none;}
+.hcell{font-family:'DM Mono',monospace;font-size:11px;padding:7px 5px;min-width:80px;background:#fff;}
 .hok{color:#059669;}.hov{color:#1e40af;}.hun{color:#dc2626;}
-.hval{font-size:14px;font-weight:700;}.hexp{font-size:9px;color:var(–t3);}
-.cnt td{background:#f8fafc;font-family:‘DM Mono’,monospace;font-size:10px;padding:4px 3px;}
+.hval{font-size:14px;font-weight:700;}.hexp{font-size:9px;color:var(--t3);}
+.cnt td{background:#f8fafc;font-family:'DM Mono',monospace;font-size:10px;padding:4px 3px;}
 .cok{color:#059669;font-weight:700;}.clow{color:#dc2626;font-weight:700;}
 
 /* GANTT */
 .g-day{margin-bottom:20px;}
-.g-day-hdr{display:flex;align-items:center;gap:10px;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(–bor);}
-.g-day-hdr h3{font-family:‘DM Sans’,sans-serif;font-size:13px;font-weight:600;background:#1e40af;color:#fff;padding:3px 12px;border-radius:5px;}
-.g-total{font-family:‘DM Mono’,monospace;font-size:12px;color:var(–t2);margin-left:auto;}
+.g-day-hdr{display:flex;align-items:center;gap:10px;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--bor);}
+.g-day-hdr h3{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;background:#1e40af;color:#fff;padding:3px 12px;border-radius:5px;}
+.g-total{font-family:'DM Mono',monospace;font-size:12px;color:var(--t2);margin-left:auto;}
 .g-grid{min-width:700px;}
-.g-row{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(–bor);margin-bottom:1px;}
-.g-name{background:#f8fafc;padding:4px 8px;font-size:11px;font-weight:600;font-family:‘DM Sans’,sans-serif;display:flex;align-items:center;border-right:1px solid var(–bor);}
+.g-row{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(--bor);margin-bottom:1px;}
+.g-name{background:#f8fafc;padding:4px 8px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;display:flex;align-items:center;border-right:1px solid var(--bor);}
 .g-line{background:#f0f4f8;position:relative;height:26px;overflow:hidden;}
-.g-bar{position:absolute;top:2px;bottom:2px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:‘DM Mono’,monospace;font-weight:700;overflow:hidden;white-space:nowrap;padding:0 3px;}
-.g-tot{background:#f8fafc;padding:4px 6px;font-family:‘DM Mono’,monospace;font-size:11px;font-weight:600;color:#1e40af;text-align:center;display:flex;align-items:center;justify-content:center;border-left:1px solid var(–bor);}
-.g-hrow{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(–bor);margin-bottom:1px;}
+.g-bar{position:absolute;top:2px;bottom:2px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:'DM Mono',monospace;font-weight:700;overflow:hidden;white-space:nowrap;padding:0 3px;}
+.g-tot{background:#f8fafc;padding:4px 6px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#1e40af;text-align:center;display:flex;align-items:center;justify-content:center;border-left:1px solid var(--bor);}
+.g-hrow{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(--bor);margin-bottom:1px;}
 .g-hmarks{background:#eef2f7;position:relative;height:16px;}
-.g-hm{position:absolute;top:0;height:100%;font-size:8px;color:var(–t3);display:flex;align-items:center;padding-left:2px;border-left:1px solid rgba(255,255,255,.1);}
-.g-crow{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(–bor);}
+.g-hm{position:absolute;top:0;height:100%;font-size:8px;color:var(--t3);display:flex;align-items:center;padding-left:2px;border-left:1px solid rgba(255,255,255,.1);}
+.g-crow{display:grid;grid-template-columns:90px 1fr 62px;gap:1px;background:var(--bor);}
 .g-cline{background:#eef2f7;display:flex;height:18px;}
-.g-cc{flex:1;display:flex;align-items:center;justify-content:center;font-family:‘DM Mono’,monospace;font-size:9px;font-weight:700;border-right:1px solid var(–bor);}
+.g-cc{flex:1;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;font-weight:700;border-right:1px solid var(--bor);}
 
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:none;align-items:flex-end;justify-content:center;}
-.overlay.on{display:flex;}
-.modal{background:#fff;border-radius:16px 16px 0 0;border-top:1px solid var(–bor);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px 34px;}
-@media(min-width:600px){.overlay{align-items:center;padding:20px;}.modal{border-radius:14px;border:1px solid var(–bor);}}
-.modal-handle{width:40px;height:4px;background:var(–bor);border-radius:2px;margin:0 auto 16px;}
-.modal h3{font-family:‘Syne’,sans-serif;font-size:15px;font-weight:800;margin-bottom:14px;}
+/* MODAL — panneau lateral droit */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:500;display:none;}
+.overlay.on{display:block;}
+.modal{position:fixed;top:0;right:0;bottom:0;background:#fff;border-left:1px solid var(--bor);box-shadow:-10px 0 28px rgba(15,23,42,.14);width:380px;max-width:92vw;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px 34px;transform:translateX(100%);transition:transform .22s ease;}
+.overlay.on .modal{transform:translateX(0);}
+.modal-handle{display:none;}
+.modal h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:14px;}
 .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .modal-checks{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;}
 .check-lbl{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;}
-.check-lbl input{accent-color:var(–bio-orange);width:16px;height:16px;}
+.check-lbl input{accent-color:var(--bio-orange);width:16px;height:16px;}
 .anno-strip{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
-.anno-btn{padding:6px 12px;border-radius:6px;border:1px solid var(–bor);background:var(–s3);color:var(–t2);font-size:11px;font-family:‘Syne’,sans-serif;font-weight:700;cursor:pointer;text-transform:uppercase;-webkit-appearance:none;}
-.anno-btn.on{background:rgba(245,168,0,.2);color:var(–bio-orange);border-color:var(–bio-orange);}
-.modal-info{font-size:12px;color:var(–t3);min-height:18px;margin-bottom:6px;}
+.anno-btn{padding:6px 12px;border-radius:6px;border:1px solid var(--bor);background:var(--s3);color:var(--t2);font-size:11px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;text-transform:uppercase;-webkit-appearance:none;}
+.anno-btn.on{background:rgba(245,168,0,.2);color:var(--bio-orange);border-color:var(--bio-orange);}
+.modal-info{font-size:12px;color:var(--t3);min-height:18px;margin-bottom:6px;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
 
 /* FAVS / RECAP */
-.fav-item{background:#fff;border:1px solid var(–bor);border-radius:9px;padding:12px;display:flex;align-items:center;gap:9px;}
+.fav-item{background:#fff;border:1px solid var(--bor);border-radius:9px;padding:12px;display:flex;align-items:center;gap:9px;}
 .fav-name{flex:1;font-size:13px;font-weight:600;}
-.fav-meta{font-size:10px;color:var(–t3);font-family:‘DM Mono’,monospace;margin-top:2px;}
+.fav-meta{font-size:10px;color:var(--t3);font-family:'DM Mono',monospace;margin-top:2px;}
 .rcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
-.rcard{background:#fff;border:1px solid var(–bor);border-radius:10px;padding:14px;}
-.stitle{font-family:‘DM Sans’,sans-serif;font-size:14px;font-weight:600;padding-bottom:6px;border-bottom:1.5px solid #1e40af;margin-bottom:10px;color:var(–txt);}
+.rcard{background:#fff;border:1px solid var(--bor);border-radius:10px;padding:14px;}
+.stitle{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding-bottom:6px;border-bottom:1.5px solid #1e40af;margin-bottom:10px;color:var(--txt);}
 
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;border:none;border-radius:10px;padding:11px 20px;color:#f1f5f9;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
 ::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-thumb{background:var(–bor);border-radius:2px;}
+::-webkit-scrollbar-thumb{background:var(--bor);border-radius:2px;}
 
 /* AIDE */
-.aide-section{background:#fff;border:1px solid var(–bor);border-radius:10px;margin-bottom:12px;overflow:hidden;}
-.aide-title{padding:10px 14px;font-family:‘DM Sans’,sans-serif;font-size:12px;font-weight:600;color:var(–txt);background:#f8fafc;border-bottom:1px solid var(–bor);}
+.aide-section{background:#fff;border:1px solid var(--bor);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.aide-title{padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--txt);background:#f8fafc;border-bottom:1px solid var(--bor);}
 .aide-body{padding:10px 14px;display:flex;flex-direction:column;gap:8px;}
-.aide-item{font-size:12px;color:var(–t2);line-height:1.6;}
-.aide-item strong{color:var(–txt);}
-.aide-tag{display:inline-block;background:rgba(245,168,0,.15);color:var(–bio-orange);border:1px solid rgba(245,168,0,.3);border-radius:4px;padding:1px 7px;font-size:10px;font-family:‘Syne’,sans-serif;font-weight:700;margin-right:6px;white-space:nowrap;}
+.aide-item{font-size:12px;color:var(--t2);line-height:1.6;}
+.aide-item strong{color:var(--txt);}
+.aide-tag{display:inline-block;background:rgba(245,168,0,.15);color:var(--bio-orange);border:1px solid rgba(245,168,0,.3);border-radius:4px;padding:1px 7px;font-size:10px;font-family:'Syne',sans-serif;font-weight:700;margin-right:6px;white-space:nowrap;}
 
 /* GANTT INTERACTIF */
 .g-interactive{cursor:grab;-webkit-user-select:none;user-select:none;}
 .g-interactive:active{cursor:grabbing;}
 .g-handle{position:absolute;top:0;bottom:0;width:12px;background:rgba(255,255,255,.25);cursor:ew-resize;display:flex;align-items:center;justify-content:center;z-index:2;}
-.g-handle::after{content:’|’;font-size:9px;color:rgba(255,255,255,.6);}
+.g-handle::after{content:'|';font-size:9px;color:rgba(255,255,255,.6);}
 .g-handle-l{left:0;border-radius:3px 0 0 3px;}
 .g-handle-r{right:0;border-radius:0 3px 3px 0;}
 .g-del{position:absolute;right:3px;top:50%;transform:translateY(-50%);width:16px;height:16px;background:rgba(220,38,38,.85);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;cursor:pointer;z-index:10;font-weight:700;line-height:1;}
 .g-del:active{background:#dc2626;}
 .g-pause-bar{cursor:ew-resize;-webkit-user-select:none;user-select:none;}
 </style>
-
 </head>
 <body>
 
@@ -230,7 +228,6 @@ table.ptbl thead th{background:#f8fafc;font-family:‘DM Sans’,sans-serif;font
 </div>
 
 <!-- CONFIG -->
-
 <div class="pg on" id="pg-config">
   <div class="scroll-body">
     <div class="split">
@@ -249,54 +246,50 @@ table.ptbl thead th{background:#f8fafc;font-family:‘DM Sans’,sans-serif;font
           </div>
         </div>
 
-```
-    <div class="panel">
-      <div class="ph">Semaine</div>
-      <div class="pb">
-        <div class="fld"><label>Semaine à planifier</label><input type="week" id="weekPicker" onchange="onWeekChange()"></div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <span class="wbadge wb-a" id="wkBadge1">Semaine A</span>
-          <span style="font-size:11px;color:var(--t3);">Dimanche toujours fermé</span>
+        <div class="panel">
+          <div class="ph">Semaine</div>
+          <div class="pb">
+            <div class="fld"><label>Semaine à planifier</label><input type="week" id="weekPicker" onchange="onWeekChange()"></div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <span class="wbadge wb-a" id="wkBadge1">Semaine A</span>
+              <span style="font-size:11px;color:var(--t3);">Dimanche toujours fermé</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="ph">Horaires & règles</div>
+          <div class="pb">
+            <div class="g2">
+              <div class="fld"><label>Ouv. Lun/Mer/Ven</label><input type="text" id="openLMV" value="07:45"></div>
+              <div class="fld"><label>Ouv. Mar/Jeu/Sam</label><input type="text" id="openMJS" value="08:00"></div>
+              <div class="fld"><label>Ferm. Lun–Ven</label><input type="text" id="closeLV" value="19:30"></div>
+              <div class="fld"><label>Ferm. Samedi</label><input type="text" id="closeSAM" value="18:30"></div>
+              <div class="fld"><label>Min ouv. LMV</label><input type="text" id="minLMV" value="4"></div>
+              <div class="fld"><label>Min ouv. MJS</label><input type="text" id="minMJS" value="3"></div>
+              <div class="fld"><label>Min fermeture</label><input type="text" id="minClose" value="3"></div>
+              <div class="fld"><label>Pause min (h)</label><input type="text" id="pauseMin" value="1"></div>
+              <div class="fld"><label>Pause max (h)</label><input type="text" id="pauseMax" value="2"></div>
+              <div class="fld"><label>Début pause min</label><input type="text" id="pauseStart" value="11:00"></div>
+              <div class="fld"><label>Fin pause max</label><input type="text" id="pauseEnd" value="15:00"></div>
+              <div class="fld"><label>Pas de pause si ≤(h)</label><input type="text" id="noPauseH" value="6"></div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-grad btn-full" onclick="goPlanning()" type="button">→ Générer le planning</button>
+      </div>
+
+      <div class="split-r">
+        <div class="panel">
+          <div class="ph">Membres <span class="chip chip-i" id="tcBadge2">6</span></div>
+          <div class="pb" id="teamList"></div>
         </div>
       </div>
     </div>
-
-    <div class="panel">
-      <div class="ph">Horaires & règles</div>
-      <div class="pb">
-        <div class="g2">
-          <div class="fld"><label>Ouv. Lun/Mer/Ven</label><input type="text" id="openLMV" value="07:45"></div>
-          <div class="fld"><label>Ouv. Mar/Jeu/Sam</label><input type="text" id="openMJS" value="08:00"></div>
-          <div class="fld"><label>Ferm. Lun–Ven</label><input type="text" id="closeLV" value="19:30"></div>
-          <div class="fld"><label>Ferm. Samedi</label><input type="text" id="closeSAM" value="18:30"></div>
-          <div class="fld"><label>Min ouv. LMV</label><input type="text" id="minLMV" value="4"></div>
-          <div class="fld"><label>Min ouv. MJS</label><input type="text" id="minMJS" value="3"></div>
-          <div class="fld"><label>Min fermeture</label><input type="text" id="minClose" value="3"></div>
-          <div class="fld"><label>Pause min (h)</label><input type="text" id="pauseMin" value="1"></div>
-          <div class="fld"><label>Pause max (h)</label><input type="text" id="pauseMax" value="2"></div>
-          <div class="fld"><label>Début pause min</label><input type="text" id="pauseStart" value="11:00"></div>
-          <div class="fld"><label>Fin pause max</label><input type="text" id="pauseEnd" value="15:00"></div>
-          <div class="fld"><label>Pas de pause si ≤(h)</label><input type="text" id="noPauseH" value="6"></div>
-        </div>
-      </div>
-    </div>
-    <button class="btn btn-grad btn-full" onclick="goPlanning()" type="button">→ Générer le planning</button>
-  </div>
-
-  <div class="split-r">
-    <div class="panel">
-      <div class="ph">Membres <span class="chip chip-i" id="tcBadge2">6</span></div>
-      <div class="pb" id="teamList"></div>
-    </div>
-  </div>
-</div>
-```
-
   </div>
 </div>
 
 <!-- PLANNING -->
-
 <div class="pg" id="pg-planning">
   <div class="wbar">
     <input type="week" id="weekPicker2" onchange="syncWeek(this)">
@@ -307,7 +300,6 @@ table.ptbl thead th{background:#f8fafc;font-family:‘DM Sans’,sans-serif;font
 </div>
 
 <!-- GANTT -->
-
 <div class="pg" id="pg-gantt">
   <div class="wbar">
     <input type="week" id="weekPicker3" onchange="syncWeek(this)">
@@ -317,13 +309,11 @@ table.ptbl thead th{background:#f8fafc;font-family:‘DM Sans’,sans-serif;font
 </div>
 
 <!-- RECAP -->
-
 <div class="pg" id="pg-recap">
   <div class="scroll-body"><div id="recapWrap"></div></div>
 </div>
 
 <!-- FAVS -->
-
 <div class="pg" id="pg-favs">
   <div class="scroll-body">
     <div class="stitle">★ Plannings favoris</div>
@@ -333,113 +323,109 @@ table.ptbl thead th{background:#f8fafc;font-family:‘DM Sans’,sans-serif;font
 </div>
 
 <!-- AIDE -->
-
 <div class="pg" id="pg-aide">
   <div class="scroll-body" style="max-width:640px;">
     <div class="stitle">❓ Guide d'utilisation</div>
 
-```
-<div class="aide-section">
-  <div class="aide-title">⚙ Configuration — Équipe</div>
-  <div class="aide-body">
-    <div class="aide-item"><span class="aide-tag">−/+</span> Choisissez le nombre de membres de votre équipe (1 à 20). La liste se met à jour immédiatement.</div>
-    <div class="aide-item"><span class="aide-tag">Nom</span> Prénom ou nom affiché sur le planning.</div>
-    <div class="aide-item"><span class="aide-tag">Poste</span> SA · VRAC · BOISSON · GÉNÉRALE · FEL — détermine la couleur de la barre sur la vue Gantt.</div>
-    <div class="aide-item"><span class="aide-tag">Contrat</span> 35h · 30h · 25h · 20h — l'algorithme vise exactement ce nombre d'heures par semaine.</div>
-    <div class="aide-item"><span class="aide-tag">Repos fixes</span> Cochez les jours où la personne ne travaille jamais. Le dimanche est toujours coché automatiquement.</div>
-    <div class="aide-item"><span class="aide-tag">Repos samedi</span> Rotation A/B : "Semaine A" = repos les semaines impaires, "Semaine B" = semaines paires. Idéal pour alterner les samedis dans l'équipe.</div>
-    <div class="aide-item"><span class="aide-tag">🔓 Ouvrir</span> Cette personne peut assurer l'ouverture du magasin (arrivée à 7h45 ou 8h00).</div>
-    <div class="aide-item"><span class="aide-tag">🔒 Fermer</span> Cette personne peut assurer la fermeture (départ à 19h30 ou 18h30 le samedi).</div>
-    <div class="aide-item"><span class="aide-tag">🌿 Congés</span> Saisissez une date de début et de fin. Les heures de congé sont comptabilisées automatiquement dans le total semaine mais la personne n'est pas comptée dans les effectifs présents.</div>
+    <div class="aide-section">
+      <div class="aide-title">⚙ Configuration — Équipe</div>
+      <div class="aide-body">
+        <div class="aide-item"><span class="aide-tag">−/+</span> Choisissez le nombre de membres de votre équipe (1 à 20). La liste se met à jour immédiatement.</div>
+        <div class="aide-item"><span class="aide-tag">Nom</span> Prénom ou nom affiché sur le planning.</div>
+        <div class="aide-item"><span class="aide-tag">Poste</span> SA · VRAC · BOISSON · GÉNÉRALE · FEL — détermine la couleur de la barre sur la vue Gantt.</div>
+        <div class="aide-item"><span class="aide-tag">Contrat</span> 35h · 30h · 25h · 20h — l'algorithme vise exactement ce nombre d'heures par semaine, et ne le dépasse jamais.</div>
+        <div class="aide-item"><span class="aide-tag">Repos fixes</span> Cochez les jours où la personne ne travaille jamais. Le dimanche est toujours coché automatiquement.</div>
+        <div class="aide-item"><span class="aide-tag">Repos samedi</span> Rotation A/B : "Semaine A" = repos les semaines impaires, "Semaine B" = semaines paires. Idéal pour alterner les samedis dans l'équipe.</div>
+        <div class="aide-item"><span class="aide-tag">🔓 Ouvrir</span> Cette personne peut assurer l'ouverture du magasin (arrivée à 7h45 ou 8h00).</div>
+        <div class="aide-item"><span class="aide-tag">🔒 Fermer</span> Cette personne peut assurer la fermeture (départ à 19h30 ou 18h30 le samedi).</div>
+        <div class="aide-item"><span class="aide-tag">🌿 Congés</span> Saisissez une date de début et de fin. Les heures de congé sont comptabilisées automatiquement dans le total semaine mais la personne n'est pas comptée dans les effectifs présents.</div>
+      </div>
+    </div>
+
+    <div class="aide-section">
+      <div class="aide-title">⚙ Configuration — Horaires & règles</div>
+      <div class="aide-body">
+        <div class="aide-item"><span class="aide-tag">Ouv. LMV</span> Heure d'ouverture les Lundi, Mercredi et Vendredi (ex: 07:45).</div>
+        <div class="aide-item"><span class="aide-tag">Ouv. MJS</span> Heure d'ouverture les Mardi, Jeudi et Samedi (ex: 08:00).</div>
+        <div class="aide-item"><span class="aide-tag">Ferm. Lun–Ven</span> Heure de fermeture du lundi au vendredi (ex: 19:30).</div>
+        <div class="aide-item"><span class="aide-tag">Ferm. Samedi</span> Heure de fermeture le samedi (ex: 18:30).</div>
+        <div class="aide-item"><span class="aide-tag">Min ouv. LMV</span> Nombre minimum de personnes présentes à l'ouverture les LMV (recommandé : 4).</div>
+        <div class="aide-item"><span class="aide-tag">Min ouv. MJS</span> Nombre minimum à l'ouverture les MJS (recommandé : 3).</div>
+        <div class="aide-item"><span class="aide-tag">Min fermeture</span> Nombre minimum de personnes présentes jusqu'à la fermeture (recommandé : 3). Ce minimum n'est jamais atteint au prix des heures contractuelles d'un employé — si l'effectif ne suffit pas, la ligne "Fermeture" s'affiche en rouge pour vous alerter, à vous d'ajuster.</div>
+        <div class="aide-item"><span class="aide-tag">Pause min/max</span> Durée minimale et maximale de la pause déjeuner en heures. La pause est désormais TOUJOURS posée dès qu'un shift dépasse le seuil "Pas de pause si ≤", et n'est jamais supprimée par l'algorithme.</div>
+        <div class="aide-item"><span class="aide-tag">Début/Fin pause</span> Plage horaire dans laquelle la pause doit se situer si possible. Ex: début min 11h00, fin max 15h00.</div>
+        <div class="aide-item"><span class="aide-tag">Pas de pause si ≤</span> Si la journée de travail est inférieure ou égale à ce nombre d'heures, aucune pause n'est imposée. Ex: 6h — un shift 7h45→13h45 sera sans pause. Au-delà, la pause minimale configurée est obligatoire.</div>
+      </div>
+    </div>
+
+    <div class="aide-section">
+      <div class="aide-title">⚡ Bouton Auto-remplir</div>
+      <div class="aide-body">
+        <div class="aide-item">Génère automatiquement le planning de la semaine en respectant toutes les règles configurées : contrats d'heures (jamais dépassés), ouvertures, fermetures, pauses obligatoires, repos, congés.</div>
+        <div class="aide-item"><span class="aide-tag">Après génération</span> Vous pouvez ajuster chaque cellule en tapant dessus pour ouvrir le modal de modification, ou glisser-déposer les barres sur la vue Gantt.</div>
+      </div>
+    </div>
+
+    <div class="aide-section">
+      <div class="aide-title">📅 Vue Planning</div>
+      <div class="aide-body">
+        <div class="aide-item">Tableau avec une ligne par personne et une colonne par jour. Chaque cellule affiche les horaires au format <strong>arrivée/début pause — fin pause/départ</strong>.</div>
+        <div class="aide-item"><span class="aide-tag">Vert ✓</span> Total d'heures conforme au contrat.</div>
+        <div class="aide-item"><span class="aide-tag">Turquoise +</span> Heures supplémentaires.</div>
+        <div class="aide-item"><span class="aide-tag">Rouge −</span> Heures manquantes par rapport au contrat.</div>
+        <div class="aide-item"><span class="aide-tag">Lignes du bas</span> 🔓 Ouverture · 👥 Présents · 🔒 Fermeture — en vert si le minimum est respecté, en rouge sinon.</div>
+      </div>
+    </div>
+
+    <div class="aide-section">
+      <div class="aide-title">📊 Vue Gantt</div>
+      <div class="aide-body">
+        <div class="aide-item">Vue visuelle par jour avec des barres horizontales représentant les plages de travail de chaque personne. La couleur correspond au poste.</div>
+        <div class="aide-item"><span class="aide-tag">Ligne 👥</span> Nombre de personnes en poste (hors pause) par tranche de 15 minutes. Orange si moins de 2, vert si suffisant.</div>
+      </div>
+    </div>
+
+    <div class="aide-section">
+      <div class="aide-title">📋 Récap</div>
+      <div class="aide-body">
+        <div class="aide-item">Résumé par personne avec total d'heures, barre de progression et détail jour par jour.</div>
+      </div>
+    </div>
+
+    <div class="aide-section">
+      <div class="aide-title">★ Favoris</div>
+      <div class="aide-body">
+        <div class="aide-item">Sauvegardez un planning comme favori pour le réutiliser plus tard comme base. Les favoris sont stockés sur cet appareil.</div>
+        <div class="aide-item"><span class="aide-tag">Charger</span> Recharge toute la configuration et le planning d'un favori sauvegardé.</div>
+      </div>
+    </div>
+
+    <div class="aide-section">
+      <div class="aide-title">PDF / Impression</div>
+      <div class="aide-body">
+        <div class="aide-item">Le bouton PDF lance l'impression iOS. Choisissez "Enregistrer en PDF" dans les options pour obtenir un fichier. La vue active (Planning ou Gantt) est celle qui s'imprime.</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="aide-section">
-  <div class="aide-title">⚙ Configuration — Horaires & règles</div>
-  <div class="aide-body">
-    <div class="aide-item"><span class="aide-tag">Ouv. LMV</span> Heure d'ouverture les Lundi, Mercredi et Vendredi (ex: 07:45).</div>
-    <div class="aide-item"><span class="aide-tag">Ouv. MJS</span> Heure d'ouverture les Mardi, Jeudi et Samedi (ex: 08:00).</div>
-    <div class="aide-item"><span class="aide-tag">Ferm. Lun–Ven</span> Heure de fermeture du lundi au vendredi (ex: 19:30).</div>
-    <div class="aide-item"><span class="aide-tag">Ferm. Samedi</span> Heure de fermeture le samedi (ex: 18:30).</div>
-    <div class="aide-item"><span class="aide-tag">Min ouv. LMV</span> Nombre minimum de personnes présentes à l'ouverture les LMV (recommandé : 4).</div>
-    <div class="aide-item"><span class="aide-tag">Min ouv. MJS</span> Nombre minimum à l'ouverture les MJS (recommandé : 3).</div>
-    <div class="aide-item"><span class="aide-tag">Min fermeture</span> Nombre minimum de personnes présentes jusqu'à la fermeture (recommandé : 3). Au moins une doit savoir fermer.</div>
-    <div class="aide-item"><span class="aide-tag">Pause min/max</span> Durée minimale et maximale de la pause déjeuner en heures. Ex: min 1h, max 2h. Les pauses sont allongées si nécessaire pour respecter le contrat d'heures.</div>
-    <div class="aide-item"><span class="aide-tag">Début/Fin pause</span> Plage horaire dans laquelle la pause doit se situer. Ex: début min 11h00, fin max 15h00.</div>
-    <div class="aide-item"><span class="aide-tag">Pas de pause si ≤</span> Si la journée de travail est inférieure ou égale à ce nombre d'heures, aucune pause n'est imposée. Ex: 6h — un shift 7h45→13h45 sera sans pause.</div>
-  </div>
-</div>
-
-<div class="aide-section">
-  <div class="aide-title">⚡ Bouton Auto-remplir</div>
-  <div class="aide-body">
-    <div class="aide-item">Génère automatiquement le planning de la semaine en respectant toutes les règles configurées : contrats d'heures, ouvertures, fermetures, pauses, repos, congés.</div>
-    <div class="aide-item"><span class="aide-tag">Après génération</span> Vous pouvez ajuster chaque cellule en tapant dessus pour ouvrir le modal de modification.</div>
-  </div>
-</div>
-
-<div class="aide-section">
-  <div class="aide-title">📅 Vue Planning</div>
-  <div class="aide-body">
-    <div class="aide-item">Tableau avec une ligne par personne et une colonne par jour. Chaque cellule affiche les horaires au format <strong>arrivée/début pause — fin pause/départ</strong>.</div>
-    <div class="aide-item"><span class="aide-tag">Vert ✓</span> Total d'heures conforme au contrat.</div>
-    <div class="aide-item"><span class="aide-tag">Turquoise +</span> Heures supplémentaires.</div>
-    <div class="aide-item"><span class="aide-tag">Rouge −</span> Heures manquantes par rapport au contrat.</div>
-    <div class="aide-item"><span class="aide-tag">Lignes du bas</span> 🔓 Ouverture · 👥 Présents · 🔒 Fermeture — en vert si le minimum est respecté, en rouge sinon.</div>
-  </div>
-</div>
-
-<div class="aide-section">
-  <div class="aide-title">📊 Vue Gantt</div>
-  <div class="aide-body">
-    <div class="aide-item">Vue visuelle par jour avec des barres horizontales représentant les plages de travail de chaque personne. La couleur correspond au poste.</div>
-    <div class="aide-item"><span class="aide-tag">Ligne 👥</span> Nombre de personnes en poste (hors pause) par tranche de 15 minutes. Orange si moins de 2, vert si suffisant.</div>
-  </div>
-</div>
-
-<div class="aide-section">
-  <div class="aide-title">📋 Récap</div>
-  <div class="aide-body">
-    <div class="aide-item">Résumé par personne avec total d'heures, barre de progression et détail jour par jour.</div>
-  </div>
-</div>
-
-<div class="aide-section">
-  <div class="aide-title">★ Favoris</div>
-  <div class="aide-body">
-    <div class="aide-item">Sauvegardez un planning comme favori pour le réutiliser plus tard comme base. Les favoris sont stockés sur cet appareil.</div>
-    <div class="aide-item"><span class="aide-tag">Charger</span> Recharge toute la configuration et le planning d'un favori sauvegardé.</div>
-  </div>
-</div>
-
-<div class="aide-section">
-  <div class="aide-title">PDF / Impression</div>
-  <div class="aide-body">
-    <div class="aide-item">Le bouton PDF lance l'impression iOS. Choisissez "Enregistrer en PDF" dans les options pour obtenir un fichier. La vue active (Planning ou Gantt) est celle qui s'imprime.</div>
-  </div>
-</div>
-```
-
-  </div>
-</div>
-
-<!-- MODAL CELL -->
-
+<!-- MODAL CELL (panneau lateral droit) -->
 <div class="overlay" id="overlayCell" onclick="if(event.target===this)closeModal()">
   <div class="modal">
-    <div class="modal-handle"></div>
     <h3 id="mTitle">Modifier</h3>
     <div class="modal-grid">
       <div class="fld"><label>Arrivée</label><select id="mArrive" onchange="calcModal()"></select></div>
       <div class="fld"><label>Départ</label><select id="mDepart" onchange="calcModal()"></select></div>
-      <div class="fld"><label>Début pause</label><select id="mPauseS" onchange="calcModal()"></select></div>
-      <div class="fld"><label>Fin pause</label><select id="mPauseE" onchange="calcModal()"></select></div>
     </div>
     <div class="modal-checks">
       <label class="check-lbl"><input type="checkbox" id="mRepos"> Repos</label>
       <label class="check-lbl"><input type="checkbox" id="mConge"> Congé</label>
-      <label class="check-lbl"><input type="checkbox" id="mNoPause" onchange="calcModal()"> Sans pause</label>
     </div>
+    <div id="pauseFields" class="modal-grid" style="display:none;">
+      <div class="fld"><label>Début pause</label><select id="mPauseS" onchange="calcModal()"></select></div>
+      <div class="fld"><label>Fin pause</label><select id="mPauseE" onchange="calcModal()"></select></div>
+    </div>
+    <button type="button" class="btn btn-s btn-full" id="pauseToggleBtn" onclick="togglePause()" data-has="0" style="margin-bottom:12px;">+ Ajouter une pause</button>
     <div class="anno-strip" id="annoStrip">
       <button class="anno-btn on" onclick="setAnno(this,'')">—</button>
       <button class="anno-btn" onclick="setAnno(this,'CP')">CP</button>
@@ -459,7 +445,6 @@ table.ptbl thead th{background:#f8fafc;font-family:‘DM Sans’,sans-serif;font
 </div>
 
 <!-- MODAL FAV -->
-
 <div class="overlay" id="overlayFav" onclick="if(event.target===this)closeFavModal()">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -666,351 +651,176 @@ function initPlan(){
 function autoFill(){
   initPlan();
 
-  var pMinH = Math.max(cfg('pauseMin')||1, 1);
-  var pMaxH = Math.min(cfg('pauseMax')||2, 3);
+  var pMinH = Math.min(Math.max(cfg('pauseMin')||1, 0.25), 4);
+  var pMaxH = Math.max(pMinH, cfg('pauseMax')||2);
   var pSMinV = toM(cfgS('pauseStart')||'11:00');
   var pEMaxV = toM(cfgS('pauseEnd')||'15:00');
   var mLMV = Math.max(cfg('minLMV')||4, 1);
   var mMJS = Math.max(cfg('minMJS')||3, 1);
   var mClV = Math.max(cfg('minClose')||3, 1);
   var noPH = cfg('noPauseH')||6;
-  var MAX_H = 10*60;
-  var MIN_H = 4*60;
+  var MAX_NET = 10*60; // plafond absolu d'une journee de travail (hors pause), jamais depasse
 
   function r5(m){ return Math.round(m/5)*5; }
 
-  // Pre-compute work days per person
-  var ep = [];
-  for(var ei=0; ei<team.length; ei++){
+  // ═══ ETAPE 1 — heures NETTES cibles par jour travaille, calculees pour coller EXACTEMENT au contrat ═══
+  // (le contrat est desormais un plafond strict : il n'est jamais depasse par construction)
+  var workDays={}, dailyNet={}, pauseDur={};
+  for(var i=0; i<team.length; i++){
     var wd=[];
-    for(var dd=0; dd<6; dd++) if(!isRest(team[ei],dd)&&!isConge(team[ei],dd)) wd.push(dd);
+    for(var d=0; d<6; d++) if(!isRest(team[i],d) && !isConge(team[i],d)) wd.push(d);
+    workDays[i]=wd;
     var cgH=0;
-    for(var dd=0; dd<6; dd++) if(isConge(team[ei],dd)) cgH+=congeH(dd);
-    ep.push({wd:wd, target:Math.max(0,team[ei].hours-cgH)});
+    for(var d=0; d<6; d++) if(isConge(team[i],d)) cgH+=congeH(d);
+    var targetM=r5(Math.max(0, team[i].hours - cgH) * 60);
+    dailyNet[i]={}; pauseDur[i]={};
+    if(!wd.length) continue;
+
+    // plafond par jour = amplitude du magasin ce jour-la, moins la pause minimale reservee,
+    // et jamais plus que MAX_NET
+    var capOf={};
+    for(var k=0; k<wd.length; k++){
+      var dd=wd[k];
+      var oMc=toM(OPEN[dd]), cMc=toM(CLOSE[dd]);
+      var dayLen=(oMc&&cMc)?(cMc-oMc):0;
+      var reserve=(dayLen>noPH*60)?r5(pMinH*60):0;
+      capOf[dd]=Math.max(0, Math.min(MAX_NET, dayLen-reserve));
+    }
+
+    // repartition la plus egale possible, arrondie a 5 min, qui totalise EXACTEMENT targetM
+    var base=Math.floor((targetM/wd.length)/5)*5;
+    for(var k=0; k<wd.length; k++){
+      var dd=wd[k];
+      dailyNet[i][dd]=Math.min(base, capOf[dd]);
+    }
+    // distribue le reliquat (arrondis + ce qui a ete perdu par les plafonds) sur les jours ayant de la marge
+    var missing=targetM;
+    for(var k=0; k<wd.length; k++) missing-=dailyNet[i][wd[k]];
+    for(var pass=0; pass<6 && missing>0; pass++){
+      var slack=wd.filter(function(dd){ return dailyNet[i][dd]<capOf[dd]; });
+      if(!slack.length) break; // impossible d'atteindre le contrat avec le nombre de jours/l'amplitude dispo (rare)
+      var each=Math.max(5, Math.ceil((missing/slack.length)/5)*5);
+      for(var si=0; si<slack.length && missing>0; si++){
+        var dd=slack[si];
+        var add=Math.min(each, capOf[dd]-dailyNet[i][dd], missing);
+        dailyNet[i][dd]+=add; missing-=add;
+      }
+    }
+
+    // pause obligatoire des que la journee depasse le seuil configure — fixee une fois pour toutes,
+    // ne sera JAMAIS supprimee ensuite
+    for(var k=0; k<wd.length; k++){
+      var dd=wd[k];
+      pauseDur[i][dd]=(dailyNet[i][dd]/60 > noPH) ? r5(pMinH*60) : 0;
+    }
   }
 
-  // STEP 1: Assign shifts
+  // ═══ ETAPE 2 — placement des horaires (ouverture / fermeture / journee courante) ═══
   for(var d=0; d<6; d++){
     var oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
     if(!oM||!cM) continue;
     var isLMV=(d===0||d===2||d===4);
     var minO=isLMV?mLMV:mMJS;
+    var dayLen=cM-oM;
 
-    var avail=[];
-    for(var ai=0; ai<ep.length; ai++){
-      if(!isRest(team[ai],d)&&!isConge(team[ai],d)){
-        var weekDone=totalH(ai);
-        var remaining=Math.max(0, ep[ai].target-weekDone);
-        var dLeft=0;
-        for(var k=0; k<ep[ai].wd.length; k++) if(ep[ai].wd[k]>d) dLeft++;
-        var tgtH = dLeft===0
-          ? Math.min(MAX_H/60, Math.max(MIN_H/60, remaining))
-          : Math.min(MAX_H/60, Math.max(MIN_H/60, remaining/(dLeft+1)));
-        avail.push({i:ai, emp:team[ai], curH:weekDone, tgt:tgtH});
-      }
+    var working=[];
+    for(var i=0; i<team.length; i++) if(dailyNet[i] && dailyNet[i][d]!==undefined) working.push(i);
+    if(!working.length) continue;
+
+    // Ouvreurs et fermeurs : on essaie de garder des personnes DIFFERENTES autant que possible
+    // (un doublon "ouvre ET ferme" oblige a etre present toute la journee, donc a depasser sa cible —
+    // on ne le fait qu'en dernier recours, quand il n'y a vraiment personne d'autre)
+    var canO=working.filter(function(i){ return team[i].canOpen; });
+    var openers=canO.slice(0,minO);
+    if(openers.length<minO){
+      var others=working.filter(function(i){ return openers.indexOf(i)<0; });
+      openers=openers.concat(others.slice(0, minO-openers.length));
     }
-    if(!avail.length) continue;
-
-    // Sort by deficit
-    avail.sort(function(a,b){ return (b.emp.hours-b.curH)-(a.emp.hours-a.curH); });
-
-    // Select openers
-    var opens={}, openCount=0;
-    for(var ai=0; ai<avail.length; ai++){
-      if(avail[ai].emp.canOpen && openCount<1){ opens[avail[ai].i]=true; openCount++; }
+    var canC=working.filter(function(i){ return team[i].canClose && openers.indexOf(i)<0; });
+    var closers=canC.slice(0,mClV);
+    if(closers.length<mClV){
+      var others2=working.filter(function(i){ return team[i].canClose && closers.indexOf(i)<0; });
+      closers=closers.concat(others2.slice(0, mClV-closers.length));
     }
-    for(var ai=0; ai<avail.length && openCount<minO; ai++){
-      if(!opens[avail[ai].i]){ opens[avail[ai].i]=true; openCount++; }
+    if(closers.length<mClV){
+      var others3=working.filter(function(i){ return closers.indexOf(i)<0; });
+      closers=closers.concat(others3.slice(0, mClV-closers.length));
     }
 
-    // Select closers
-    var closes={}, closeCount=0;
-    for(var ai=0; ai<avail.length; ai++){
-      if(avail[ai].emp.canClose && closeCount<1){ closes[avail[ai].i]=true; closeCount++; }
-    }
-    for(var ai=0; ai<avail.length && closeCount<mClV; ai++){
-      if(!closes[avail[ai].i]){ closes[avail[ai].i]=true; closeCount++; }
-    }
+    var floaters=working.filter(function(i){ return openers.indexOf(i)<0 && closers.indexOf(i)<0; });
+    var fCount=floaters.length, fIdx=0;
 
-    // Assign shifts
-    for(var ai=0; ai<avail.length; ai++){
-      var x=avail[ai];
-      var isO=!!opens[x.i], isC=!!closes[x.i];
-      var tgtM=r5(x.tgt*60);
-      var weekRem=Math.max(0, x.emp.hours-totalH(x.i));
+    for(var wi=0; wi<working.length; wi++){
+      var i=working[wi];
+      var net=dailyNet[i][d], pd=pauseDur[i][d];
+      var gross=Math.min(net+pd, dayLen); // ne depasse jamais l'amplitude du magasin ni la cible du contrat
+      var isO=openers.indexOf(i)>=0, isC=closers.indexOf(i)>=0;
       var arr, dep;
 
-      if(isO&&isC){
-        // Only full day if needed for both
-        var otherO=0, otherC=0;
-        for(var oi=0; oi<avail.length; oi++){
-          if(avail[oi].i===x.i) continue;
-          var s2=plan[avail[oi].i]&&plan[avail[oi].i][d];
-          if(opens[avail[oi].i]&&s2&&s2.arrive&&toM(s2.arrive)<=oM+5) otherO++;
-          if(closes[avail[oi].i]&&s2&&s2.depart&&toM(s2.depart)>=cM-5) otherC++;
-        }
-        var needO=(otherO<minO-1), needC=(otherC<mClV-1);
-        if(needO&&needC){ arr=oM; dep=cM; }
-        else if(needO){ arr=oM; dep=r5(Math.min(cM-30,oM+tgtM)); }
-        else if(needC){ dep=cM; arr=r5(Math.max(oM+30,cM-tgtM)); }
-        else{ var off=r5(15+Math.random()*60); arr=oM+off; dep=r5(Math.min(cM-30,arr+tgtM)); }
+      if(isO && isC){
+        // Doublon ouverture+fermeture : uniquement en dernier recours (equipe trop petite ce jour-la).
+        // On respecte quand meme le plafond "gross" — jamais d'amplitude complete forcee au-dela de la cible.
+        arr=oM; dep=r5(Math.min(cM, oM+gross));
       } else if(isO){
-        arr=oM; dep=r5(Math.min(cM-30,oM+tgtM));
+        arr=oM; dep=r5(Math.min(cM, oM+gross));
       } else if(isC){
-        dep=cM; arr=r5(Math.max(oM+30,cM-tgtM));
+        dep=cM; arr=r5(Math.max(oM, cM-gross));
       } else {
-        var offset=r5(15+Math.random()*75);
-        arr=oM+offset; dep=r5(Math.min(cM-30,arr+tgtM));
+        var step=fCount>1 ? Math.floor((dayLen-gross)/(fCount+1)) : Math.floor((dayLen-gross)/2);
+        step=Math.max(0, step);
+        var off=r5(step*(fIdx+1));
+        arr=Math.max(oM, Math.min(cM-gross, oM+off));
+        arr=r5(arr);
+        dep=r5(Math.min(cM, arr+gross));
+        fIdx++;
       }
 
-      arr=Math.max(oM,arr);
-      dep=Math.min(cM,dep);
-      if(!isO||!isC) dep=Math.min(dep,arr+MAX_H);
-      // Cap mid-shift by weekly remaining
-      if(!isO&&!isC&&weekRem>0&&weekRem*60<dep-arr){
-        dep=Math.min(dep,arr+r5(Math.max(MIN_H,weekRem*60)));
-      }
-      if(dep-arr<MIN_H) continue;
-
-      plan[x.i][d]={arrive:toT(arr),pauseS:null,pauseE:null,depart:toT(dep),repos:false,conge:false,annotation:''};
+      plan[i][d]={arrive:toT(arr), pauseS:null, pauseE:null, depart:toT(dep), repos:false, conge:false, annotation:''};
     }
   }
 
-  // STEP 2: Assign pauses
+  // ═══ ETAPE 3 — placement des pauses : jamais supprimees, seulement positionnees au mieux ═══
   for(var d=0; d<6; d++){
     var oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
     if(!oM||!cM) continue;
 
-    var needPause=[];
+    var needP=[];
     for(var i=0; i<team.length; i++){
       var s=plan[i]&&plan[i][d];
-      if(!s||s.repos||s.conge||!s.arrive) continue;
-      if((toM(s.depart)-toM(s.arrive))/60>noPH) needPause.push(i);
+      if(s && s.arrive && pauseDur[i] && pauseDur[i][d]>0) needP.push(i);
     }
+    needP.sort(function(a,b){ return toM(plan[a][d].arrive)-toM(plan[b][d].arrive); });
 
-    needPause.sort(function(a,b){ return toM(plan[a][d].arrive)-toM(plan[b][d].arrive); });
-
-    for(var ni=0; ni<needPause.length; ni++){
-      var pi=needPause[ni];
-      var s=plan[pi][d];
+    for(var ni=0; ni<needP.length; ni++){
+      var i=needP[ni], s=plan[i][d];
       var arr=toM(s.arrive), dep=toM(s.depart);
-      var shiftH=(dep-arr)/60;
-      var pH=Math.min(pMaxH,Math.max(pMinH,pMinH+(shiftH-noPH)*0.2));
-      var pM=r5(pH*60);
-      var minPS=r5(Math.max(arr+90,pSMinV));
-      var maxPS=r5(Math.min(dep-pM-90,pEMaxV-pM));
-      if(maxPS<minPS){ minPS=r5(Math.max(arr+60,pSMinV)); maxPS=r5(dep-pM-60); }
-      if(maxPS<minPS) continue;
+      var pM=pauseDur[i][d];
 
-      var bestPS=minPS, bestScore=-9999;
+      var minPS=r5(Math.max(arr+60, pSMinV));
+      var maxPS=r5(Math.min(dep-pM-60, pEMaxV-pM));
+      if(maxPS<minPS){ minPS=r5(arr+30); maxPS=r5(dep-pM-30); } // fenetre config trop stricte -> on l'assouplit
+      if(maxPS<minPS){ minPS=arr; maxPS=Math.max(arr, dep-pM); } // dernier recours : on case la pause quand meme
+
+      var bestPS=minPS, bestScore=-1e9;
       for(var ps=minPS; ps<=maxPS; ps+=5){
-        var pe=ps+pM;
-        var minW=999, valid=true;
+        var pe=ps+pM, minW=999;
         for(var t=ps; t<pe; t+=5){
           var w=0;
           for(var i2=0; i2<team.length; i2++){
-            if(i2===pi) continue;
+            if(i2===i) continue;
             var s2=plan[i2]&&plan[i2][d];
-            if(!s2||s2.repos||s2.conge||!s2.arrive) continue;
+            if(!s2||!s2.arrive) continue;
             if(t>=toM(s2.arrive)&&t<toM(s2.depart)){
               if(!(s2.pauseS&&s2.pauseE&&t>=toM(s2.pauseS)&&t<toM(s2.pauseE))) w++;
             }
           }
-          if(w<2){valid=false;break;}
           if(w<minW) minW=w;
         }
-        if(!valid) continue;
-        // Penalize overlap with already-assigned pauses
-        var overlap=0;
-        for(var k=0; k<ni; k++){
-          var sk=plan[needPause[k]][d];
-          if(sk&&sk.pauseS&&sk.pauseE){
-            if(ps<toM(sk.pauseE)&&pe>toM(sk.pauseS)) overlap++;
-          }
-        }
-        var score=minW*200-overlap*500-Math.abs(ps-toM('12:00'))/5;
+        var score=minW*1000-Math.abs(ps-toM('12:30'));
         if(score>bestScore){ bestScore=score; bestPS=ps; }
       }
-      if(bestScore>-9999){
-        s.pauseS=toT(bestPS); s.pauseE=toT(bestPS+pM);
-      }
-    }
-  }
-
-  // STEP 3: Balance hours
-  var pCapM=r5(pMaxH*60);
-  for(var i=0; i<team.length; i++){
-    var tot=totalH(i), target=team[i].hours;
-    if(tot<=target+0.5) continue;
-    var wDays=[];
-    for(var d=0; d<6; d++){
-      var s=plan[i]&&plan[i][d];
-      if(s&&s.arrive&&!s.repos&&!s.conge) wDays.push({d:d,s:s,h:slotH(s)});
-    }
-    wDays.sort(function(a,b){ return b.h-a.h; });
-    for(var wi=0; wi<wDays.length; wi++){
-      if(totalH(i)<=target+0.5) break;
-      var wd=wDays[wi], s=wd.s, d=wd.d;
-      var ovM=r5((totalH(i)-target)*60);
-      var curW=r5(slotH(s)*60), minW2=r5(4*60);
-      var canRed=Math.min(ovM,curW-minW2);
-      if(canRed<5) continue;
-      // Extend pause first
-      if(s.pauseS&&s.pauseE){
-        var curPM=toM(s.pauseE)-toM(s.pauseS);
-        var addP=Math.min(pCapM-curPM,canRed);
-        if(addP>=5){
-          var nps=toM(s.pauseS), npe=toM(s.pauseE)+addP, dep2=toM(s.depart);
-          if(npe>dep2-60){var sh=npe-(dep2-60);npe-=sh;nps=Math.max(toM(s.arrive)+60,nps-sh);}
-          s.pauseS=toT(r5(nps)); s.pauseE=toT(r5(npe));
-        }
-      }
-      if(totalH(i)<=target+0.5) continue;
-      // Shorten shift
-      var cM2=toM(CLOSE[d]), oM2=toM(OPEN[d]);
-      var isC2=cM2&&toM(s.depart)>=cM2-5;
-      var isO2=oM2&&toM(s.arrive)<=oM2+5;
-      if(isC2){
-        var newArr=r5(toM(s.arrive)+canRed);
-        var maxArr=toM(s.depart)-(s.pauseE?toM(s.pauseE)-toM(s.pauseS):0)-minW2;
-        if(!isO2||newArr>oM2+5){
-          // Check other openers
-          var otherOp=0;
-          for(var ii=0; ii<team.length; ii++){
-            if(ii===i) continue;
-            var s3=plan[ii]&&plan[ii][d];
-            if(s3&&s3.arrive&&!s3.repos&&!s3.conge&&toM(s3.arrive)<=oM2+5) otherOp++;
-          }
-          var minO2b=(d===0||d===2||d===4)?mLMV:mMJS;
-          if(otherOp>=minO2b&&newArr<=maxArr){
-            s.arrive=toT(newArr);
-            if(s.pauseS&&toM(s.pauseS)<newArr+60) s.pauseS=toT(r5(newArr+60));
-          }
-        }
-      } else {
-        var nd=r5(toM(s.depart)-canRed);
-        var minD=(s.pauseE?toM(s.pauseE):toM(s.arrive))+60;
-        if(nd>=minD) s.depart=toT(nd);
-      }
-    }
-  }
-
-  // STEP 4: Enforce open/close minimums
-  for(var d=0; d<6; d++){
-    var oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
-    if(!oM||!cM) continue;
-    var isLMV=(d===0||d===2||d===4);
-    var minO=isLMV?mLMV:mMJS;
-    // Fix closers
-    var clCount=0;
-    for(var i=0; i<team.length; i++){
-      var s=plan[i]&&plan[i][d];
-      if(s&&s.depart&&!s.repos&&!s.conge&&toM(s.depart)>=cM-5) clCount++;
-    }
-    if(clCount<mClV){
-      var cands=[];
-      for(var i=0; i<team.length; i++){
-        var s=plan[i]&&plan[i][d];
-        if(!s||!s.arrive||s.repos||s.conge||toM(s.depart)>=cM-5) continue;
-        cands.push({i:i,s:s,canClose:team[i].canClose,gap:cM-toM(s.depart)});
-      }
-      cands.sort(function(a,b){ return (b.canClose?1:0)-(a.canClose?1:0)||a.gap-b.gap; });
-      for(var ci=0; ci<cands.length&&clCount<mClV; ci++){
-        var cd=cands[ci], s=cd.s;
-        var pM2=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
-        var wM2=toM(s.depart)-toM(s.arrive)-pM2;
-        var nA=r5(Math.max(oM,cM-wM2-pM2));
-        s.arrive=toT(nA); s.depart=toT(cM);
-        if(s.pauseS&&s.pauseE){
-          var nps=toM(s.pauseS);
-          if(nps<nA+90) nps=nA+90;
-          if(nps+pM2>cM-90) nps=cM-pM2-90;
-          s.pauseS=toT(r5(nps)); s.pauseE=toT(r5(nps+pM2));
-        }
-        clCount++;
-      }
-    }
-    // Fix openers
-    var opCount=0;
-    for(var i=0; i<team.length; i++){
-      var s=plan[i]&&plan[i][d];
-      if(s&&s.arrive&&!s.repos&&!s.conge&&toM(s.arrive)<=oM+5) opCount++;
-    }
-    if(opCount<minO){
-      var cands2=[];
-      for(var i=0; i<team.length; i++){
-        var s=plan[i]&&plan[i][d];
-        if(!s||!s.arrive||s.repos||s.conge||toM(s.arrive)<=oM+5) continue;
-        cands2.push({i:i,s:s,canOpen:team[i].canOpen,arr:toM(s.arrive)});
-      }
-      cands2.sort(function(a,b){ return (b.canOpen?1:0)-(a.canOpen?1:0)||a.arr-b.arr; });
-      for(var ci=0; ci<cands2.length&&opCount<minO; ci++){
-        var cd=cands2[ci], s=cd.s;
-        var pM3=s.pauseS&&s.pauseE?(toM(s.pauseE)-toM(s.pauseS)):0;
-        var wM3=toM(s.depart)-toM(s.arrive)-pM3;
-        s.arrive=toT(oM);
-        s.depart=toT(r5(Math.min(cM,oM+wM3+pM3)));
-        if(s.pauseS&&s.pauseE){
-          var nps2=toM(s.pauseS);
-          if(nps2<oM+90) nps2=oM+90;
-          s.pauseS=toT(r5(nps2)); s.pauseE=toT(r5(nps2+pM3));
-        }
-        opCount++;
-      }
-    }
-  }
-
-  // STEP 5: Fix pause violations (JAMAIS SEUL)
-  for(var d=0; d<6; d++){
-    var oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
-    if(!oM||!cM) continue;
-    for(var pass=0; pass<15; pass++){
-      var vioT=-1, vioP=[];
-      for(var t=oM; t<cM; t+=5){
-        var w=0, op=[];
-        for(var i=0; i<team.length; i++){
-          var s=plan[i]&&plan[i][d];
-          if(!s||s.repos||s.conge||!s.arrive) continue;
-          if(t>=toM(s.arrive)&&t<toM(s.depart)){
-            if(s.pauseS&&s.pauseE&&t>=toM(s.pauseS)&&t<toM(s.pauseE)) op.push(i);
-            else w++;
-          }
-        }
-        if(op.length>0&&w<2){vioT=t;vioP=op;break;}
-      }
-      if(vioT<0) break;
-      var fixed=false;
-      for(var oi=vioP.length-1; oi>=0; oi--){
-        var pi=vioP[oi], sp=plan[pi][d];
-        if(!sp||!sp.pauseS) continue;
-        var pDur=toM(sp.pauseE)-toM(sp.pauseS);
-        var best=-1, bSc=-9999;
-        for(var nps=r5(toM(sp.arrive)+60); nps<=r5(toM(sp.depart)-pDur-60); nps+=5){
-          var npe=nps+pDur;
-          if(npe>toM(sp.depart)-60) continue;
-          var minW2=999, ok=true;
-          for(var t2=nps; t2<npe; t2+=5){
-            var w2=0;
-            for(var i2=0; i2<team.length; i2++){
-              if(i2===pi) continue;
-              var s2=plan[i2]&&plan[i2][d];
-              if(!s2||s2.repos||s2.conge||!s2.arrive) continue;
-              if(t2>=toM(s2.arrive)&&t2<toM(s2.depart)){
-                if(!(s2.pauseS&&s2.pauseE&&t2>=toM(s2.pauseS)&&t2<toM(s2.pauseE))) w2++;
-              }
-            }
-            if(w2<2){ok=false;break;}
-            if(w2<minW2) minW2=w2;
-          }
-          if(!ok) continue;
-          var sc=minW2*100-Math.abs(nps-toM('12:30'))/10;
-          if(sc>bSc){bSc=sc;best=nps;}
-        }
-        if(best>=0){sp.pauseS=toT(best);sp.pauseE=toT(best+pDur);}
-        else{sp.pauseS=null;sp.pauseE=null;}
-        fixed=true;break;
-      }
-      if(!fixed) break;
+      // la pause EST TOUJOURS posee (jamais annulee), meme si la couverture n'est pas ideale
+      s.pauseS=toT(bestPS); s.pauseE=toT(bestPS+pM);
     }
   }
 
@@ -1359,7 +1169,7 @@ function openModal(i,d){
   document.getElementById('mPauseE').innerHTML=buildTimeOptions(peVal);
   document.getElementById('mRepos').checked=!!s?.repos;
   document.getElementById('mConge').checked=!!s?.conge;
-  document.getElementById('mNoPause').checked=!!(s?.arrive&&(!s.pauseS||!s.pauseE));
+  setPauseUI(!!(s?.arrive && s?.pauseS && s?.pauseE));
   const anno=s?.annotation||'';
   document.getElementById('mAnno').value=anno;
   document.querySelectorAll('.anno-btn').forEach(b=>b.classList.toggle('on',b.dataset.anno===anno));
@@ -1368,11 +1178,26 @@ function openModal(i,d){
 }
 function closeModal(){document.getElementById('overlayCell').classList.remove('on');mTarget=null;}
 function setAnno(btn,v){document.querySelectorAll('.anno-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');document.getElementById('mAnno').value=v;}
+
+// Affiche/masque les champs de pause et met a jour le bouton (+ Ajouter / − Retirer)
+function setPauseUI(hasPause){
+  const fields=document.getElementById('pauseFields');
+  const btn=document.getElementById('pauseToggleBtn');
+  fields.style.display=hasPause?'grid':'none';
+  btn.textContent=hasPause?'− Retirer la pause':'+ Ajouter une pause';
+  btn.dataset.has=hasPause?'1':'0';
+  calcModal();
+}
+function togglePause(){
+  const btn=document.getElementById('pauseToggleBtn');
+  setPauseUI(btn.dataset.has!=='1');
+}
+
 function calcModal(){
   const a=document.getElementById('mArrive').value,dep=document.getElementById('mDepart').value;
-  const np=document.getElementById('mNoPause').checked;
+  const hasPause=document.getElementById('pauseToggleBtn')?.dataset.has==='1';
   const info=document.getElementById('mInfo');if(!a||!dep){info.textContent='';return;}
-  if(np){info.textContent=`⏱ ${fmtH((toM(dep)-toM(a))/60)} (sans pause)`;return;}
+  if(!hasPause){info.textContent=`⏱ ${fmtH((toM(dep)-toM(a))/60)} (sans pause)`;return;}
   const ps=document.getElementById('mPauseS').value,pe=document.getElementById('mPauseE').value;
   if(!ps||!pe){info.textContent='';return;}
   const w=Math.max(0,(toM(dep)-toM(a)-(toM(pe)-toM(ps))))/60,p=(toM(pe)-toM(ps))/60;
@@ -1382,7 +1207,10 @@ function saveModal(){
   if(!mTarget)return;const{i,d}=mTarget;const anno=document.getElementById('mAnno').value.trim();
   if(document.getElementById('mRepos').checked){plan[i][d]={repos:true,conge:false,annotation:anno};}
   else if(document.getElementById('mConge').checked){plan[i][d]={repos:false,conge:true,annotation:anno||'CP'};}
-  else{const np=document.getElementById('mNoPause').checked;plan[i][d]={arrive:document.getElementById('mArrive').value,pauseS:np?null:document.getElementById('mPauseS').value,pauseE:np?null:document.getElementById('mPauseE').value,depart:document.getElementById('mDepart').value,repos:false,conge:false,annotation:anno};}
+  else{
+    const hasPause=document.getElementById('pauseToggleBtn').dataset.has==='1';
+    plan[i][d]={arrive:document.getElementById('mArrive').value,pauseS:hasPause?document.getElementById('mPauseS').value:null,pauseE:hasPause?document.getElementById('mPauseE').value:null,depart:document.getElementById('mDepart').value,repos:false,conge:false,annotation:anno};
+  }
   closeModal();renderPlan();renderGantt();
 }
 
@@ -1536,6 +1364,17 @@ function showTab(name,btn){
   if(name==='recap')renderRecap();if(name==='favs')renderFavs();if(name==='gantt')renderGantt();
 }
 function toast(msg,dur=2800){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),dur);}
+
+// ═══ HELPER — options horaires pour le modal ═══
+function buildTimeOptions(sel){
+  let h='';
+  for(let m=0; m<24*60; m+=5){
+    const t=toT(m);
+    h+=`<option value="${t}" ${t===sel?'selected':''}>${t}</option>`;
+  }
+  return h;
+}
+
 </script>
 
 <style>
