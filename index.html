@@ -334,8 +334,7 @@ table.ptbl thead th{background:#f8fafc;font-family:'DM Sans',sans-serif;font-siz
         <div class="aide-item"><span class="aide-tag">Nom</span> Prénom ou nom affiché sur le planning.</div>
         <div class="aide-item"><span class="aide-tag">Poste</span> SA · VRAC · BOISSON · GÉNÉRALE · FEL — détermine la couleur de la barre sur la vue Gantt.</div>
         <div class="aide-item"><span class="aide-tag">Contrat</span> 35h · 30h · 25h · 20h — l'algorithme vise exactement ce nombre d'heures par semaine, et ne le dépasse jamais.</div>
-        <div class="aide-item"><span class="aide-tag">Repos fixes</span> Cochez les jours où la personne ne travaille jamais. Le dimanche est toujours coché automatiquement.</div>
-        <div class="aide-item"><span class="aide-tag">Repos samedi</span> Rotation A/B : "Semaine A" = repos les semaines impaires, "Semaine B" = semaines paires. Idéal pour alterner les samedis dans l'équipe.</div>
+        <div class="aide-item"><span class="aide-tag">Repos semaine A / B</span> Deux grilles à cocher, une pour la semaine A (impaire) et une pour la semaine B (paire). Cochez simplement les jours où la personne ne travaille pas pour chaque semaine — le dimanche est toujours coché automatiquement. Si les deux grilles sont identiques, la personne a les mêmes repos toutes les semaines. Si elles diffèrent, ses repos changent d'une semaine sur l'autre (ex : repos samedi en semaine A, repos lundi en semaine B).</div>
         <div class="aide-item"><span class="aide-tag">🔓 Ouvrir</span> Cette personne peut assurer l'ouverture du magasin (arrivée à 7h45 ou 8h00).</div>
         <div class="aide-item"><span class="aide-tag">🔒 Fermer</span> Cette personne peut assurer la fermeture (départ à 19h30 ou 18h30 le samedi).</div>
         <div class="aide-item"><span class="aide-tag">🌿 Congés</span> Saisissez une date de début et de fin. Les heures de congé sont comptabilisées automatiquement dans le total semaine mais la personne n'est pas comptée dans les effectifs présents.</div>
@@ -507,12 +506,12 @@ window.onload=function(){
   curWeek=`${now.getFullYear()}-W${String(weekNum(now)).padStart(2,'0')}`;
   setWPickers(curWeek);updateWType();
   team=[
-    {name:'Corine',  hours:35,poste:'SA',      restDays:[1,6],samWeek:'A',   conges:[],canOpen:true, canClose:true },
-    {name:'Patricia',hours:35,poste:'VRAC',     restDays:[1,6],samWeek:'none',conges:[],canOpen:true, canClose:true },
-    {name:'Elian',   hours:30,poste:'BOISSON',  restDays:[1,6],samWeek:'A',   conges:[],canOpen:false,canClose:false},
-    {name:'Marie',   hours:35,poste:'GENERALE', restDays:[1,6],samWeek:'B',   conges:[],canOpen:false,canClose:true },
-    {name:'Laetane', hours:35,poste:'FEL',       restDays:[1,6],samWeek:'A',   conges:[],canOpen:true, canClose:true },
-    {name:'Mickael', hours:20,poste:'SA',        restDays:[1,2,3,6],samWeek:'none',conges:[],canOpen:false,canClose:true},
+    {name:'Corine',  hours:35,poste:'SA',      restDaysA:[1,5,6],restDaysB:[1,6],   conges:[],canOpen:true, canClose:true },
+    {name:'Patricia',hours:35,poste:'VRAC',     restDaysA:[1,6],  restDaysB:[1,6],  conges:[],canOpen:true, canClose:true },
+    {name:'Elian',   hours:30,poste:'BOISSON',  restDaysA:[1,5,6],restDaysB:[1,6],  conges:[],canOpen:false,canClose:false},
+    {name:'Marie',   hours:35,poste:'GENERALE', restDaysA:[1,6],  restDaysB:[1,5,6],conges:[],canOpen:false,canClose:true },
+    {name:'Laetane', hours:35,poste:'FEL',       restDaysA:[1,5,6],restDaysB:[1,6],  conges:[],canOpen:true, canClose:true },
+    {name:'Mickael', hours:20,poste:'SA',        restDaysA:[1,2,3,6],restDaysB:[1,2,3,6],conges:[],canOpen:false,canClose:true},
   ];
   document.getElementById('teamSize').value=team.length;
   document.getElementById('stepDisplay').textContent=team.length;
@@ -542,13 +541,39 @@ function stepTeam(d){
 function buildTeam(){
   const n=parseInt(document.getElementById('teamSize').value)||6;
   const old=team.slice();
-  team=Array.from({length:n},(_,i)=>old[i]||{name:`Employe ${i+1}`,hours:35,poste:'SA',restDays:[6],samWeek:'none',conges:[],canOpen:false,canClose:false});
+  team=Array.from({length:n},(_,i)=>old[i]||{name:`Employe ${i+1}`,hours:35,poste:'SA',restDaysA:[6],restDaysB:[6],conges:[],canOpen:false,canClose:false});
   updBadges();renderTeam();plan={};toast(`✓ Equipe de ${n} membres`);
 }
 function updBadges(){['tcBadge','tcBadge2'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=team.length;});}
 
+// Convertit les anciens formats de donnees vers le nouveau (deux grilles independantes de
+// jours de repos, une pour la semaine A et une pour la semaine B). Necessaire pour les
+// favoris sauvegardes avant cette mise a jour, quel que soit l'ancien format.
+function migrateEmpDays(emp){
+  if(emp.restDaysA && emp.restDaysB) return; // deja au bon format
+
+  // etape 1 (tres ancien format) : samWeek -> rotA/rotB
+  if(emp.rotA===undefined || emp.rotB===undefined){
+    var a=-1,b=-1;
+    if(emp.samWeek==='A') a=5;
+    else if(emp.samWeek==='B') b=5;
+    else if(emp.samWeek==='AB'){ if(emp.restDays && !emp.restDays.includes(5)) emp.restDays.push(5); }
+    emp.rotA=(emp.rotA!==undefined)?emp.rotA:a;
+    emp.rotB=(emp.rotB!==undefined)?emp.rotB:b;
+  }
+
+  // etape 2 : restDays (fixe) + rotA/rotB -> deux grilles independantes
+  var base=(emp.restDays||[6]).slice();
+  if(!base.includes(6)) base.push(6);
+  emp.restDaysA=base.slice();
+  emp.restDaysB=base.slice();
+  if(emp.rotA!==undefined && emp.rotA!==-1 && !emp.restDaysA.includes(emp.rotA)) emp.restDaysA.push(emp.rotA);
+  if(emp.rotB!==undefined && emp.rotB!==-1 && !emp.restDaysB.includes(emp.rotB)) emp.restDaysB.push(emp.rotB);
+}
+
 function renderTeam(){
   const el=document.getElementById('teamList');if(!el)return;
+  team.forEach(migrateEmpDays);
   el.innerHTML='';
   team.forEach((emp,i)=>{
     const d=document.createElement('div');d.className='emp-row';
@@ -567,22 +592,22 @@ function renderTeam(){
         </select>
       </div>
       <div>
-        <label style="margin-bottom:5px;">Jours de repos fixes</label>
+        <label style="margin-bottom:5px;">Jours de repos — semaine A</label>
         <div class="days-grid">
           ${DAYS.map((dd,di)=>`<div class="day-cb">
-            <input type="checkbox" ${emp.restDays.includes(di)?'checked':''} ${di===6?'disabled checked':''} onchange="toggleRest(${i},${di},this.checked)">
+            <input type="checkbox" ${emp.restDaysA.includes(di)?'checked':''} ${di===6?'disabled checked':''} onchange="toggleRestDay(${i},'A',${di},this.checked)">
             <span>${DS[di].slice(0,2)}</span>
           </div>`).join('')}
         </div>
       </div>
-      <div class="fld">
-        <label>Repos samedi (rotation)</label>
-        <select onchange="team[${i}].samWeek=this.value">
-          <option value="none" ${emp.samWeek==='none'?'selected':''}>Jamais repos sam.</option>
-          <option value="A" ${emp.samWeek==='A'?'selected':''}>Repos sam. sem. A</option>
-          <option value="B" ${emp.samWeek==='B'?'selected':''}>Repos sam. sem. B</option>
-          <option value="AB" ${emp.samWeek==='AB'?'selected':''}>Toujours repos sam.</option>
-        </select>
+      <div>
+        <label style="margin-bottom:5px;">Jours de repos — semaine B</label>
+        <div class="days-grid">
+          ${DAYS.map((dd,di)=>`<div class="day-cb">
+            <input type="checkbox" ${emp.restDaysB.includes(di)?'checked':''} ${di===6?'disabled checked':''} onchange="toggleRestDay(${i},'B',${di},this.checked)">
+            <span>${DS[di].slice(0,2)}</span>
+          </div>`).join('')}
+        </div>
       </div>
       <div class="cap-row">
         <label class="cap-lbl"><input type="checkbox" ${emp.canOpen?'checked':''} onchange="team[${i}].canOpen=this.checked"> 🔓 Ouvrir</label>
@@ -611,13 +636,21 @@ function renderCG(i){
 }
 function addConge(i){team[i].conges.push({from:'',to:''});document.getElementById(`cg-${i}`).innerHTML=renderCG(i);}
 function rmConge(i,ci){team[i].conges.splice(ci,1);document.getElementById(`cg-${i}`).innerHTML=renderCG(i);}
-function toggleRest(i,di,v){if(di===6)return;if(v){if(!team[i].restDays.includes(di))team[i].restDays.push(di);}else{team[i].restDays=team[i].restDays.filter(d=>d!==di);}}
+function toggleRestDay(i,week,di,v){
+  if(di===6)return;
+  const key=week==='A'?'restDaysA':'restDaysB';
+  if(v){ if(!team[i][key].includes(di)) team[i][key].push(di); }
+  else { team[i][key]=team[i][key].filter(d=>d!==di); }
+}
 
 // ═══ REST / CONGE ═══
 function isRest(emp,d){
-  if(d===6)return true;if(emp.restDays.includes(d))return true;
-  if(d===5){if(emp.samWeek==='AB')return true;if(emp.samWeek==='A'&&wType==='A')return true;if(emp.samWeek==='B'&&wType==='B')return true;}
-  return false;
+  if(d===6)return true;
+  // Deux grilles independantes de jours de repos, une par type de semaine (A ou B) — coche
+  // directement les jours voulus pour chaque semaine, exactement comme avant, mais x2.
+  if(!emp.restDaysA || !emp.restDaysB) migrateEmpDays(emp);
+  const list=(wType==='A')?emp.restDaysA:emp.restDaysB;
+  return list.includes(d);
 }
 function isConge(emp,d){
   if(!emp.conges?.length)return false;
