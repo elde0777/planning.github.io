@@ -716,6 +716,8 @@ function autoFill(){
   }
 
   // ═══ ETAPE 2 — placement des horaires (ouverture / fermeture / journee courante) ═══
+  var carryDebt={};   // heures en trop (minutes) a rembourser sur un jour suivant, par employe
+  var overlapCount={}; // nb de fois qu'une personne a deja ete mise en double role cette semaine (pour repartir la charge)
   for(var d=0; d<6; d++){
     var oM=toM(OPEN[d]), cM=toM(CLOSE[d]);
     if(!oM||!cM) continue;
@@ -727,23 +729,30 @@ function autoFill(){
     for(var i=0; i<team.length; i++) if(dailyNet[i] && dailyNet[i][d]!==undefined) working.push(i);
     if(!working.length) continue;
 
-    // Ouvreurs et fermeurs : on essaie de garder des personnes DIFFERENTES autant que possible
-    // (un doublon "ouvre ET ferme" oblige a etre present toute la journee, donc a depasser sa cible —
-    // on ne le fait qu'en dernier recours, quand il n'y a vraiment personne d'autre)
+    // Ouvreurs : priorite a ceux qui savent ouvrir, complete avec n'importe qui d'autre present
     var canO=working.filter(function(i){ return team[i].canOpen; });
     var openers=canO.slice(0,minO);
     if(openers.length<minO){
       var others=working.filter(function(i){ return openers.indexOf(i)<0; });
       openers=openers.concat(others.slice(0, minO-openers.length));
     }
+
+    // Fermeurs : priorite 1 = sait fermer (et n'ouvre pas deja) ; priorite 2 = N'IMPORTE QUI
+    // d'autre deja present ce jour-la (pas besoin de savoir fermer, seul compte le fait qu'au
+    // moins UNE personne qualifiee soit deja dans la liste) ; dernier recours seulement =
+    // reutiliser un ouvreur (cree un doublon ouverture+fermeture, journee complete pour cette
+    // personne). La charge est alors repartie en priorite sur ceux qui ont ete le MOINS souvent
+    // mis en double role cette semaine, pour ne pas toujours faire porter le poids sur la meme
+    // personne.
     var canC=working.filter(function(i){ return team[i].canClose && openers.indexOf(i)<0; });
     var closers=canC.slice(0,mClV);
     if(closers.length<mClV){
-      var others2=working.filter(function(i){ return team[i].canClose && closers.indexOf(i)<0; });
+      var others2=working.filter(function(i){ return openers.indexOf(i)<0 && closers.indexOf(i)<0; });
       closers=closers.concat(others2.slice(0, mClV-closers.length));
     }
     if(closers.length<mClV){
       var others3=working.filter(function(i){ return closers.indexOf(i)<0; });
+      others3.sort(function(a,b){ return (overlapCount[a]||0)-(overlapCount[b]||0); });
       closers=closers.concat(others3.slice(0, mClV-closers.length));
     }
 
@@ -752,15 +761,36 @@ function autoFill(){
 
     for(var wi=0; wi<working.length; wi++){
       var i=working[wi];
-      var net=dailyNet[i][d], pd=pauseDur[i][d];
-      var gross=Math.min(net+pd, dayLen); // ne depasse jamais l'amplitude du magasin ni la cible du contrat
+
+      // Rembourse d'abord une eventuelle "dette" laissee par un doublon ouverture+fermeture
+      // un jour precedent : les heures en trop sont retirees ici pour que le total hebdomadaire
+      // reste exact malgre la journee complete imposee ce jour-la.
+      var net=dailyNet[i][d];
+      if(carryDebt[i]>0){
+        var reduce=Math.min(carryDebt[i], net);
+        net-=reduce; carryDebt[i]-=reduce;
+      }
+      // La pause est TOUJOURS recalculee sur la duree reellement prevue ce jour-la (jamais figee,
+      // jamais supprimee) : tant que le poste depasse le seuil configure, la pause est obligatoire.
+      var pd=(net/60>noPH) ? r5(pMinH*60) : 0;
+
+      var gross=Math.min(net+pd, dayLen); // ne depasse jamais l'amplitude du magasin ni la cible du contrat (dette deduite)
       var isO=openers.indexOf(i)>=0, isC=closers.indexOf(i)>=0;
       var arr, dep;
 
       if(isO && isC){
-        // Doublon ouverture+fermeture : uniquement en dernier recours (equipe trop petite ce jour-la).
-        // On respecte quand meme le plafond "gross" — jamais d'amplitude complete forcee au-dela de la cible.
-        arr=oM; dep=r5(Math.min(cM, oM+gross));
+        // Doublon ouverture+fermeture : la personne DOIT etre presente aux deux bouts de journee
+        // (impossible autrement, elle est le seul lien entre l'ouverture et la fermeture ce jour-la).
+        // Amplitude complete du magasin, avec une pause dimensionnee sur cette duree REELLE
+        // (jamais annulee) ; le depassement d'heures que cela cree est retire d'un autre jour de
+        // sa semaine (carryDebt), et la charge est repartie sur toute l'equipe (overlapCount).
+        arr=oM; dep=cM;
+        var pdFull=(dayLen/60>noPH) ? r5(pMinH*60) : 0;
+        var actualNet=Math.max(0,(dep-arr)-pdFull);
+        var overage=r5(actualNet-net);
+        if(overage>0) carryDebt[i]=(carryDebt[i]||0)+overage;
+        overlapCount[i]=(overlapCount[i]||0)+1;
+        pd=pdFull;
       } else if(isO){
         arr=oM; dep=r5(Math.min(cM, oM+gross));
       } else if(isC){
@@ -775,6 +805,7 @@ function autoFill(){
         fIdx++;
       }
 
+      pauseDur[i][d]=pd; // pause recalculee ci-dessus sur la duree reelle du poste (jamais annulee)
       plan[i][d]={arrive:toT(arr), pauseS:null, pauseE:null, depart:toT(dep), repos:false, conge:false, annotation:''};
     }
   }
