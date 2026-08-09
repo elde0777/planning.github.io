@@ -1380,9 +1380,47 @@ function exportExcel(){
 function exportPDF(){
   const cur=document.querySelector('.pg.on');
   const isGantt=cur?.id==='pg-gantt';
-  if(isGantt&&!document.getElementById('ganttWrap')?.innerHTML?.trim()){toast("⚠ Generez dabord un planning");return;}
-  if(!isGantt&&!document.getElementById('tblWrap')?.innerHTML?.trim()){toast("⚠ Generez dabord un planning");return;}
+  const wrap=document.getElementById(isGantt?'ganttWrap':'tblWrap');
+  if(!wrap||!wrap.innerHTML.trim()){toast("⚠ Generez dabord un planning");return;}
+
+  // Remet a plat un eventuel reglage precedent avant de mesurer la taille reelle du contenu
+  wrap.style.transform='';
+  wrap.style.width='';
+  wrap.style.height='';
+  wrap.style.transformOrigin='';
+
+  const contentW=wrap.scrollWidth;
+  const contentH=wrap.scrollHeight;
+
+  // Boite cible approximative (A4, marges deduites a ~8mm de chaque cote, 96dpi) :
+  // le planning est tres large -> on vise un format paysage ; le gantt, demande en
+  // portrait par l'utilisateur -> on vise un format portrait. Dans les deux cas on ne
+  // fait QUE reduire (jamais agrandir), afin que tout tienne sur une seule page sans
+  // rien couper, quelle que soit l'orientation finalement choisie dans la boite de dialogue.
+  const pxPerMm=3.78;
+  const targetWmm=isGantt?190:277;
+  const targetHmm=isGantt?277:190;
+  const targetW=targetWmm*pxPerMm;
+  const targetH=targetHmm*pxPerMm;
+
+  const scale=Math.min(1, targetW/contentW, targetH/contentH);
+
+  if(scale<1){
+    wrap.style.transformOrigin='top left';
+    wrap.style.transform=`scale(${scale})`;
+    wrap.style.width=(contentW*scale)+'px';
+    wrap.style.height=(contentH*scale)+'px';
+  }
+
+  const reset=()=>{
+    wrap.style.transform='';
+    wrap.style.width='';
+    wrap.style.height='';
+    window.removeEventListener('afterprint', reset);
+  };
+  window.addEventListener('afterprint', reset);
   window.print();
+  setTimeout(reset, 4000); // filet de securite si "afterprint" ne se declenche pas (certains navigateurs iOS)
 }
 
 // ═══ UI ═══
@@ -1413,12 +1451,15 @@ function buildTimeOptions(sel){
   /* Masquer l'interface */
   .hdr,.tabs,.wbar,.hdr-utils,.hdr-row1,.hdr-row2{display:none!important;}
   body{background:#fff!important;color:#000!important;font-size:11px;}
-  .pg{display:flex!important;}
+  .pg{display:flex!important;min-height:0!important;}
   .pg:not(.on){display:none!important;}
+  .scroll-x,.scroll-body{overflow:visible!important;padding:0!important;}
 
   /* ── TABLE PLANNING ── */
-  .tbl-outer{overflow:visible!important;border:2px solid #333!important;border-radius:0!important;}
-  table.ptbl{width:100%!important;border-collapse:collapse!important;}
+  /* Pas de width:100% ici : la mise a l'echelle (transform:scale) est calculee en JS
+     sur la taille NATURELLE du contenu (voir exportPDF), donc on la laisse intacte. */
+  .tbl-outer{overflow:visible!important;border:2px solid #333!important;border-radius:0!important;display:inline-block;}
+  table.ptbl{border-collapse:collapse!important;}
   table.ptbl th,table.ptbl td{
     border:1.5px solid #444!important;
     padding:4px 5px!important;
@@ -1453,10 +1494,14 @@ function buildTimeOptions(sel){
   .clow{color:#cc0000!important;font-weight:700!important;}
 
   /* ── GANTT ── */
+  /* min-width supprime pour l'impression : la largeur naturelle du contenu sert de base
+     au calcul de mise a l'echelle JS, sans quoi elle fausserait la mesure et provoquerait
+     un decoupage/tuilage du contenu sur plusieurs blocs. */
+  #ganttWrap{display:inline-block;}
+  .g-grid{min-width:0!important;width:max-content!important;border:1.5px solid #333!important;}
   .g-day{page-break-inside:avoid!important;margin-bottom:14px!important;}
   .g-day-hdr h3{background:#f5a800!important;color:#000!important;font-size:11px!important;padding:3px 8px!important;}
   .g-total{color:#333!important;font-size:10px!important;}
-  .g-grid{border:1.5px solid #333!important;}
   .g-row{border-bottom:1px solid #999!important;}
   .g-name{background:#e8eef8!important;color:#000!important;font-size:10px!important;font-weight:700!important;border-right:1.5px solid #333!important;padding:3px 6px!important;}
   .g-line{background:#f8f8f8!important;border-right:1px solid #ccc!important;}
